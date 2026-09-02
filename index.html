@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V23.5 Table Scratch Pass 16 Pass 9 Reference Ratio Pass 3 — Selected Designs Full UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Poker Dealer Trainer V24.0 — Live Dealer Logic</title>
+<meta name="theme-color" content="#050a09" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
   :root{
     --bg:#0b0f0e;
@@ -4643,56 +4646,8 @@ body.visual-mode .action,body.audition-mode .action,.v235-app .nextup,.v235-app 
 </style>
 
 
-<style id="v235-seat-tuner-style">
-/* PASS 24 — Seat Layout Tuner (presentation-only) */
-#seatTunerToggle{
-  position:fixed;right:14px;top:88px;z-index:20050;
-  height:38px;padding:0 16px;border-radius:999px;
-  border:1px solid #b88b3e;background:linear-gradient(180deg,#17201d,#080d0c);
-  color:#f1cf70;font:800 12px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.38)
-}
-#seatTunerToggle:hover{filter:brightness(1.12)}
-#seatTunerPanel{
-  position:fixed;right:14px;top:136px;z-index:20049;width:370px;
-  max-height:calc(100vh - 154px);overflow:auto;display:none;
-  color:#f6f2e8;background:linear-gradient(180deg,rgba(12,18,17,.985),rgba(5,9,9,.99));
-  border:1px solid #8d6b31;border-radius:15px;box-shadow:0 20px 48px rgba(0,0,0,.58);
-  font-family:Arial,Helvetica,sans-serif
-}
-#seatTunerPanel.open{display:block}
-.seat-tuner-head{position:sticky;top:0;z-index:2;padding:14px 15px 12px;background:rgba(7,12,12,.98);border-bottom:1px solid #5c4724}
-.seat-tuner-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.seat-tuner-title strong{color:#e7c66c;font-size:14px;letter-spacing:.7px}
-.seat-tuner-close{width:29px;height:29px;border-radius:50%;border:1px solid #675027;background:#111817;color:#eac96f;cursor:pointer;font-weight:900}
-.seat-tuner-help{margin-top:6px;color:#aab6b0;font-size:10px;line-height:1.35}
-.seat-tuner-seats{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}
-.seat-tuner-seat-btn{height:31px;border-radius:8px;border:1px solid #3c4a45;background:#0c1211;color:#d8dfdb;cursor:pointer;font-weight:900}
-.seat-tuner-seat-btn.active{border-color:#d1a64e;background:#2b2212;color:#f5d574;box-shadow:inset 0 0 0 1px rgba(255,220,125,.18)}
-.seat-tuner-body{padding:12px 14px 15px}
-.seat-tuner-section{padding:11px 0 12px;border-bottom:1px solid #28332f}
-.seat-tuner-section:last-of-type{border-bottom:0}
-.seat-tuner-section h4{margin:0 0 9px;color:#dcb85c;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-.seat-tuner-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.seat-tuner-field{display:grid;grid-template-columns:1fr 83px;align-items:center;gap:7px;padding:6px 7px;border:1px solid #273530;border-radius:9px;background:#08100e}
-.seat-tuner-field label{margin:0;color:#c5cfca;font-size:10px;line-height:1.2}
-.seat-tuner-field input{width:83px!important;height:31px!important;margin:0!important;padding:5px 7px!important;border:1px solid #45534d!important;border-radius:7px!important;background:#050908!important;color:#fff!important;text-align:right!important;font-size:12px!important}
-.seat-tuner-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
-.seat-tuner-actions button{min-height:37px;border-radius:9px;border:1px solid #45534c;background:#121a17;color:#f2eee2;font-weight:800;font-size:10px;cursor:pointer;letter-spacing:.35px}
-.seat-tuner-actions button.primary{border-color:#bd9142;background:linear-gradient(180deg,#dfbd67,#aa7d31);color:#171006}
-.seat-tuner-actions button.warn{border-color:#7c5231;background:#2a1810;color:#f0c7a7}
-#seatTunerStatus{margin-top:10px;min-height:17px;color:#9ecf93;font-size:10px;text-align:center}
-.seat-tuner-highlight .pro-seat-card{box-shadow:0 0 0 2px #f0c95e,0 0 25px rgba(235,195,75,.38),0 9px 17px rgba(0,0,0,.5)!important}
-.casino-chair.seat-tuner-highlight{filter:drop-shadow(0 0 9px rgba(239,198,81,.78)) drop-shadow(0 17px 15px rgba(0,0,0,.7))!important}
-@media(max-width:700px){#seatTunerPanel{width:calc(100vw - 20px);right:10px;top:128px}.seat-tuner-grid{grid-template-columns:1fr}#seatTunerToggle{right:10px}}
-</style>
 
 
-<style id="pass27-seat-tuner-click-fix">
-#seatTunerPanel,#seatTunerPanel *{pointer-events:auto!important}
-.seat-tuner-seats{position:relative!important;z-index:20!important}
-.seat-tuner-seat-btn{position:relative!important;z-index:21!important;touch-action:manipulation!important;user-select:none!important}
-</style>
 
 
 <style id="template3-dark-luxury-pass29">
@@ -4786,7 +4741,6 @@ body.audition-mode .v235-app .table,
 .v235-app .visual-status{display:none!important}
 .v235-app .pot-controls,.v235-app .reveal-note{display:none!important}
 .v235-blinds-box{z-index:25!important}
-#seatTunerToggle,#seatTunerPanel{z-index:250!important}
 @media(max-width:1200px){
   body.visual-mode .v235-app .table,body.audition-mode .v235-app .table,.v235-app .table{width:100%!important;max-width:none!important}
 }
@@ -4794,7 +4748,7 @@ body.audition-mode .v235-app .table,
 
 
 <style id="pass40-poker-chip-nameplate-skin">
-/* PASS 40 — Option 3: Poker Chip Style nameplates. Position/rotation remain controlled only by the existing tuner. */
+/* PASS 40 — Option 3: Poker Chip Style nameplates. Position/rotation remain controlled by the developer-approved layout runtime. */
 .v235-app .visual-seat.dynamic-seat{
   width:170px!important;
   min-height:62px!important;
@@ -5182,6 +5136,8 @@ body.audition-mode .v235-app .table,
 }
 </style>
 
+
+
 </head>
 <body>
 
@@ -5496,7 +5452,7 @@ body.audition-mode .v235-app .table,
       </div>
 
       <section class="v23-panel" id="v23RulesPanel">
-        <div class="v23-title">V23 NLH CORE</div>
+        <div class="v23-title">V24 LIVE DEALER LOGIC</div>
         <div class="v23-grid">
           <div><span>Betting Status</span><b id="reopenStatus">OPEN</b></div>
           <div><span>Last Full Raise</span><b id="lastFullRaiseDisplay">$2</b></div>
@@ -5571,7 +5527,7 @@ body.audition-mode .v235-app .table,
             <div class="scorebox"><span class="tiny">Accuracy</span><b id="accuracy">—</b></div>
           </div>
           <div class="tiny" style="margin-top:12px">
-            V23 focuses on $1/$2 NLH: raise/re-opening math, short all-ins, side pots, action order, pot tracking and dealer procedure.
+            V24 focuses on $1/$2 NLH: all-in accounting, main/side pots, split pots, raise/re-opening math, action order, pot tracking and dealer procedure.
           </div>
         </section>
       </div>
@@ -6224,7 +6180,7 @@ function chooseGame(key){
   }else if(cfg.mode==="PL"){
     $("structureInfo").textContent="Pot Limit: bets/raises cannot exceed the legal size of the pot. The trainer calculates the max internally.";
   }else{
-    $("structureInfo").textContent="V23 NLH: full raises, incomplete all-in raises, cumulative reopening, side pots and action-order procedure are actively tracked.";
+    $("structureInfo").textContent="V24 NLH: full/short raises, cumulative reopening, all-in calls, folded dead money, main/side pots and split-pot payouts are actively tracked.";
   }
 
   if(cfg.drop==="TIME"){
@@ -8648,7 +8604,7 @@ renderPlayers();
     real:'Real Table Mode: use your physical chip stacks. The trainer announces one action at a time so you can physically pull chips, track the pot, rake and jackpot, and practice dealer procedure.',
     visual:'Visual Dealer Mode: the table shows stacks, in-front bets, hole cards, board cards, burns, folds and showdown so you can practice reading the entire table.',
     audition:'Audition Mode: scored practice with mistakes and accuracy tracking. The more advanced timed audition system remains planned for V25.',
-    tda:'TDA reminders in V23 include minimum full raises, short all-ins, cumulative reopening, correct action order, action out of turn and call-the-floor situations.',
+    tda:'TDA reminders in V24 include minimum full raises, short all-ins, cumulative reopening, correct action order, action out of turn and call-the-floor situations.',
     procedure:'Dealer procedure focus: protect the action, know who acts next, collect completed bets, track the locked pot, handle uncontested wins correctly, and pause irregular action for the floor when required.',
     drop:'$1/$2 NLH room drop: rake $1 under $10, $2 at $10–19, $3 at $20–29, $4 at $30–39, $5 at $40–49, $6 max at $50+. Jackpot is $0 under $10, $2 at $10–19 and $3 max at $20+.'
   };
@@ -9088,7 +9044,7 @@ renderPlayers();
 
   function snapshotStreetBets(){
     const t=tableRect();
-    if(!t || !window.state) return [];
+    if(!t || !state) return [];
     const out=[];
     state.players.forEach((p,i)=>{
       if(!(p && p.streetBet>0)) return;
@@ -9133,7 +9089,7 @@ renderPlayers();
 
   function syncPotPresentation(){
     ensureCenterPotUI();
-    if(!window.state){
+    if(!state){
       prevStreetBetSum=0; prevLockedPot=0; lastBetSnapshots=[]; buildCenterPotPile(0); return;
     }
     const streetSum=state.players.reduce((sum,p)=>sum + (p.streetBet||0), 0);
@@ -9161,7 +9117,7 @@ renderPlayers();
   patch('resetVisualTable', (original)=>function(){
     const result=original.apply(this, arguments);
     prevStreetBetSum=0;
-    prevLockedPot=window.state ? Math.max(0, Number(state.pot)||0) : 0;
+    prevLockedPot=state ? Math.max(0, Number(state.pot)||0) : 0;
     lastBetSnapshots=[];
     ensureCenterPotUI();
     buildCenterPotPile(prevLockedPot);
@@ -9199,634 +9155,141 @@ renderPlayers();
 </script>
 
 
-<button id="seatTunerToggle" type="button">SEAT TUNER</button>
-<div id="seatTunerPanel" aria-hidden="true">
-  <div class="seat-tuner-head">
-    <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
-    <div class="seat-tuner-help">Changes happen live. X: smaller = left, larger = right. Y: smaller = up, larger = down. Select a seat, adjust it, then save.</div>
-    <div class="seat-tuner-seats" id="seatTunerSeatButtons"></div>
-  </div>
-  <div class="seat-tuner-body">
-    <div class="seat-tuner-section">
-      <h4>Nameplate / Seat Anchor</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Nameplate X (%)</label><input id="stSeatX" type="number" step="1" min="-20" max="120"></div>
-        <div class="seat-tuner-field"><label>Nameplate Y (%)</label><input id="stSeatY" type="number" step="1" min="-30" max="140"></div>
-        <div class="seat-tuner-field"><label>Nameplate Rotation (°)</label><input id="stNameplateRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Chair</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Chair X (%)</label><input id="stChairX" type="number" step="1" min="-30" max="130"></div>
-        <div class="seat-tuner-field"><label>Chair Y (%)</label><input id="stChairY" type="number" step="1" min="-40" max="150"></div>
-        <div class="seat-tuner-field"><label>Chair Size (%)</label><input id="stChairScale" type="number" step="1" min="35" max="180"></div>
-        <div class="seat-tuner-field"><label>Chair Rotation (°) — -360 to 360</label><input id="stChairRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Hole Cards — offset from nameplate</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Cards X (px)</label><input id="stCardsX" type="number" step="1" min="-260" max="260"></div>
-        <div class="seat-tuner-field"><label>Cards Y (px)</label><input id="stCardsY" type="number" step="1" min="-180" max="180"></div>
-        <div class="seat-tuner-field"><label>Cards Rotation (°)</label><input id="stCardsRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Bet / Chips — offset from nameplate</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Bet X (px)</label><input id="stBetX" type="number" step="1" min="-2000" max="2000"></div>
-        <div class="seat-tuner-field"><label>Bet Y (px)</label><input id="stBetY" type="number" step="1" min="-2000" max="2000"></div>
-        <div class="seat-tuner-field"><label>Bet / Chips Rotation (°)</label><input id="stBetRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>Bet / Chips Size (%) — ALL SEATS</label><input id="stBetScale" type="number" step="1" min="25" max="400" value="75"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>D / SB / BB Markers — offset from selected nameplate</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Positions and rotations are saved per seat. Button size is GLOBAL: changing it once resizes D, SB, and BB together at every seat.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>D X (px)</label><input id="stDX" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>D Y (px)</label><input id="stDY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>D Rotation (°)</label><input id="stDRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>SB X (px)</label><input id="stSBX" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>SB Y (px)</label><input id="stSBY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>SB Rotation (°)</label><input id="stSBRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>BB X (px)</label><input id="stBBX" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>BB Y (px)</label><input id="stBBY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>BB Rotation (°)</label><input id="stBBRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>D / SB / BB Size (%) — ALL BUTTONS</label><input id="stMarkerScale" type="number" step="1" min="25" max="400" value="70"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Community Cards — global table positions</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Flop moves all three flop cards together. Use Flop Gap to bring the 3 flop cards closer together or farther apart independently of card size. Turn and River move separately. The BURN label and burn cards are hidden from the table.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Community Card Size (%)</label><input id="stCommunityScale" type="number" step="1" min="25" max="300" value="100"></div>
-        <div class="seat-tuner-field"><label>Flop Gap Between Cards (px)</label><input id="stFlopGap" type="number" step="1" min="-40" max="200" value="25"></div>
-        <div class="seat-tuner-field"><label>Flop X (px)</label><input id="stFlopX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>Flop Y (px)</label><input id="stFlopY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Flop Rotation (°)</label><input id="stFlopRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>Turn X (px)</label><input id="stTurnX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>Turn Y (px)</label><input id="stTurnY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Turn Rotation (°)</label><input id="stTurnRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>River X (px)</label><input id="stRiverX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>River Y (px)</label><input id="stRiverY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>River Rotation (°)</label><input id="stRiverRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Global Nameplate Elements — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Adjust these once. Every player nameplate uses the same money and seat-circle offsets.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Money X Offset (px)</label><input id="stMoneyX" type="number" step="1" min="-120" max="120" value="0"></div>
-        <div class="seat-tuner-field"><label>Money Y Offset (px)</label><input id="stMoneyY" type="number" step="1" min="-80" max="80" value="0"></div>
-        <div class="seat-tuner-field"><label>Money Rotation (°)</label><input id="stMoneyRot" type="number" step="1" min="-360" max="360" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle X Offset (px)</label><input id="stCircleX" type="number" step="1" min="-120" max="120" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle Y Offset (px)</label><input id="stCircleY" type="number" step="1" min="-80" max="80" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle Rotation (°)</label><input id="stCircleRot" type="number" step="1" min="-360" max="360" value="0"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Nameplate Inner Background — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">This moves/resizes only the black patterned background INSIDE the poker-chip border. The nameplate X/Y, rotation, border, player name, money, cards, bets and buttons do not move.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Background X (px)</label><input id="stPlateBgX" type="number" step="1" min="-100" max="100" value="0"></div>
-        <div class="seat-tuner-field"><label>Background Y (px)</label><input id="stPlateBgY" type="number" step="1" min="-100" max="100" value="0"></div>
-        <div class="seat-tuner-field"><label>Background Width (%)</label><input id="stPlateBgScaleX" type="number" step="1" min="25" max="200" value="100"></div>
-        <div class="seat-tuner-field"><label>Background Height (%)</label><input id="stPlateBgScaleY" type="number" step="1" min="25" max="200" value="100"></div>
-        <div class="seat-tuner-field"><label>Background Rotation (°)</label><input id="stPlateBgRot" type="number" step="1" min="-360" max="360" value="0"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateBgReset" type="button">RESET NAMEPLATE BACKGROUND</button></div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Nameplate Appearance — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">These change only the visual size of the poker-chip edge, player name, and money text. They do not change seat X/Y, nameplate rotation, money X/Y, cards, bets, or buttons.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px)</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="20" value="6"></div>
-        <div class="seat-tuner-field"><label>Player Name Size (px)</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="17"></div>
-        <div class="seat-tuner-field"><label>Money Size (px)</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="16"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateAppearanceReset" type="button">RESET NAMEPLATE APPEARANCE</button></div>
-    </div>
-    <div class="seat-tuner-actions">
-      <button id="seatTunerSave" class="primary" type="button">SAVE LAYOUT</button>
-      <button id="seatTunerCopy" type="button">COPY COORDINATES</button>
-      <button id="seatTunerDownload" type="button">DOWNLOAD LAYOUT NOTE (.TXT)</button>
-      <button id="seatTunerResetSeat" class="warn" type="button">RESET THIS SEAT</button>
-      <button id="seatTunerResetAll" class="warn" type="button">RESET ALL SEATS</button>
-    </div>
-    <div id="seatTunerStatus"></div>
-  </div>
-</div>
-
-
-<script>
+<script id="v2413-public-locked-layout-runtime">
 (function(){
-  if(window.__v235SeatTunerLoaded) return;
-  window.__v235SeatTunerLoaded=true;
+  'use strict';
+  /* PUBLIC BUILD: finalized layout runtime only. No public layout editor, editing controls,
+     browser layout storage, coordinate export, or reset UI is shipped here. */
+  const LAYOUT={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
+  const GLOBAL={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
+  const SCENE={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
+  const CARD_X_COMP=-6;
 
-  const STORAGE_KEY='v235-seat-layout-template3-pass48';
-  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-template3-pass48';
-  const SCENE_STORAGE_KEY='v235-scene-layout-template3-pass48';
-  let selectedSeat=1;
-  let baseline={};
-  const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
-  let layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
-  let initialized=false;
-  let dirty=false;
-  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
-  let globalLayout={...GLOBAL_DEFAULTS};
-  const SCENE_DEFAULTS={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
-  let sceneLayout={...SCENE_DEFAULTS};
-
-  const $id=id=>document.getElementById(id);
-  const fields=['seatX','seatY','nameplateRot','chairX','chairY','chairScale','chairRot','cardsX','cardsY','cardsRot','betX','betY','betRot','dX','dY','dRot','sbX','sbY','sbRot','bbX','bbY','bbRot'];
-  const ids={seatX:'stSeatX',seatY:'stSeatY',nameplateRot:'stNameplateRot',chairX:'stChairX',chairY:'stChairY',chairScale:'stChairScale',chairRot:'stChairRot',cardsX:'stCardsX',cardsY:'stCardsY',cardsRot:'stCardsRot',betX:'stBetX',betY:'stBetY',betRot:'stBetRot',dX:'stDX',dY:'stDY',dRot:'stDRot',sbX:'stSBX',sbY:'stSBY',sbRot:'stSBRot',bbX:'stBBX',bbY:'stBBY',bbRot:'stBBRot'};
-  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateEdgeSize','plateNameSize','plateMoneySize'];
-  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
-  const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot'];
-  const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot'};
-
-  function round(n,places=2){const p=10**places;return Math.round((Number(n)||0)*p)/p;}
-  function parseTransform(el){
-    const t=getComputedStyle(el).transform;
-    if(!t || t==='none') return {scale:1,rot:0};
-    try{
-      const m=new DOMMatrix(t);
-      return {scale:round(Math.sqrt(m.a*m.a+m.b*m.b),3),rot:round(Math.atan2(m.b,m.a)*180/Math.PI,1)};
-    }catch(e){return {scale:1,rot:0};}
-  }
-  function pxPercent(value,total){return total?round((value/total)*100,2):0;}
   function seatEl(n){return document.querySelector(`.visual-seat.vpos${n-1}`);}
-  function chairEl(n){return document.querySelector(`.chair-seat${n}`);}
-
-  function captureSeat(n){
-    const seat=seatEl(n), chair=chairEl(n), table=document.querySelector('.table'), layer=document.querySelector('.casino-chair-layer');
-    if(!seat || !chair || !table || !layer) return null;
-    const sc=getComputedStyle(seat), cc=getComputedStyle(chair);
-    const seatRect=seat.getBoundingClientRect();
-    const nameplate=seat.querySelector('.pro-seat-card');
-    const hand=seat.querySelector('.seat-hand');
-    const bet=seat.querySelector('.visual-bet');
-    const handRect=hand?.getBoundingClientRect();
-    const betRect=bet?.getBoundingClientRect();
-    const centerX=seatRect.left+seatRect.width/2, centerY=seatRect.top+seatRect.height/2;
-    const ct=parseTransform(chair), nt=nameplate?parseTransform(nameplate):{rot:0}, ht=hand?parseTransform(hand):{rot:0}, bt=bet?parseTransform(bet):{rot:0};
-    return {
-      seatX:pxPercent(parseFloat(sc.left),table.clientWidth),
-      seatY:pxPercent(parseFloat(sc.top),table.clientHeight),
-      nameplateRot:nt.rot||0,
-      chairX:pxPercent(parseFloat(cc.left),layer.clientWidth),
-      chairY:pxPercent(parseFloat(cc.top),layer.clientHeight),
-      chairScale:ct.scale,chairRot:ct.rot,
-      cardsX:handRect?round(handRect.left+handRect.width/2-centerX,1):0,
-      cardsY:handRect?round(handRect.top+handRect.height/2-centerY,1):0,
-      cardsRot:ht.rot||0,
-      betX:betRect?round(betRect.left+betRect.width/2-centerX,1):0,
-      betY:betRect?round(betRect.top+betRect.height/2-centerY,1):0,
-      betRot:bt.rot||0,
-      dX:0,dY:90,dRot:0,dScale:1,
-      sbX:38,sbY:90,sbRot:0,sbScale:1,
-      bbX:76,bbY:90,bbRot:0,bbScale:1
-    };
-  }
-
-  function copyObj(obj){return JSON.parse(JSON.stringify(obj));}
-  function captureBaseline(){
-    let captured=0;
-    for(let n=1;n<=8;n++){
-      const x=captureSeat(n);
-      if(x){
-        if(!baseline[n]) baseline[n]=x;
-        if(!layout[n]) layout[n]=copyObj(x);
-        captured++;
-      }
-    }
-    return captured>0;
-  }
 
   function applySeat(n,data){
     if(!data) return;
-    const seat=seatEl(n), chair=chairEl(n);
-    if(seat){
-      seat.style.setProperty('left',`${data.seatX}%`,'important');
-      seat.style.setProperty('top',`${data.seatY}%`,'important');
-      seat.style.setProperty('right','auto','important');
-      seat.style.setProperty('bottom','auto','important');
-      seat.style.setProperty('transform','translate(-50%,-50%)','important');
-      const nameplate=seat.querySelector('.pro-seat-card');
-      if(nameplate){
-        nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');
-        nameplate.style.setProperty('transform-origin','50% 50%','important');
-      }
-      const hand=seat.querySelector('.seat-hand');
-      if(hand){
-        hand.style.setProperty('left','50%','important');
-        hand.style.setProperty('right','auto','important');
-        hand.style.setProperty('top','50%','important');
-        hand.style.setProperty('bottom','auto','important');
-        hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg)`,'important');
-      }
-      const bet=seat.querySelector('.visual-bet');
-      if(bet){
-        bet.style.setProperty('left','50%','important');
-        bet.style.setProperty('right','auto','important');
-        bet.style.setProperty('top','50%','important');
-        bet.style.setProperty('bottom','auto','important');
-        bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX}px),calc(-50% + ${data.betY}px)) rotate(${data.betRot||0}deg) scale(${globalLayout.betScale||1})`,'important');
-        bet.style.setProperty('transform-origin','50% 50%','important');
-      }
-      const markerMap=[
-        ['.seat-marker-d','dX','dY','dRot','dScale'],
-        ['.seat-marker-sb','sbX','sbY','sbRot','sbScale'],
-        ['.seat-marker-bb','bbX','bbY','bbRot','bbScale']
-      ];
-      markerMap.forEach(([selector,xk,yk,rk,sk])=>{
-        const marker=seat.querySelector(selector);
-        if(!marker)return;
-        marker.style.setProperty('left','50%','important');
-        marker.style.setProperty('top','50%','important');
-        marker.style.setProperty('right','auto','important');
-        marker.style.setProperty('bottom','auto','important');
-        marker.style.setProperty('transform',`translate(calc(-50% + ${data[xk]||0}px),calc(-50% + ${data[yk]||0}px)) rotate(${data[rk]||0}deg) scale(${globalLayout.markerScale||1})`,'important');
-      });
+    const seat=seatEl(n);
+    if(!seat) return;
+    seat.style.setProperty('left',`${data.seatX}%`,'important');
+    seat.style.setProperty('top',`${data.seatY}%`,'important');
+    seat.style.setProperty('right','auto','important');
+    seat.style.setProperty('bottom','auto','important');
+    seat.style.setProperty('transform','translate(-50%,-50%)','important');
+    const nameplate=seat.querySelector('.pro-seat-card');
+    if(nameplate){
+      nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');
+      nameplate.style.setProperty('transform-origin','50% 50%','important');
     }
-    if(chair){
-      chair.style.setProperty('left',`${data.chairX}%`,'important');
-      chair.style.setProperty('top',`${data.chairY}%`,'important');
-      chair.style.setProperty('right','auto','important');
-      chair.style.setProperty('bottom','auto','important');
-      chair.style.setProperty('transform',`translate(-50%,-50%) rotate(${data.chairRot||0}deg) scale(${data.chairScale||1})`,'important');
+    const hand=seat.querySelector('.seat-hand');
+    if(hand){
+      const cardX=(Number(data.cardsX)||0)+CARD_X_COMP;
+      const cardY=(Number(data.cardsY)||0);
+      hand.style.setProperty('left','50%','important');
+      hand.style.setProperty('right','auto','important');
+      hand.style.setProperty('top','50%','important');
+      hand.style.setProperty('bottom','auto','important');
+      hand.style.setProperty('transform',`translate(calc(-50% + ${cardX}px),calc(-50% + ${cardY}px)) rotate(${data.cardsRot||0}deg)`,'important');
+      hand.style.setProperty('transform-origin','50% 50%','important');
     }
+    const bet=seat.querySelector('.visual-bet');
+    if(bet){
+      bet.style.setProperty('left','50%','important');
+      bet.style.setProperty('right','auto','important');
+      bet.style.setProperty('top','50%','important');
+      bet.style.setProperty('bottom','auto','important');
+      bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX||0}px),calc(-50% + ${data.betY||0}px)) rotate(${data.betRot||0}deg) scale(${GLOBAL.betScale||1})`,'important');
+      bet.style.setProperty('transform-origin','50% 50%','important');
+    }
+    [
+      ['.seat-marker-d','dX','dY','dRot'],
+      ['.seat-marker-sb','sbX','sbY','sbRot'],
+      ['.seat-marker-bb','bbX','bbY','bbRot']
+    ].forEach(([selector,xk,yk,rk])=>{
+      const marker=seat.querySelector(selector); if(!marker) return;
+      marker.style.setProperty('left','50%','important');
+      marker.style.setProperty('top','50%','important');
+      marker.style.setProperty('right','auto','important');
+      marker.style.setProperty('bottom','auto','important');
+      marker.style.setProperty('transform',`translate(calc(-50% + ${data[xk]||0}px),calc(-50% + ${data[yk]||0}px)) rotate(${data[rk]||0}deg) scale(${GLOBAL.markerScale||1})`,'important');
+    });
   }
-  function applyGlobalElements(){
+
+  function applyGlobal(){
     document.querySelectorAll('.visual-seat .pro-seat-card.poker-chip-nameplate').forEach(el=>{
-      el.style.setProperty('--chip-bg-x',`${globalLayout.plateBgX||0}px`);
-      el.style.setProperty('--chip-bg-y',`${globalLayout.plateBgY||0}px`);
-      el.style.setProperty('--chip-bg-scale-x',`${globalLayout.plateBgScaleX||1}`);
-      el.style.setProperty('--chip-bg-scale-y',`${globalLayout.plateBgScaleY||1}`);
-      el.style.setProperty('--chip-bg-rot',`${globalLayout.plateBgRot||0}deg`);
-      el.style.setProperty('--chip-edge-size',`${Number.isFinite(Number(globalLayout.plateEdgeSize))?globalLayout.plateEdgeSize:6}px`);
-      el.style.setProperty('--chip-name-size',`${Number.isFinite(Number(globalLayout.plateNameSize))?globalLayout.plateNameSize:17}px`);
-      el.style.setProperty('--chip-money-size',`${Number.isFinite(Number(globalLayout.plateMoneySize))?globalLayout.plateMoneySize:16}px`);
+      el.style.setProperty('--chip-bg-x',`${GLOBAL.plateBgX||0}px`);
+      el.style.setProperty('--chip-bg-y',`${GLOBAL.plateBgY||0}px`);
+      el.style.setProperty('--chip-bg-scale-x',`${GLOBAL.plateBgScaleX||1}`);
+      el.style.setProperty('--chip-bg-scale-y',`${GLOBAL.plateBgScaleY||1}`);
+      el.style.setProperty('--chip-bg-rot',`${GLOBAL.plateBgRot||0}deg`);
+      el.style.setProperty('--chip-edge-size',`${Number.isFinite(Number(GLOBAL.plateEdgeSize))?GLOBAL.plateEdgeSize:6}px`);
+      el.style.setProperty('--chip-name-size',`${Number.isFinite(Number(GLOBAL.plateNameSize))?GLOBAL.plateNameSize:17}px`);
+      el.style.setProperty('--chip-money-size',`${Number.isFinite(Number(GLOBAL.plateMoneySize))?GLOBAL.plateMoneySize:16}px`);
     });
     document.querySelectorAll('.visual-seat .visual-stack').forEach(el=>{
-      el.style.setProperty('transform',`translate(${globalLayout.moneyX||0}px, ${globalLayout.moneyY||0}px) rotate(${globalLayout.moneyRot||0}deg)`,'important');
+      el.style.setProperty('transform',`translate(${GLOBAL.moneyX||0}px, ${GLOBAL.moneyY||0}px) rotate(${GLOBAL.moneyRot||0}deg)`,'important');
       el.style.setProperty('transform-origin','left center','important');
     });
     document.querySelectorAll('.visual-seat .pro-seat-number').forEach(el=>{
-      el.style.setProperty('transform',`translate(${globalLayout.circleX||0}px, calc(-50% + ${globalLayout.circleY||0}px)) rotate(${globalLayout.circleRot||0}deg)`,'important');
+      el.style.setProperty('transform',`translate(${GLOBAL.circleX||0}px, calc(-50% + ${GLOBAL.circleY||0}px)) rotate(${GLOBAL.circleRot||0}deg)`,'important');
       el.style.setProperty('transform-origin','50% 50%','important');
     });
   }
-  function applySceneElements(){
+
+  function applyScene(){
     const zone=document.querySelector('.v235-app .board-zone');
     const board=document.getElementById('boardCards');
     if(zone){
-      zone.style.setProperty('left','50%','important');
-      zone.style.setProperty('top','50%','important');
-      zone.style.setProperty('width','0','important');
-      zone.style.setProperty('height','0','important');
-      zone.style.setProperty('min-width','0','important');
-      zone.style.setProperty('padding','0','important');
-      zone.style.setProperty('transform','none','important');
-      zone.style.setProperty('overflow','visible','important');
+      zone.style.setProperty('left','50%','important'); zone.style.setProperty('top','50%','important');
+      zone.style.setProperty('width','0','important'); zone.style.setProperty('height','0','important');
+      zone.style.setProperty('min-width','0','important'); zone.style.setProperty('padding','0','important');
+      zone.style.setProperty('transform','none','important'); zone.style.setProperty('overflow','visible','important');
     }
     if(board){
-      board.style.setProperty('position','absolute','important');
-      board.style.setProperty('left','0','important');
-      board.style.setProperty('top','0','important');
-      board.style.setProperty('width','0','important');
-      board.style.setProperty('height','0','important');
-      board.style.setProperty('display','block','important');
+      board.style.setProperty('position','absolute','important'); board.style.setProperty('left','0','important');
+      board.style.setProperty('top','0','important'); board.style.setProperty('width','0','important');
+      board.style.setProperty('height','0','important'); board.style.setProperty('display','block','important');
       board.style.setProperty('overflow','visible','important');
       const cards=[...board.children];
-      const rad=(sceneLayout.flopRot||0)*Math.PI/180;
-      const c=Math.cos(rad),s=Math.sin(rad);
-      // Flop spacing is an EDGE-TO-EDGE gap. As card size changes, the three flop cards
-      // automatically move closer/farther while preserving the selected visible gap.
+      const rad=(SCENE.flopRot||0)*Math.PI/180, c=Math.cos(rad), s=Math.sin(rad);
       const baseCardWidth=(cards[0]?.offsetWidth||54);
-      const gap=(baseCardWidth*(sceneLayout.communityScale||1))+(sceneLayout.flopGap??25);
+      const gap=(baseCardWidth*(SCENE.communityScale||1))+(SCENE.flopGap??25);
       cards.forEach((card,i)=>{
         let x=0,y=0,r=0;
-        if(i<3){const dx=(i-1)*gap;x=(sceneLayout.flopX||0)+dx*c;y=(sceneLayout.flopY||0)+dx*s;r=sceneLayout.flopRot||0;}
-        else if(i===3){x=sceneLayout.turnX||0;y=sceneLayout.turnY||0;r=sceneLayout.turnRot||0;}
-        else{x=sceneLayout.riverX||0;y=sceneLayout.riverY||0;r=sceneLayout.riverRot||0;}
-        card.style.setProperty('position','absolute','important');
-        card.style.setProperty('left',`${x}px`,'important');
-        card.style.setProperty('top',`${y}px`,'important');
-        card.style.setProperty('translate','-50% -50%','important');
-        card.style.setProperty('rotate',`${r}deg`,'important');
-        card.style.setProperty('scale',`${sceneLayout.communityScale||1}`,'important');
+        if(i<3){const dx=(i-1)*gap;x=(SCENE.flopX||0)+dx*c;y=(SCENE.flopY||0)+dx*s;r=SCENE.flopRot||0;}
+        else if(i===3){x=SCENE.turnX||0;y=SCENE.turnY||0;r=SCENE.turnRot||0;}
+        else{x=SCENE.riverX||0;y=SCENE.riverY||0;r=SCENE.riverRot||0;}
+        card.style.setProperty('position','absolute','important'); card.style.setProperty('left',`${x}px`,'important');
+        card.style.setProperty('top',`${y}px`,'important'); card.style.setProperty('translate','-50% -50%','important');
+        card.style.setProperty('rotate',`${r}deg`,'important'); card.style.setProperty('scale',`${SCENE.communityScale||1}`,'important');
         card.style.setProperty('transform-origin','50% 50%','important');
       });
     }
     const burn=document.querySelector('.v235-app .burn-zone');
-    if(burn){
-      burn.style.setProperty('display','none','important');
-      burn.setAttribute('aria-hidden','true');
-    }
-  }
-  function applyAll(){Object.keys(layout).forEach(k=>applySeat(Number(k),layout[k]));applyGlobalElements();applySceneElements();highlight();}
-
-  function readStored(){
-    try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
-  }
-  function readGlobalStored(){
-    try{const raw=localStorage.getItem(GLOBAL_STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
-  }
-  function readSceneStored(){
-    try{const raw=localStorage.getItem(SCENE_STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
-  }
-  function saveStored(){
-    try{
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(layout));
-      localStorage.setItem(GLOBAL_STORAGE_KEY,JSON.stringify(globalLayout));
-      localStorage.setItem(SCENE_STORAGE_KEY,JSON.stringify(sceneLayout));
-      status('Full layout saved in this browser. Use DOWNLOAD LAYOUT NOTE to send every setting back to me in one file.');dirty=false;return true;
-    }catch(e){status('Layout applied, but browser storage is unavailable.');return false;}
-  }
-  function status(msg){const el=$id('seatTunerStatus');if(el){el.textContent=msg;setTimeout(()=>{if(el.textContent===msg)el.textContent='';},2600)}}
-
-  function updateSeatButtonState(){
-    document.querySelectorAll('.seat-tuner-seat-btn').forEach(b=>{
-      const active=Number(b.dataset.seat)===selectedSeat;
-      b.classList.toggle('active',active);
-      b.setAttribute('aria-pressed',active?'true':'false');
-    });
+    if(burn){burn.style.setProperty('display','none','important');burn.setAttribute('aria-hidden','true');}
   }
 
-  function ensureSeatData(n){
-    if(layout[n]) return layout[n];
-    const captured=captureSeat(n);
-    if(captured){
-      layout[n]=captured;
-      if(!baseline[n]) baseline[n]=copyObj(captured);
-      return layout[n];
-    }
-    return null;
+  function applyAll(){Object.keys(LAYOUT).forEach(k=>applySeat(Number(k),LAYOUT[k]));applyGlobal();applyScene();}
+  function wireObservers(){
+    const seats=document.getElementById('visualSeats');
+    const board=document.getElementById('boardCards');
+    if(seats)new MutationObserver(()=>requestAnimationFrame(applyAll)).observe(seats,{childList:true,subtree:false});
+    if(board)new MutationObserver(()=>requestAnimationFrame(applyScene)).observe(board,{childList:true,subtree:false});
+    new MutationObserver(()=>requestAnimationFrame(applyAll)).observe(document.body,{attributes:true,attributeFilter:['class']});
   }
-
-  function writeGlobalFields(){
-    globalFields.forEach(k=>{
-      const el=$id(globalIds[k]); if(!el) return;
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') el.value=Math.round((globalLayout[k]??1)*100);
-      else el.value=globalLayout[k]??0;
-    });
+  function init(){
+    wireObservers();
+    let tries=0;
+    const timer=setInterval(()=>{tries++;applyAll();if(document.querySelector('#visualSeats .dynamic-seat')||tries>50)clearInterval(timer);},120);
+    applyAll(); setTimeout(applyAll,80); setTimeout(applyAll,350);
   }
-  function readGlobalFields(){
-    globalFields.forEach(k=>{
-      const el=$id(globalIds[k]); if(!el) return;
-      const v=Number(el.value);
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
-      else globalLayout[k]=Number.isFinite(v)?v:0;
-    });
-    applyAll();dirty=true;
-  }
-  function writeSceneFields(){
-    sceneFields.forEach(k=>{
-      const el=$id(sceneIds[k]); if(!el) return;
-      if(k==='communityScale') el.value=Math.round((sceneLayout[k]??1)*100);
-      else el.value=sceneLayout[k]??0;
-    });
-  }
-  function readSceneFields(){
-    sceneFields.forEach(k=>{
-      const el=$id(sceneIds[k]); if(!el) return;
-      const v=Number(el.value);
-      if(k==='communityScale') sceneLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
-      else sceneLayout[k]=Number.isFinite(v)?v:0;
-    });
-    sceneLayout.burnVisible=false;
-    applySceneElements();dirty=true;
-  }
-  function writeFields(){
-    updateSeatButtonState();
-    highlight();
-    writeGlobalFields();
-    writeSceneFields();
-    const d=ensureSeatData(selectedSeat);
-    if(!d){
-      status(`Seat ${selectedSeat} is not rendered yet. Start/refresh the table and try again.`);
-      return;
-    }
-    fields.forEach(k=>{
-      const el=$id(ids[k]); if(!el) return;
-      if(k==='chairScale') el.value=Math.round((d[k]??1)*100);
-      else el.value=d[k]??0;
-    });
-  }
-  function readFields(){
-    const d=ensureSeatData(selectedSeat); if(!d) return;
-    fields.forEach(k=>{
-      const el=$id(ids[k]); if(!el) return;
-      const v=Number(el.value);
-      if(k==='chairScale') d[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
-      else d[k]=Number.isFinite(v)?v:0;
-    });
-    applySeat(selectedSeat,d);applyGlobalElements();dirty=true;
-  }
-  function highlight(){
-    document.querySelectorAll('.seat-tuner-highlight').forEach(el=>el.classList.remove('seat-tuner-highlight'));
-    seatEl(selectedSeat)?.classList.add('seat-tuner-highlight');
-    chairEl(selectedSeat)?.classList.add('seat-tuner-highlight');
-  }
-  function selectSeat(n){
-    selectedSeat=Math.max(1,Math.min(8,Number(n)||1));
-    updateSeatButtonState();
-    highlight();
-    if(!initialized){
-      // Do not block selection while waiting for the full table capture.
-      const captured=ensureSeatData(selectedSeat);
-      if(captured && Object.keys(layout).length>0) initialized=true;
-    }
-    writeFields();
-    status(`Seat ${selectedSeat} selected.`);
-  }
-
-  function initButtons(){
-    const wrap=$id('seatTunerSeatButtons'); if(!wrap)return;
-    wrap.innerHTML='';
-    for(let n=1;n<=8;n++){
-      const b=document.createElement('button');
-      b.type='button';
-      b.className='seat-tuner-seat-btn';
-      b.dataset.seat=String(n);
-      b.textContent=String(n);
-      b.setAttribute('aria-label',`Select seat ${n}`);
-      b.setAttribute('aria-pressed','false');
-      b.addEventListener('click',(ev)=>{
-        ev.preventDefault();
-        ev.stopPropagation();
-        selectSeat(n);
-      });
-      wrap.appendChild(b);
-    }
-    updateSeatButtonState();
-  }
-
-  function exportLayoutObject(){
-    return {
-      layoutVersion:'Template 3 Pass 48 — Shared Visuals + Navigation',
-      savedAt:new Date().toISOString(),
-      seats:layout,
-      globalNameplateElements:globalLayout,
-      communityAndBurn:{...sceneLayout,burnVisible:false}
-    };
-  }
-  function copyCoordinates(){
-    const text=JSON.stringify(exportLayoutObject(),null,2);
-    const done=()=>status('All coordinates copied. You can paste them back to me if needed.');
-    if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
-    else fallbackCopy(text,done);
-  }
-  function downloadLayoutNote(){
-    readFields(); readGlobalFields(); readSceneFields(); saveStored();
-    const text=JSON.stringify(exportLayoutObject(),null,2);
-    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    const stamp=new Date().toISOString().replace(/[:.]/g,'-');
-    a.href=url;
-    a.download=`Poker_Dealer_Trainer_Layout_${stamp}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1500);
-    status('Layout note downloaded. Upload that .txt file here and I can read every coordinate at once.');
-  }
-  function fallbackCopy(text,done){
-    const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');done();}catch(e){status('Could not copy automatically.');}ta.remove();
-  }
-
-  function initialize(){
-    const firstInit=!initialized;
-    if(!captureBaseline()) return false;
-    if(firstInit){
-      const stored=readStored();
-      if(stored){
-        for(let n=1;n<=8;n++){
-          if(stored[n]) layout[n]={...(layout[n]||baseline[n]||{}),...stored[n]};
-        }
-      }
-      const storedGlobal=readGlobalStored();
-      if(storedGlobal) globalLayout={...GLOBAL_DEFAULTS,...storedGlobal};
-      const storedScene=readSceneStored();
-      if(storedScene) sceneLayout={...SCENE_DEFAULTS,...storedScene};
-      initialized=true;
-    }
-    applyAll();
-    writeFields();
-    return true;
-  }
-
-  function showPanel(show){
-    const p=$id('seatTunerPanel'); if(!p)return;
-    if(show){p.classList.add('open');p.setAttribute('aria-hidden','false');initialize();writeFields();}
-    else{p.classList.remove('open');p.setAttribute('aria-hidden','true');document.querySelectorAll('.seat-tuner-highlight').forEach(el=>el.classList.remove('seat-tuner-highlight'));}
-  }
-
-  function wire(){
-    initButtons();
-    $id('seatTunerToggle').onclick=()=>showPanel(!$id('seatTunerPanel').classList.contains('open'));
-    $id('seatTunerClose').onclick=()=>showPanel(false);
-    fields.forEach(k=>{const el=$id(ids[k]);if(el){el.addEventListener('input',readFields);el.addEventListener('change',readFields);}});
-    globalFields.forEach(k=>{const el=$id(globalIds[k]);if(el){el.addEventListener('input',readGlobalFields);el.addEventListener('change',readGlobalFields);}});
-    sceneFields.forEach(k=>{const el=$id(sceneIds[k]);if(el){el.addEventListener('input',readSceneFields);el.addEventListener('change',readSceneFields);}});
-    $id('seatTunerSave').onclick=()=>{readFields();readGlobalFields();readSceneFields();saveStored();};
-    $id('seatTunerCopy').onclick=copyCoordinates;
-    $id('seatTunerDownload').onclick=downloadLayoutNote;
-    const bgReset=$id('stPlateBgReset');
-    if(bgReset) bgReset.onclick=()=>{
-      globalLayout.plateBgX=0; globalLayout.plateBgY=0;
-      globalLayout.plateBgScaleX=1; globalLayout.plateBgScaleY=1; globalLayout.plateBgRot=0;
-      applyGlobalElements(); writeGlobalFields(); dirty=true;
-      status('Nameplate inner background reset to the Pass 42 look.');
-    };
-    const appearanceReset=$id('stPlateAppearanceReset');
-    if(appearanceReset) appearanceReset.onclick=()=>{
-      globalLayout.plateEdgeSize=6;
-      globalLayout.plateNameSize=17;
-      globalLayout.plateMoneySize=16;
-      applyGlobalElements(); writeGlobalFields(); dirty=true;
-      status('Nameplate edge, name size, and money size reset.');
-    };
-    $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
-    $id('seatTunerResetAll').onclick=()=>{
-      if(!initialized)return;
-      layout=copyObj(baseline);
-      globalLayout={...GLOBAL_DEFAULTS};
-      sceneLayout={...SCENE_DEFAULTS};
-      applyAll();writeFields();dirty=true;
-      try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(GLOBAL_STORAGE_KEY);localStorage.removeItem(SCENE_STORAGE_KEY)}catch(e){}
-      status('All seats, markers, and board positions reset to their starting positions.');
-    };
-
-    // Click a nameplate to select its seat while tuner is open.
-    document.addEventListener('click',e=>{
-      const s=e.target.closest?.('.visual-seat');
-      if(!s || !$id('seatTunerPanel').classList.contains('open'))return;
-      const m=[...s.classList].find(c=>/^vpos[0-7]$/.test(c));if(m){selectSeat(Number(m.slice(4))+1);}
-    },true);
-
-    // Re-apply layout whenever the app rebuilds visual seat DOM nodes.
-    const seatWrap=$id('visualSeats');
-    if(seatWrap){
-      new MutationObserver(()=>{if(!initialized){initialize();}else{requestAnimationFrame(applyAll);}}).observe(seatWrap,{childList:true,subtree:false});
-    }
-    const boardWrap=$id('boardCards');
-    if(boardWrap)new MutationObserver(()=>requestAnimationFrame(applySceneElements)).observe(boardWrap,{childList:true,subtree:false});
-    const burnWrap=$id('burnCards');
-    if(burnWrap)new MutationObserver(()=>requestAnimationFrame(applySceneElements)).observe(burnWrap,{childList:true,subtree:false});
-    // Initial capture may need a moment because mode/player-count setup can render seats later.
-    let attempts=0;
-    const timer=setInterval(()=>{attempts++;if(initialize()||attempts>40)clearInterval(timer);},150);
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 
 
-<script>
-(function(){
-  const rot=document.getElementById('stChairRot');
-  if(!rot) return;
-  rot.addEventListener('change',()=>{
-    let v=Number(rot.value);
-    if(!Number.isFinite(v)) v=0;
-    v=Math.max(-360,Math.min(360,v));
-    rot.value=v;
-    rot.dispatchEvent(new Event('input',{bubbles:true}));
-  });
-})();
-</script>
 
 
-<script id="template3-tuner-cleanup-pass29">
-(function(){
-  function cleanTemplate3Tuner(){
-    const chairField=document.getElementById('stChairX');
-    const chairSection=chairField?.closest('.seat-tuner-section');
-    if(chairSection){
-      chairSection.innerHTML='<h4>Template 3 Chairs</h4><div class="seat-tuner-help">The eight luxury chairs are built into the new Template 3 room image, so they stay perfectly matched to the table. Use the controls below to position each nameplate, hole cards and bet/chip spot around those chairs.</div>';
-    }
-    ['stCircleX','stCircleY','stCircleRot'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el?.closest('.seat-tuner-field')) el.closest('.seat-tuner-field').style.display='none';
-    });
-    const sections=[...document.querySelectorAll('#seatTunerPanel .seat-tuner-section')];
-    const globalSection=sections.find(s=>s.querySelector('#stMoneyX'));
-    if(globalSection){
-      const h=globalSection.querySelector('h4'); if(h) h.textContent='Global Money Position — applies to all seats';
-      const help=globalSection.querySelector('.seat-tuner-help'); if(help) help.textContent='Move the money amount once and the same offset is applied to every player nameplate.';
-    }
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',cleanTemplate3Tuner,{once:true});
-  else cleanTemplate3Tuner();
-})();
-</script>
 
 
 <script id="template3-final-visual-lock-pass30">
@@ -9954,38 +9417,12 @@ renderPlayers();
 .v235-app .board-zone{overflow:visible!important}
 .v235-app #boardCards{overflow:visible!important}
 .v235-app #boardCards>.playing-card{margin:0!important}
-#seatTunerPanel{max-height:calc(100vh - 116px)!important}
-#seatTunerPanel .seat-tuner-section h5{color:#dcb85c;margin:8px 0 5px;font-size:10px;text-transform:uppercase}
 </style>
 
 
-<script id="pass33-full-rotation-guard">
-(function(){
-  function wire360(){
-    document.querySelectorAll('#seatTunerPanel input[id*="Rot"]').forEach(input=>{
-      input.min='-360'; input.max='360';
-      if(input.dataset.rot360==='1') return;
-      input.dataset.rot360='1';
-      const clamp=()=>{
-        let v=Number(input.value);
-        if(!Number.isFinite(v)) v=0;
-        if(v>360) v=360;
-        if(v<-360) v=-360;
-        input.value=String(v);
-      };
-      input.addEventListener('change',clamp);
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire360,{once:true}); else wire360();
-})();
-</script>
 
 
-<style id="pass34-final-tuner-guards">
-/* PASS 34: burn mechanics remain internal, but no BURN label or burn cards are shown. */
-.v235-app .burn-zone,.v235-app .burn-label,.v235-app #burnCards{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-#seatTunerDownload{background:#173127!important;border-color:#4b8b68!important;color:#d7f5e4!important}
-</style>
+<style id="pass34-public-burn-guard">.v235-app .burn-zone,.v235-app .burn-label,.v235-app #burnCards{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}</style>
 
 
 <style id="pass36-card-showdown-fixes">
@@ -10320,7 +9757,7 @@ body.v235-live #v235Rail{
   }
 
   function betSnapshots(){
-    if(!window.state?.players) return [];
+    if(!state?.players) return [];
     const out=[];
     state.players.forEach((p,i)=>{
       if(!(p.streetBet>0)) return;
@@ -10372,18 +9809,45 @@ body.v235-live #v235Rail{
     return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
   }
 
-  function payoutWinnerIds(){
-    const ids=[];
+  function payoutPlan(){
+    const plan=[];
     try{
       if(typeof sidePotAwardsBeforeDrop==='function' && typeof eligibleWinnersForPot==='function'){
         const pots=sidePotAwardsBeforeDrop();
-        if(Array.isArray(pots)&&pots.length>1){
-          pots.forEach(p=>{const w=eligibleWinnersForPot(p)?.winners||[];w.forEach(id=>{if(!ids.includes(id))ids.push(id)});});
+        if(Array.isArray(pots) && pots.length){
+          pots.forEach((p,idx)=>{
+            if(!(Number(p.net)>0)) return;
+            const winners=eligibleWinnersForPot(p)?.winners||[];
+            if(winners.length) plan.push({winners,amount:Number(p.net)||0,label:(typeof sidePotName==='function'?sidePotName(idx):`POT ${idx+1}`)});
+          });
         }
       }
     }catch(e){}
-    if(!ids.length) (state?.visualShowdownResult?.winners||[]).forEach(id=>{if(!ids.includes(id))ids.push(id)});
-    return ids;
+    if(!plan.length){
+      const winners=state?.visualShowdownResult?.winners||[];
+      const amount=Number(state?.finalNetPot ?? state?.finalGrossPot ?? state?.pot ?? 0)||0;
+      if(winners.length) plan.push({winners:[...winners],amount,label:'MAIN POT'});
+    }
+    return plan;
+  }
+
+  function animatePayoutPlan(plan,done,index=0){
+    if(!Array.isArray(plan)||index>=plan.length){done?.();return;}
+    const step=plan[index];
+    const pot=centerPot();
+    if(pot) pot.classList.remove('pot-paid');
+    const action=document.getElementById('actionText');
+    const instruction=document.getElementById('instruction');
+    if(action) action.textContent=`PUSHING ${step.label} TO ${step.winners.length>1?'WINNERS':`PLAYER ${step.winners[0]}`}`;
+    if(instruction) instruction.textContent=step.winners.length>1
+      ? `${step.label} is being split between Players ${step.winners.join(' & ')}.`
+      : `${step.label} is being pushed to Player ${step.winners[0]}.`;
+    animatePotToPlayers(step.winners,()=>{
+      if(index<plan.length-1){
+        if(pot) pot.classList.remove('pot-paid');
+        setTimeout(()=>animatePayoutPlan(plan,done,index+1),150);
+      }else done?.();
+    });
   }
 
   function animatePotToPlayers(ids,done){
@@ -10424,7 +9888,7 @@ body.v235-live #v235Rail{
   const originalClose=window.closeQuestionAndContinue;
   if(typeof originalClose==='function'){
     window.closeQuestionAndContinue=function(){
-      const type=window.state?.pendingQuestion?.type;
+      const type=state?.pendingQuestion?.type;
       const snaps=(type==='newtotalpot'||type==='pot')?betSnapshots():[];
       const result=originalClose.apply(this,arguments);
       if(snaps.length) setTimeout(()=>animateBetsIntoPot(snaps),45);
@@ -10433,15 +9897,15 @@ body.v235-live #v235Rail{
     const done=$('feedbackDone'); if(done) done.onclick=window.closeQuestionAndContinue;
   }
 
-  /* Delay automatic showdown payout just long enough to visually push the pot first. */
+  /* V24: push main/side pots in sequence before the engine credits them. */
   const originalAutoPay=window.autoPayVisualShowdown;
   if(typeof originalAutoPay==='function'){
     window.autoPayVisualShowdown=function(){
-      if(payoutBusy||window.state?.winnerPaid) return;
-      const args=arguments,ctx=this,ids=payoutWinnerIds();
-      if(!ids.length) return originalAutoPay.apply(ctx,args);
+      if(payoutBusy||state?.winnerPaid) return;
+      const args=arguments,ctx=this,plan=payoutPlan();
+      if(!plan.length) return originalAutoPay.apply(ctx,args);
       payoutBusy=true;
-      animatePotToPlayers(ids,()=>{
+      animatePayoutPlan(plan,()=>{
         const result=originalAutoPay.apply(ctx,args);
         payoutBusy=false;
         setTimeout(()=>centerPot()?.classList.add('pot-paid'),50);
@@ -10454,7 +9918,7 @@ body.v235-live #v235Rail{
   const originalAwardWinner=window.awardWinner;
   if(typeof originalAwardWinner==='function'){
     window.awardWinner=function(playerId){
-      if(payoutBusy||window.state?.winnerPaid) return;
+      if(payoutBusy||state?.winnerPaid) return;
       const args=arguments,ctx=this;
       payoutBusy=true;
       animatePotToPlayers([playerId],()=>{
@@ -10476,7 +9940,6 @@ body.v235-live #v235Rail{
     const board=$('boardCards');
     if(board) new MutationObserver(()=>requestAnimationFrame(positionPotUnderBoard)).observe(board,{childList:true,subtree:false});
     window.addEventListener('resize',()=>requestAnimationFrame(positionPotUnderBoard));
-    document.addEventListener('input',e=>{if(e.target?.closest?.('#seatTunerPanel')) requestAnimationFrame(positionPotUnderBoard);},true);
     $('newHand')?.addEventListener('click',()=>setTimeout(resetPotAnimationState,0),true);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
@@ -10493,14 +9956,11 @@ body.v235-live #v235Rail{
 
 <!-- PASS 48 — shared Template 3 visuals + Settings/Stats navigation -->
 <style id="pass48-shared-mode-navigation-css">
-/* The layout/tuner is one shared visual system for Real, Visual and Audition modes. */
+/* The locked production layout is shared by Real, Visual and Audition modes. */
 body.v235-live.template3-shared-mode .v235-app .visual-stage{display:block!important;visibility:visible!important;}
 body.v235-live.template3-shared-mode .v235-app #visualSeats{display:block!important;visibility:visible!important;}
 body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
 /* Real Table remains physical-dealing mode: no forced digital hole/board card animation is introduced here. */
-body:not(.v235-live) #seatTunerToggle,
-body:not(.v235-live) #seatTunerPanel{display:none!important;}
-body.v235-live #seatTunerToggle{display:block!important;}
 
 /* Clear navigation inside Settings / Stats / Help overlays. */
 .v235-overlay-head{position:relative!important;}
@@ -10536,13 +9996,8 @@ body.v235-live #seatTunerToggle{display:block!important;}
       el.setAttribute('aria-hidden','true');
     });
   }
-  function hideTuner(){
-    const p=document.getElementById('seatTunerPanel');
-    if(p){p.classList.remove('open');p.setAttribute('aria-hidden','true');}
-  }
   function goHomeFromPanel(){
     closeOverlays();
-    hideTuner();
     /* During a live session, use the trainer's existing HOME routine through backMenu. */
     if(document.body.classList.contains('v235-live')){
       const homeAlias=document.getElementById('backMenu');
@@ -10726,20 +10181,14 @@ body.v235-live #seatTunerToggle{display:block!important;}
     moveMatch(audition,['AUDITION TIMER']);
     moveMatch(audio,['SOUND EFFECTS']);
     moveMatch(appearance,['ANIMATIONS']);
-
-    table.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>♠ TABLE LAYOUT</h3><p>The same saved seat, nameplate, cards, bets, D/SB/BB and board coordinates are shared by Real, Visual and Audition modes.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
+    table.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>♠ TABLE LAYOUT</h3><p>The production table layout is locked to the developer-approved coordinates and is shared by Real, Visual and Audition modes.</p></section>`);
     audition.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>◷ AUDITION MODE</h3><p>Uses the same final table visuals and coordinates, while tracking scored dealer practice. Advanced timed audition controls remain separate from the visual layout.</p></section>`);
-    appearance.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>✎ NAMEPLATES & POSITIONS</h3><p>Adjust nameplate background, edge thickness, name size, money size, seat positions, card positions and board placement with the shared layout tuner.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
+    appearance.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>✎ NAMEPLATES & POSITIONS</h3><p>Nameplates, money, cards, bets, buttons and board positions are locked in the public build. Layout editing is available only in the developer build.</p></section>`);
     account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>● LOCAL PROFILE</h3><p>This standalone HTML stores trainer preferences and layout settings locally in this browser. Website account synchronization is not connected in this standalone build.</p></section>`);
     if(actions) account.appendChild(actions);
 
     general.classList.add('active');
     wireNav('v235SettingsPanel',['general','training','table','audition','audio','appearance','account']);
-
-    panel.querySelectorAll('[data-open-layout-tuner]').forEach(btn=>btn.addEventListener('click',()=>{
-      panel.classList.remove('open');panel.setAttribute('aria-hidden','true');
-      setTimeout(()=>document.getElementById('seatTunerToggle')?.click(),30);
-    }));
   }
 
   function statVal(id,fallback='—'){return $(id)?.textContent?.trim()||fallback;}
@@ -10823,6 +10272,1129 @@ body.v235-live #seatTunerToggle{display:block!important;}
     selectTab($('v235HelpPanel'),'overview');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+</script>
+
+
+
+<!-- VERSION 24.0 — LIVE DEALER LOGIC -->
+<style id="v24-live-dealer-logic-css">
+/* Logic update only. Existing Template 3 coordinates and visuals remain untouched. */
+.v24-selected-winner{
+  border-color:#f0c767!important;
+  box-shadow:0 0 0 2px rgba(224,184,93,.42),0 0 18px rgba(224,184,93,.18)!important;
+  background:linear-gradient(180deg,#0d6a42,#09452d)!important;
+}
+.v24-payout-note{
+  width:100%;margin:7px 0 10px;padding:9px 10px;border:1px solid #5f4f2c;border-radius:7px;
+  color:#d5dbd7;background:#09120f;font-size:11px;line-height:1.45;
+}
+.v24-payout-note b{color:#e3bd64}
+</style>
+<script id="v24-live-dealer-logic-js">
+(function(){
+  if(window.__pokerDealerTrainerV24) return;
+  window.__pokerDealerTrainerV24=true;
+  window.POKER_DEALER_TRAINER_VERSION='24.0';
+
+  const $v=id=>document.getElementById(id);
+  const n=v=>Math.max(0,Number(v)||0);
+
+  function potIntegrity(context=''){
+    if(!state?.players) return true;
+    const contributed=state.players.reduce((s,p)=>s+n(p.total),0);
+    const represented=n(state.pot)+state.players.reduce((s,p)=>s+n(p.streetBet),0);
+    const ok=Math.abs(contributed-represented)<0.001;
+    if(!ok){
+      console.warn('[V24 POT INTEGRITY]',context,{contributed,represented,state});
+      const alert=$v('dealerAlert');
+      if(alert){alert.textContent='POT LEDGER CHECK';alert.classList.add('dealer-alert-hot');}
+    }
+    return ok;
+  }
+  window.v24PotIntegrity=potIntegrity;
+
+  /*
+    V24 pot construction:
+    - EVERY committed chip, including chips from folded hands, counts toward pot AMOUNT.
+    - Only live hands are ELIGIBLE.
+    - A side pot with one eligible live player is valid and is automatically theirs.
+    - Adjacent contribution bands with identical eligibility are merged.
+  */
+  calculateSidePots=function(){
+    if(!state?.players) return [];
+    const contributors=state.players.filter(p=>n(p.total)>0);
+    const live=contributors.filter(p=>!p.folded);
+    if(!contributors.length||!live.length) return [];
+
+    const levels=[...new Set(contributors.map(p=>n(p.total)).filter(x=>x>0))].sort((a,b)=>a-b);
+    const pots=[];
+    let prev=0;
+    for(const level of levels){
+      const atLevel=contributors.filter(p=>n(p.total)>=level);
+      const amount=(level-prev)*atLevel.length;
+      const eligible=live.filter(p=>n(p.total)>=level).map(p=>p.id);
+      if(amount>0){
+        if(eligible.length){
+          const last=pots[pots.length-1];
+          const same=last && last.eligible.join(',')===eligible.join(',');
+          if(same){
+            last.amount+=amount;last.cap=level;
+            last.contributors=[...new Set([...(last.contributors||[]),...atLevel.map(p=>p.id)])];
+          }else{
+            pots.push({amount,eligible,cap:level,contributors:atLevel.map(p=>p.id)});
+          }
+        }else if(pots.length){
+          /* Defensive fallback for an impossible post-return state: never make chips vanish. */
+          pots[pots.length-1].amount+=amount;
+          pots[pots.length-1].cap=level;
+        }
+      }
+      prev=level;
+    }
+    return pots.filter(p=>p.amount>0&&p.eligible.length>0);
+  };
+
+  /* Final uncalled wager must be compared with ALL other contributors, including folded dead money. */
+  returnUncalledTotalExcess=function(){
+    if(!state?.players) return 0;
+    const committed=state.players.filter(p=>n(p.total)>0).sort((a,b)=>n(b.total)-n(a.total));
+    if(committed.length<2) return 0;
+    const high=committed[0], second=n(committed[1].total);
+    if(high.folded || n(high.total)<=second) return 0;
+    const excess=n(high.total)-second;
+    high.total-=excess;
+    high.stack+=excess;
+    const fromFront=Math.min(excess,n(high.streetBet));
+    high.streetBet-=fromFront;
+    const fromCenter=excess-fromFront;
+    if(fromCenter>0) state.pot=Math.max(0,n(state.pot)-fromCenter);
+    if(typeof addPhysicalChipsByValue==='function') addPhysicalChipsByValue(high,excess);
+    if(typeof log==='function') log(`FINAL UNCALLED ${money(excess)} RETURNED TO PLAYER ${high.id}`);
+    if(typeof updateVisualStacks==='function') updateVisualStacks();
+    if(typeof updateVisualBets==='function') updateVisualBets();
+    if(typeof renderPotDisplay==='function') renderPotDisplay();
+    potIntegrity('returnUncalledTotalExcess');
+    return excess;
+  };
+
+  /* Improve action language whenever a call/bet/raise consumes the player's entire remaining stack. */
+  const v24OriginalBuildAction=buildActionForPlayer;
+  buildActionForPlayer=function(p){
+    const before=n(p?.stack);
+    const a=v24OriginalBuildAction(p);
+    if(!a||!p||before<=0) return a;
+    const pull=n(a.pullAmount ?? a.amount);
+    if(pull===before && ['call','bet','raise'].includes(a.type)){
+      if(a.type==='call'){
+        const toCall=Math.max(0,n(state.currentBet)-n(p.streetBet));
+        a.label=`PLAYER ${p.id} CALLS ALL-IN — ADD ${money(pull)}${pull<toCall?' (SHORT OF FULL CALL)':''}`;
+        a.short=`CALLS ALL-IN — ADD ${money(pull)}`;
+      }else if(a.type==='raise'){
+        a.label=`PLAYER ${p.id} RAISES ALL-IN TO ${money(a.target)} — ADD ${money(pull)}`;
+        a.short=`RAISES ALL-IN TO ${money(a.target)}`;
+      }else if(a.type==='bet'){
+        a.label=`PLAYER ${p.id} BETS ALL-IN ${money(a.target)} — ADD ${money(pull)}`;
+        a.short=`BETS ALL-IN ${money(a.target)}`;
+      }
+      a.v24AllIn=true;
+    }
+    return a;
+  };
+
+  function winnersLeftOfButton(ids){
+    const wanted=new Set((ids||[]).map(Number));
+    const ordered=[];
+    if(!state?.players?.length) return [...wanted];
+    let seat=Number.isInteger(state.button)?state.button:0;
+    for(let c=0;c<state.players.length;c++){
+      seat=(seat+1)%state.players.length;
+      const id=state.players[seat].id;
+      if(wanted.has(id)) ordered.push(id);
+    }
+    wanted.forEach(id=>{if(!ordered.includes(id))ordered.push(id)});
+    return ordered;
+  }
+
+  function splitShares(amount,ids){
+    const ordered=winnersLeftOfButton([...new Set((ids||[]).map(Number).filter(Boolean))]);
+    if(!ordered.length) return [];
+    const whole=Math.floor(n(amount));
+    const base=Math.floor(whole/ordered.length);
+    let odd=whole-(base*ordered.length);
+    return ordered.map(id=>({id,amount:base+(odd-->0?1:0)}));
+  }
+  window.v24SplitShares=splitShares;
+
+  eligibleWinnersForPot=function(pot){
+    const eligibleIds=(pot?.eligible||[]).filter(id=>state?.players?.some(p=>p.id===id&&!p.folded));
+    if(eligibleIds.length===1) return {winners:[eligibleIds[0]],bestEval:null,automatic:true};
+    const evals=state?.visualShowdownResult?.evals||[];
+    const evalMap=new Map(evals.map(e=>[e.player,e]));
+    const eligible=eligibleIds.map(id=>evalMap.get(id)).filter(Boolean);
+    if(!eligible.length) return {winners:[],bestEval:null};
+    let best=eligible[0].rank;
+    eligible.forEach(e=>{if(compareRank(e.rank,best)>0) best=e.rank;});
+    const winners=eligible.filter(e=>compareRank(e.rank,best)===0).map(e=>e.player);
+    return {winners,bestEval:eligible.find(e=>winners.includes(e.player))||null};
+  };
+
+  /* Teach uncontested side pots instead of asking the user to compare hands for a pot only one player can win. */
+  const v24BaseRenderSidePotShowdown=renderSidePotShowdownQuestion;
+  renderSidePotShowdownQuestion=function(){
+    const idx=state?.sidePotShowdownIndex||0;
+    const pot=state?.sidePotShowdownPots?.[idx];
+    if(!pot || (pot.eligible||[]).length!==1) return v24BaseRenderSidePotShowdown();
+    const id=pot.eligible[0];
+    const choices=$v('showdownChoices');
+    if(choices) choices.innerHTML='';
+    const feedback=$v('showdownFeedback');
+    if(feedback){
+      feedback.className='showdown-feedback good';
+      feedback.innerHTML=`<b>${sidePotName(idx)} is uncontested.</b> Player ${id} is the only live player eligible for this pot, so no hand comparison is required.`;
+    }
+    const doneWrap=$v('showdownDoneWrap');
+    if(doneWrap) doneWrap.classList.add('show');
+    const done=$v('showdownDone');
+    if(done) done.textContent=(idx<(state.sidePotShowdownPots.length-1))?'DONE — NEXT POT':'DONE — CONTINUE TO PAYOUT';
+    $v('actionText').textContent=`${sidePotName(idx)} — PLAYER ${id} ONLY ELIGIBLE`;
+    $v('instruction').textContent=`This pot is automatically awarded to Player ${id}. Continue when ready.`;
+  };
+
+  function animateManualPush(ids,done,morePots=false){
+    const pot=$v('centerPotWrap');
+    if(pot) pot.classList.remove('pot-paid');
+    try{
+      if(typeof window.__pass46AnimatePotToPlayers==='function'){
+        window.__pass46AnimatePotToPlayers(ids,()=>{
+          if(morePots && pot) pot.classList.remove('pot-paid');
+          done?.();
+        });
+        return;
+      }
+    }catch(e){}
+    done?.();
+  }
+
+  function creditShares(pot,winners){
+    const shares=splitShares(pot.net,winners);
+    shares.forEach(s=>{
+      const p=state.players.find(x=>x.id===s.id);
+      if(p) p.stack+=s.amount;
+    });
+    return shares;
+  }
+
+  function finishManualPayout(){
+    state.winnerPaid=true;
+    state.v24ManualPayout=null;
+    sessionStacks=state.players.map(x=>x.stack);
+    if(trainingMode==='audition'){
+      auditionStats.hands++;
+      if(typeof updateAuditionDisplay==='function') updateAuditionDisplay();
+    }
+    if(typeof updateVisualStacks==='function') updateVisualStacks();
+    if(typeof renderPlayers==='function') renderPlayers();
+    $v('winnerPanel')?.classList.remove('show');
+    $v('payoutResult')?.classList.add('show');
+    if($v('actionText')) $v('actionText').textContent='ALL POTS PAID — HAND COMPLETE';
+    if($v('instruction')) $v('instruction').textContent='All main/side pots have been paid. Match the physical stacks, then start the next hand.';
+    if($v('nextUp')) $v('nextUp').textContent='NEXT UP: START NEW HAND';
+    potIntegrity('manual payout complete');
+  }
+
+  function renderManualStep(){
+    if(!state?.v24ManualPayout) return;
+    const ctx=state.v24ManualPayout;
+    const pots=ctx.pots;
+    if(ctx.index>=pots.length){finishManualPayout();return;}
+    const pot=pots[ctx.index];
+    const wrap=$v('winnerButtons');
+    if(!wrap) return;
+    wrap.innerHTML='';
+    ctx.splitMode=false;ctx.selected=[];
+
+    const header=document.createElement('div');
+    header.className='v24-payout-note';
+    header.innerHTML=`<b>${sidePotName(ctx.index)} • ${money(pot.net)}</b><br>Eligible: ${pot.eligible.map(id=>`Player ${id}`).join(', ')}`;
+    wrap.appendChild(header);
+
+    if(pot.eligible.length===1){
+      const id=pot.eligible[0];
+      header.innerHTML+=`<br><b>Automatic:</b> Player ${id} is the only eligible live hand.`;
+      const auto=document.createElement('button');
+      auto.className='winner-btn';auto.textContent=`PUSH TO PLAYER ${id}`;
+      auto.onclick=()=>payManualPot([id]);
+      wrap.appendChild(auto);
+      return;
+    }
+
+    pot.eligible.forEach(id=>{
+      const b=document.createElement('button');
+      b.className='winner-btn';b.textContent=`PLAYER ${id}`;
+      b.onclick=()=>payManualPot([id]);
+      wrap.appendChild(b);
+    });
+    const chop=document.createElement('button');
+    chop.className='winner-btn';chop.textContent='CHOP / SPLIT POT';
+    chop.onclick=()=>renderManualSplitSelector();
+    wrap.appendChild(chop);
+  }
+
+  function renderManualSplitSelector(){
+    const ctx=state?.v24ManualPayout;if(!ctx) return;
+    const pot=ctx.pots[ctx.index];if(!pot) return;
+    ctx.splitMode=true;ctx.selected=[];
+    const wrap=$v('winnerButtons');wrap.innerHTML='';
+    const header=document.createElement('div');header.className='v24-payout-note';
+    header.innerHTML=`<b>${sidePotName(ctx.index)} — SELECT TIED WINNERS</b><br>Select two or more eligible players. Any odd chip goes to the first winning seat left of the Dealer Button.`;
+    wrap.appendChild(header);
+    pot.eligible.forEach(id=>{
+      const b=document.createElement('button');b.className='winner-btn';b.textContent=`PLAYER ${id}`;b.dataset.player=id;
+      b.onclick=()=>{
+        const pos=ctx.selected.indexOf(id);
+        if(pos>=0){ctx.selected.splice(pos,1);b.classList.remove('v24-selected-winner');}
+        else{ctx.selected.push(id);b.classList.add('v24-selected-winner');}
+      };
+      wrap.appendChild(b);
+    });
+    const pay=document.createElement('button');pay.className='winner-btn';pay.textContent='PAY CHOP';
+    pay.onclick=()=>{
+      if(ctx.selected.length<2){
+        const result=$v('payoutResult');if(result){result.classList.add('show');result.innerHTML='<b>Select at least two tied winners before paying a chop.</b>';}
+        return;
+      }
+      payManualPot([...ctx.selected]);
+    };
+    wrap.appendChild(pay);
+    const cancel=document.createElement('button');cancel.className='winner-btn';cancel.textContent='CANCEL';cancel.onclick=renderManualStep;wrap.appendChild(cancel);
+  }
+
+  function payManualPot(winners){
+    const ctx=state?.v24ManualPayout;if(!ctx||ctx.busy) return;
+    const pot=ctx.pots[ctx.index];if(!pot) return;
+    winners=[...new Set((winners||[]).map(Number))].filter(id=>pot.eligible.includes(id));
+    if(!winners.length) return;
+    ctx.busy=true;
+    const label=sidePotName(ctx.index);
+    if($v('actionText')) $v('actionText').textContent=`PUSHING ${label} — ${winners.length>1?'CHOP':`PLAYER ${winners[0]}`}`;
+    if($v('instruction')) $v('instruction').textContent=winners.length>1?`Split ${label} between Players ${winners.join(' & ')}.`:`Push ${label} to Player ${winners[0]}.`;
+    const more=ctx.index<ctx.pots.length-1;
+    animateManualPush(winners,()=>{
+      const shares=creditShares(pot,winners);
+      shares.forEach(s=>typeof log==='function'&&log(`${label}: Player ${s.id} paid ${money(s.amount)}`));
+      if(typeof updateVisualStacks==='function') updateVisualStacks();
+      if(typeof renderPlayers==='function') renderPlayers();
+      const result=$v('payoutResult');
+      if(result){result.classList.add('show');result.innerHTML=`<b>${label} PAID.</b><br>${shares.map(s=>`Player ${s.id}: ${money(s.amount)}`).join(' • ')}`;}
+      ctx.index++;ctx.busy=false;
+      setTimeout(renderManualStep,more?180:40);
+    },more);
+  }
+  window.v24PayManualPot=payManualPot;
+
+  showWinnerSelection=function(){
+    if(!state||state.winnerPaid) return;
+    let pots=sidePotAwardsBeforeDrop();
+    if(!pots.length){
+      const eligible=state.players.filter(p=>!p.folded).map(p=>p.id);
+      pots=[{amount:n(state.finalGrossPot??state.pot),net:n(state.finalNetPot??state.pot),eligible,cap:0,index:0}];
+    }
+    state.v24ManualPayout={pots,index:0,busy:false,splitMode:false,selected:[]};
+    $v('payoutResult')?.classList.remove('show');
+    $v('winnerPanel')?.classList.add('show');
+    renderManualStep();
+  };
+
+  /* Compatibility paths now route into the V24 pot-by-pot manual payout flow. */
+  renderManualSidePotWinnerChoices=renderManualStep;
+  awardManualSidePot=function(playerId){payManualPot([playerId]);};
+  awardWinner=function(playerId){
+    if(!state?.v24ManualPayout) showWinnerSelection();
+    payManualPot([playerId]);
+  };
+
+  /* Keep the version visible in existing status/help text without moving UI elements. */
+  function stampVersion(){
+    document.title='Poker Dealer Trainer V24.0 — Live Dealer Logic';
+    const rules=document.querySelector('#v23RulesPanel .v23-title');
+    if(rules) rules.textContent='V24 LIVE DEALER LOGIC';
+    const info=$v('structureInfo');
+    if(info && /V23/.test(info.textContent)) info.textContent=info.textContent.replace(/V23/g,'V24');
+  }
+
+  /* Pot ledger audit after committed-chip changes, without altering game flow. */
+  const v24Post=post;
+  post=function(p,amount){const r=v24Post(p,amount);potIntegrity('post');return r;};
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',stampVersion,{once:true}); else stampVersion();
+})();
+</script>
+
+
+<style id="v241-universal-screen-scaling-style">
+/* ============================================================
+   V24.1 — UNIVERSAL SCREEN SCALING
+   The approved Template 3 table is a fixed 1452x861 master scene.
+   All tuner coordinates live inside that single coordinate system.
+   The complete scene is scaled as ONE unit to fit the available table
+   viewport. This intentionally overrides legacy laptop breakpoints that
+   resized the table and nameplates independently.
+   ============================================================ */
+:root{--v241-table-scale:1;}
+
+body.v235-live .v235-table-layout>.main{
+  position:relative!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  display:block!important;
+}
+
+body.v235-live .v235-app .table,
+body.v235-live.visual-mode .v235-app .table,
+body.v235-live.audition-mode .v235-app .table,
+body.v235-live.real-mode .v235-app .table{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  inset:auto!important;
+  width:1452px!important;
+  height:861px!important;
+  min-width:1452px!important;
+  max-width:none!important;
+  min-height:861px!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  transform:translate(-50%,-50%) scale(var(--v241-table-scale,1))!important;
+  transform-origin:50% 50%!important;
+  will-change:transform;
+}
+
+/* Restore MASTER sizes that old <=1200px rules used to shrink separately. */
+body.v235-live .v235-app .visual-seat.dynamic-seat{
+  width:210px!important;
+  min-height:70px!important;
+}
+body.v235-live .v235-app .pro-seat-card.poker-chip-nameplate{
+  width:210px!important;
+  height:70px!important;
+  min-height:70px!important;
+}
+
+/* The Template 3 artwork always fills the master coordinate canvas. */
+body.v235-live #template3ActualScenePass30{
+  position:absolute!important;
+  inset:0!important;
+  width:1452px!important;
+  height:861px!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:fill!important;
+}
+
+/* Disable legacy table-size overrides at every laptop breakpoint. */
+@media(max-width:1500px){
+  body.v235-live .v235-app .table,
+  body.v235-live.visual-mode .v235-app .table,
+  body.v235-live.audition-mode .v235-app .table,
+  body.v235-live.real-mode .v235-app .table{
+    width:1452px!important;height:861px!important;
+    min-width:1452px!important;min-height:861px!important;
+    max-width:none!important;max-height:none!important;
+  }
+}
+@media(max-width:1200px){
+  body.v235-live .v235-app .table,
+  body.v235-live.visual-mode .v235-app .table,
+  body.v235-live.audition-mode .v235-app .table,
+  body.v235-live.real-mode .v235-app .table{
+    width:1452px!important;height:861px!important;
+    min-width:1452px!important;min-height:861px!important;
+    max-width:none!important;max-height:none!important;
+    aspect-ratio:auto!important;
+  }
+  body.v235-live .v235-app .visual-seat.dynamic-seat{width:210px!important;min-height:70px!important;}
+  body.v235-live .v235-app .pro-seat-card.poker-chip-nameplate{width:210px!important;height:70px!important;min-height:70px!important;}
+}
+@media(max-width:980px){
+  body.v235-live .v235-app .table{height:861px!important;min-height:861px!important;}
+}
+</style>
+
+<script id="v241-universal-screen-scaling-script">
+(function(){
+  'use strict';
+  const MASTER_W=1452;
+  const MASTER_H=861;
+  let resizeObserver=null;
+  let mutationObserver=null;
+  let raf=0;
+
+  function fitMasterScene(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      const main=document.querySelector('.v235-table-layout>.main');
+      const table=document.querySelector('.v235-app .table');
+      if(!main||!table) return;
+      const w=main.clientWidth;
+      const h=main.clientHeight;
+      if(w<10||h<10) return;
+      // Preserve the approved desktop design at 1:1. Smaller screens only scale DOWN.
+      const scale=Math.max(0.20,Math.min(1,w/MASTER_W,h/MASTER_H));
+      document.documentElement.style.setProperty('--v241-table-scale',scale.toFixed(6));
+      table.dataset.v241Scale=scale.toFixed(4);
+      table.dataset.v241Master=`${MASTER_W}x${MASTER_H}`;
+    });
+  }
+
+  function stampV241(){
+    document.title='Poker Dealer Trainer V24.1 — Universal Screen Scaling';
+    const rules=document.querySelector('#v23RulesPanel .v23-title');
+    if(rules) rules.textContent='V24.1 UNIVERSAL SCREEN SCALING';
+  }
+
+  function init(){
+    const main=document.querySelector('.v235-table-layout>.main');
+    if(main && 'ResizeObserver' in window){
+      resizeObserver=new ResizeObserver(fitMasterScene);
+      resizeObserver.observe(main);
+    }
+    if('MutationObserver' in window){
+      mutationObserver=new MutationObserver(fitMasterScene);
+      mutationObserver.observe(document.body,{attributes:true,attributeFilter:['class','style']});
+    }
+    window.addEventListener('resize',fitMasterScene,{passive:true});
+    window.addEventListener('orientationchange',fitMasterScene,{passive:true});
+    window.addEventListener('load',()=>{stampV241();fitMasterScene();setTimeout(fitMasterScene,100);setTimeout(fitMasterScene,500);},{once:true});
+    stampV241();
+    fitMasterScene();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+  window.v241FitMasterScene=fitMasterScene;
+})();
+</script>
+
+
+
+<style id="v2411-screen-scaling-hotfix-style">
+/* ============================================================
+   V24.1.1 — UNIVERSAL SCREEN SCALING HOTFIX
+   Keep the approved 1452x861 coordinate canvas untouched.
+   A correctly-sized shell reserves the SCALED dimensions while
+   the master table is transformed inside it from the top-left.
+   This prevents clipping / upper-left drift on laptop viewports.
+   ============================================================ */
+:root{--v2411-table-scale:1;}
+
+body.v235-live .v235-table-layout{
+  min-height:calc(100vh - 142px)!important;
+  height:calc(100vh - 142px)!important;
+  max-height:calc(100vh - 142px)!important;
+  overflow:hidden!important;
+}
+body.v235-live .v235-table-layout>.main{
+  position:relative!important;
+  height:calc(100vh - 142px)!important;
+  min-height:calc(100vh - 142px)!important;
+  max-height:calc(100vh - 142px)!important;
+  min-width:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  display:block!important;
+  background:#030303!important;
+}
+
+#v2411TableShell{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:1452px;
+  height:861px;
+  margin:0!important;
+  padding:0!important;
+  transform:translate(-50%,-50%)!important;
+  transform-origin:50% 50%!important;
+  overflow:visible!important;
+  z-index:2!important;
+  pointer-events:auto!important;
+}
+
+/* Master table never changes coordinate dimensions. Only its visual scale changes. */
+body.v235-live #v2411TableShell>.table,
+body.v235-live.visual-mode #v2411TableShell>.table,
+body.v235-live.audition-mode #v2411TableShell>.table,
+body.v235-live.real-mode #v2411TableShell>.table{
+  position:absolute!important;
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  inset:auto!important;
+  width:1452px!important;
+  height:861px!important;
+  min-width:1452px!important;
+  min-height:861px!important;
+  max-width:none!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  padding:0!important;
+  transform:scale(var(--v2411-table-scale,1))!important;
+  transform-origin:0 0!important;
+  overflow:visible!important;
+  z-index:2!important;
+}
+
+/* Keep every visual layer on the exact same master canvas. */
+body.v235-live #template3ActualScenePass30{
+  position:absolute!important;
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:1452px!important;
+  height:861px!important;
+  min-width:1452px!important;
+  min-height:861px!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:fill!important;
+  transform:none!important;
+}
+body.v235-live #v2411TableShell .visual-stage,
+body.v235-live #v2411TableShell .center,
+body.v235-live #v2411TableShell #visualSeats{
+  position:absolute!important;
+  inset:0!important;
+  width:1452px!important;
+  height:861px!important;
+  max-width:none!important;
+  max-height:none!important;
+}
+
+/* Restore master component sizes; old responsive rules must never resize them independently. */
+body.v235-live #v2411TableShell .visual-seat.dynamic-seat{
+  width:210px!important;
+  min-height:70px!important;
+}
+body.v235-live #v2411TableShell .pro-seat-card.poker-chip-nameplate{
+  width:210px!important;
+  height:70px!important;
+  min-height:70px!important;
+}
+
+/* Defeat all inherited laptop table-size rules. */
+@media(max-width:1500px){
+  body.v235-live #v2411TableShell>.table{width:1452px!important;height:861px!important;min-width:1452px!important;min-height:861px!important;max-width:none!important;max-height:none!important;}
+}
+@media(max-width:1200px){
+  body.v235-live #v2411TableShell>.table{width:1452px!important;height:861px!important;min-width:1452px!important;min-height:861px!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;}
+  body.v235-live #v2411TableShell .visual-seat.dynamic-seat{width:210px!important;min-height:70px!important;}
+  body.v235-live #v2411TableShell .pro-seat-card.poker-chip-nameplate{width:210px!important;height:70px!important;min-height:70px!important;}
+}
+@media(max-width:980px){
+  body.v235-live #v2411TableShell>.table{width:1452px!important;height:861px!important;min-width:1452px!important;min-height:861px!important;}
+}
+</style>
+
+<script id="v2411-screen-scaling-hotfix-script">
+(function(){
+  'use strict';
+  const MASTER_W=1452;
+  const MASTER_H=861;
+  const EDGE_PAD=6;
+  let raf=0;
+  let ro=null;
+
+  function ensureShell(){
+    const table=document.querySelector('.v235-app .table');
+    if(!table) return null;
+    let shell=document.getElementById('v2411TableShell');
+    if(!shell){
+      shell=document.createElement('div');
+      shell.id='v2411TableShell';
+      table.parentNode.insertBefore(shell,table);
+      shell.appendChild(table);
+    }else if(table.parentNode!==shell){
+      shell.appendChild(table);
+    }
+    return shell;
+  }
+
+  function fit(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      if(!document.body.classList.contains('v235-live')) return;
+      const main=document.querySelector('.v235-table-layout>.main');
+      const shell=ensureShell();
+      if(!main||!shell) return;
+      const w=Math.max(0,main.clientWidth-(EDGE_PAD*2));
+      const h=Math.max(0,main.clientHeight-(EDGE_PAD*2));
+      if(w<20||h<20) return;
+      const scale=Math.max(.20,Math.min(1,w/MASTER_W,h/MASTER_H));
+      const sw=MASTER_W*scale;
+      const sh=MASTER_H*scale;
+      document.documentElement.style.setProperty('--v2411-table-scale',scale.toFixed(7));
+      /* Neutralize the broken V24.1 transform variable in case older rules remain. */
+      document.documentElement.style.setProperty('--v241-table-scale','1');
+      shell.style.width=sw.toFixed(2)+'px';
+      shell.style.height=sh.toFixed(2)+'px';
+      shell.dataset.scale=scale.toFixed(4);
+      shell.dataset.master=MASTER_W+'x'+MASTER_H;
+    });
+  }
+
+  function stamp(){
+    document.title='Poker Dealer Trainer V24.2 — Mobile Support';
+    const rules=document.querySelector('#v23RulesPanel .v23-title');
+    if(rules) rules.textContent='V24.2 MOBILE SUPPORT';
+  }
+
+  function init(){
+    ensureShell();
+    const main=document.querySelector('.v235-table-layout>.main');
+    if(main && 'ResizeObserver' in window){
+      ro=new ResizeObserver(fit);
+      ro.observe(main);
+    }
+    window.addEventListener('resize',fit,{passive:true});
+    window.addEventListener('orientationchange',fit,{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)fit();});
+    const mo=new MutationObserver(()=>fit());
+    mo.observe(document.body,{attributes:true,attributeFilter:['class']});
+    stamp();
+    fit();
+    setTimeout(fit,50);
+    setTimeout(fit,250);
+    setTimeout(fit,800);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+  window.v2411FitMasterScene=fit;
+})();
+</script>
+
+
+<style id="v2413-card-center-stability-style">
+/* V24.1.3 — Hole-card groups stay on the fixed master canvas.
+   Responsive rules cannot independently change their anchor geometry. */
+body.v235-live #v2411TableShell .visual-seat .seat-hand{
+  position:absolute!important;
+  right:auto!important;
+  bottom:auto!important;
+  margin:0!important;
+  transform-origin:50% 50%!important;
+  will-change:transform,left,top;
+}
+</style>
+
+
+
+<!-- ============================================================
+     V24.2 — MOBILE / LANDSCAPE TABLE MODE
+     One master 1452x861 coordinate canvas on every device.
+     Phone layouts alter only the surrounding UI; table coordinates
+     remain identical to desktop/laptop.
+     ============================================================ -->
+<style id="v242-mobile-support-style">
+:root{
+  --v242-mobile-header-h:42px;
+  --v242-mobile-action-h:38px;
+  --v242-mobile-controls-h:52px;
+}
+
+#v242MobilePanelToggle,
+#v242MobileRailClose,
+#v242MobileActionBar,
+#v242MobileRailBackdrop,
+#v242RotateOverlay{display:none;}
+
+/* Portrait table mode intentionally requests landscape. Menus remain usable in portrait. */
+@media (max-width:767px) and (orientation:portrait){
+  body.v235-live{overflow:hidden!important;}
+  body.v235-live #v242RotateOverlay{
+    position:fixed!important;
+    inset:0!important;
+    z-index:30000!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:24px!important;
+    background:radial-gradient(circle at 50% 25%,#162019,#050807 62%)!important;
+    color:#f7f1df!important;
+    text-align:center!important;
+  }
+  #v242RotateOverlay .v242-rotate-card{
+    width:min(92vw,430px)!important;
+    border:1px solid #b98d37!important;
+    border-radius:18px!important;
+    background:#090e0c!important;
+    box-shadow:0 24px 80px rgba(0,0,0,.72)!important;
+    padding:28px 24px 24px!important;
+  }
+  #v242RotateOverlay .v242-phone-icon{font-size:54px!important;line-height:1!important;color:#e0b659!important;transform:rotate(90deg);display:inline-block;margin-bottom:12px!important;}
+  #v242RotateOverlay h2{margin:0 0 10px!important;font-family:Georgia,serif!important;color:#e6c46d!important;font-size:25px!important;letter-spacing:.5px!important;}
+  #v242RotateOverlay p{margin:0 0 20px!important;color:#c7cfca!important;font-size:14px!important;line-height:1.5!important;}
+  #v242RotateExit{
+    min-height:46px!important;width:100%!important;border:1px solid #87682f!important;border-radius:10px!important;
+    background:#111816!important;color:#f4e1aa!important;font-weight:900!important;letter-spacing:.6px!important;
+  }
+}
+
+/* Phone landscape: full-screen table + overlay controls + slide-up training rail. */
+@media (orientation:landscape) and (max-width:1000px) and (max-height:700px){
+  html,body{width:100%!important;height:100%!important;overscroll-behavior:none!important;}
+  body.v235-live{
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+    background:#020303!important;
+    touch-action:manipulation!important;
+  }
+  body.v235-live .v235-app{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;}
+
+  /* Header floats over the room instead of consuming precious table height. */
+  body.v235-live .v235-table-header{
+    position:fixed!important;
+    left:0!important;right:0!important;top:0!important;
+    height:calc(var(--v242-mobile-header-h) + env(safe-area-inset-top))!important;
+    min-height:0!important;
+    padding:env(safe-area-inset-top) max(8px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))!important;
+    z-index:5600!important;
+    display:grid!important;
+    grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    background:linear-gradient(180deg,rgba(3,7,6,.96),rgba(3,7,6,.78),rgba(3,7,6,.08))!important;
+    border:0!important;
+    pointer-events:auto!important;
+  }
+  body.v235-live .v235-table-brand{gap:6px!important;min-width:0!important;}
+  body.v235-live .v235-table-brand .v235-chip-logo{width:27px!important;height:27px!important;border-width:3px!important;font-size:14px!important;}
+  body.v235-live .v235-table-brand strong{font-size:19px!important;line-height:1!important;}
+  body.v235-live .v235-table-brand i{height:22px!important;}
+  body.v235-live .v235-table-brand b{display:block!important;font-size:11px!important;letter-spacing:1.3px!important;white-space:nowrap!important;}
+  body.v235-live .v235-session-meta{justify-content:center!important;gap:6px!important;font-size:9px!important;white-space:nowrap!important;overflow:hidden!important;}
+  body.v235-live .v235-session-meta span{display:none!important;}
+  body.v235-live .v235-session-meta span:first-child{display:inline!important;}
+  body.v235-live .v235-session-meta em{display:inline!important;padding:4px 7px!important;font-size:9px!important;}
+  body.v235-live .v235-table-nav{height:100%!important;align-items:center!important;}
+  body.v235-live .v235-table-nav button{
+    width:36px!important;height:36px!important;min-width:36px!important;padding:0!important;
+    border:0!important;background:transparent!important;font-size:18px!important;touch-action:manipulation!important;
+  }
+  body.v235-live .v235-table-nav button small{display:none!important;}
+  body.v235-live .v235-table-nav button[data-open-panel="stats"]{display:none!important;}
+
+  /* Give the master table the entire physical phone viewport. */
+  body.v235-live .v235-table-layout{
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    display:block!important;
+    overflow:hidden!important;
+    background:#020303!important;
+  }
+  body.v235-live .v235-table-layout>.main{
+    position:absolute!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    padding:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+    background:#020303!important;
+  }
+
+  /* Desktop-only supporting panels are replaced by the mobile drawer. */
+  body.v235-live .v235-table-layout>.main>.audition-strip,
+  body.v235-live .v235-table-layout>.main>.position-bar,
+  body.v235-live .v235-table-layout>.main>.players,
+  body.v235-live .v235-table-layout>.main>.casino-chair-layer,
+  body.v235-live .v235-table-layout>.main>.v235-blinds-box,
+  body.v235-live .v235-table-layout>.main>.v23-panel,
+  body.v235-live .v235-table-layout>.main>.bottomgrid{display:none!important;}
+
+  /* On the phone the felt itself stays clean; these values live in the mobile action bar/drawer. */
+  body.v235-live #v2411TableShell .center>.action,
+  body.v235-live #v2411TableShell .center>.nextup,
+  body.v235-live #v2411TableShell .center>.instruction-line,
+  body.v235-live #v2411TableShell .center>.street-ready,
+  body.v235-live #v2411TableShell .center>.current-info,
+  body.v235-live #v2411TableShell .center>.chip-tray{display:none!important;}
+
+  /* Right rail becomes a touch-friendly slide-up drawer and no longer steals table width. */
+  body.v235-live .v235-table-layout>#v235Rail,
+  body.v235-live #v235Rail{
+    display:block!important;
+    position:fixed!important;
+    z-index:7200!important;
+    left:max(8px,env(safe-area-inset-left))!important;
+    right:max(8px,env(safe-area-inset-right))!important;
+    top:calc(var(--v242-mobile-header-h) + env(safe-area-inset-top) + 4px)!important;
+    bottom:calc(var(--v242-mobile-controls-h) + var(--v242-mobile-action-h) + env(safe-area-inset-bottom) + 5px)!important;
+    width:auto!important;
+    max-width:none!important;
+    height:auto!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:45px 10px 12px!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    border:1px solid #9a7534!important;
+    border-radius:15px!important;
+    background:rgba(5,10,9,.985)!important;
+    box-shadow:0 25px 80px rgba(0,0,0,.82)!important;
+    transform:translateY(calc(100% + 100px))!important;
+    transition:transform .24s ease!important;
+    pointer-events:auto!important;
+  }
+  body.v235-live #v235Rail.v242-mobile-open{transform:translateY(0)!important;}
+  body.v235-live #v235Rail .v235-rail-card,
+  body.v235-live #v235Rail .question,
+  body.v235-live #v235Rail .showdown-panel,
+  body.v235-live #v235Rail .winner-panel,
+  body.v235-live #v235Rail .side-pot-panel{font-size:12px!important;}
+  body.v235-live #v235Rail input,
+  body.v235-live #v235Rail textarea,
+  body.v235-live #v235Rail select,
+  body.v235-live #v235Rail button{min-height:44px!important;font-size:13px!important;touch-action:manipulation!important;}
+  #v242MobileRailClose{
+    display:block!important;position:absolute!important;right:8px!important;top:7px!important;z-index:2!important;
+    height:34px!important;min-height:34px!important;padding:0 14px!important;border:1px solid #70592d!important;
+    border-radius:999px!important;background:#101714!important;color:#e4c46d!important;font-weight:900!important;
+  }
+  #v242MobileRailBackdrop{
+    display:none!important;position:fixed!important;inset:0!important;z-index:7100!important;
+    background:rgba(0,0,0,.47)!important;backdrop-filter:blur(2px)!important;
+  }
+  body.v242-mobile-rail-open #v242MobileRailBackdrop{display:block!important;}
+
+  /* Compact current-action banner. Tapping it opens the full rail. */
+  #v242MobileActionBar{
+    display:flex!important;
+    position:fixed!important;
+    left:max(6px,env(safe-area-inset-left))!important;
+    right:max(6px,env(safe-area-inset-right))!important;
+    bottom:calc(var(--v242-mobile-controls-h) + env(safe-area-inset-bottom) + 3px)!important;
+    height:var(--v242-mobile-action-h)!important;
+    z-index:5700!important;
+    align-items:center!important;
+    gap:8px!important;
+    padding:0 11px!important;
+    border:1px solid rgba(197,151,59,.72)!important;
+    border-radius:10px!important;
+    background:rgba(4,10,8,.91)!important;
+    box-shadow:0 5px 20px rgba(0,0,0,.5)!important;
+    color:#f7f5ec!important;
+    overflow:hidden!important;
+    touch-action:manipulation!important;
+  }
+  #v242MobileActionBar b{color:#e1b85c!important;font-size:9px!important;letter-spacing:1px!important;white-space:nowrap!important;}
+  #v242MobileActionText{font-size:11px!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;flex:1!important;}
+  #v242MobileActionBar::after{content:'INFO ›'!important;color:#e5c36e!important;font-size:10px!important;font-weight:900!important;white-space:nowrap!important;}
+
+  /* Mobile controls float over the lower carpet and preserve the table's full height. */
+  body.v235-live .v235-bottom-bar{
+    display:flex!important;
+    position:fixed!important;
+    left:0!important;right:0!important;bottom:0!important;
+    z-index:5800!important;
+    height:calc(var(--v242-mobile-controls-h) + env(safe-area-inset-bottom))!important;
+    min-height:0!important;
+    padding:4px max(5px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(5px,env(safe-area-inset-left))!important;
+    gap:4px!important;
+    align-items:center!important;
+    border-top:1px solid rgba(183,138,51,.65)!important;
+    background:linear-gradient(180deg,rgba(5,9,8,.72),rgba(5,9,8,.97))!important;
+    backdrop-filter:blur(7px)!important;
+  }
+  body.v235-live .v235-bottom-bar .v235-bottom-spacer{display:none!important;}
+  body.v235-live .v235-bottom-bar button{
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:0!important;
+    height:43px!important;
+    min-height:43px!important;
+    padding:0 9px!important;
+    border-radius:8px!important;
+    font-size:9px!important;
+    letter-spacing:.2px!important;
+    white-space:nowrap!important;
+    touch-action:manipulation!important;
+  }
+  body.v235-live #v235ExitHand{padding:0 8px!important;}
+  body.v235-live #v235Pause{padding:0 8px!important;}
+  body.v235-live #v235NewHand{padding:0 9px!important;}
+  body.v235-live #v235Hint{padding:0 9px!important;}
+  #v242MobilePanelToggle{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    border:1px solid #84652f!important;background:#111916!important;color:#ebcc78!important;font-weight:900!important;
+  }
+  body.v235-live #v235NextAction{
+    flex:1 1 auto!important;
+    min-width:120px!important;
+    padding:0 15px!important;
+    font-size:11px!important;
+    font-weight:900!important;
+  }
+
+  /* All interactive controls should feel native to touch. */
+  body.v235-live button,body.v235-live [role="button"]{-webkit-tap-highlight-color:transparent!important;}
+}
+
+/* Extra-tight landscape phones: keep only the essential control labels. */
+@media (orientation:landscape) and (max-width:740px) and (max-height:520px){
+  body.v235-live .v235-table-brand b{display:none!important;}
+  body.v235-live .v235-session-meta{display:none!important;}
+  body.v235-live .v235-table-nav button[data-open-panel="help"]{display:none!important;}
+  body.v235-live .v235-bottom-bar button{padding:0 7px!important;font-size:8px!important;}
+  body.v235-live #v235Pause{display:none!important;}
+  body.v235-live #v235NextAction{min-width:108px!important;font-size:10px!important;}
+}
+</style>
+
+<script id="v242-mobile-support-script">
+(function(){
+  'use strict';
+  const PHONE_LANDSCAPE='(orientation: landscape) and (max-width: 1000px) and (max-height: 700px)';
+  let actionObserver=null;
+
+  function closeRail(){
+    const rail=document.getElementById('v235Rail');
+    rail?.classList.remove('v242-mobile-open');
+    document.body.classList.remove('v242-mobile-rail-open');
+    const btn=document.getElementById('v242MobilePanelToggle');
+    if(btn) btn.setAttribute('aria-expanded','false');
+  }
+  function openRail(){
+    if(!window.matchMedia(PHONE_LANDSCAPE).matches) return;
+    const rail=document.getElementById('v235Rail');
+    if(!rail) return;
+    rail.classList.add('v242-mobile-open');
+    document.body.classList.add('v242-mobile-rail-open');
+    const btn=document.getElementById('v242MobilePanelToggle');
+    if(btn) btn.setAttribute('aria-expanded','true');
+  }
+  function toggleRail(){
+    const rail=document.getElementById('v235Rail');
+    if(rail?.classList.contains('v242-mobile-open')) closeRail(); else openRail();
+  }
+  function updateActionBar(){
+    const out=document.getElementById('v242MobileActionText');
+    if(!out) return;
+    const action=document.getElementById('v235CurrentAction');
+    const fallback=document.getElementById('actionText');
+    let text=(action?.childNodes?.[0]?.textContent || action?.textContent || fallback?.textContent || 'Waiting for a hand...').trim();
+    text=text.replace(/\s+/g,' ');
+    out.textContent=text || 'Waiting for a hand...';
+  }
+  function ensureUI(){
+    const bottom=document.querySelector('.v235-bottom-bar');
+    const hint=document.getElementById('v235Hint');
+    if(bottom && !document.getElementById('v242MobilePanelToggle')){
+      const btn=document.createElement('button');
+      btn.id='v242MobilePanelToggle';
+      btn.type='button';
+      btn.innerHTML='☰ &nbsp; INFO';
+      btn.setAttribute('aria-label','Open current action and training panel');
+      btn.setAttribute('aria-expanded','false');
+      btn.addEventListener('click',toggleRail);
+      bottom.insertBefore(btn,hint||document.getElementById('v235NextAction'));
+    }
+
+    const rail=document.getElementById('v235Rail');
+    if(rail && !document.getElementById('v242MobileRailClose')){
+      const close=document.createElement('button');
+      close.id='v242MobileRailClose';
+      close.type='button';
+      close.textContent='CLOSE ✕';
+      close.addEventListener('click',closeRail);
+      rail.prepend(close);
+    }
+
+    if(!document.getElementById('v242MobileRailBackdrop')){
+      const backdrop=document.createElement('div');
+      backdrop.id='v242MobileRailBackdrop';
+      backdrop.setAttribute('aria-hidden','true');
+      backdrop.addEventListener('click',closeRail);
+      document.body.appendChild(backdrop);
+    }
+
+    if(!document.getElementById('v242MobileActionBar')){
+      const bar=document.createElement('button');
+      bar.id='v242MobileActionBar';
+      bar.type='button';
+      bar.innerHTML='<b>CURRENT ACTION</b><span id="v242MobileActionText">Waiting for a hand...</span>';
+      bar.setAttribute('aria-label','Open current action details');
+      bar.addEventListener('click',openRail);
+      document.body.appendChild(bar);
+    }
+
+    if(!document.getElementById('v242RotateOverlay')){
+      const overlay=document.createElement('div');
+      overlay.id='v242RotateOverlay';
+      overlay.innerHTML='<div class="v242-rotate-card"><div class="v242-phone-icon">▯</div><h2>ROTATE TO LANDSCAPE</h2><p>Table Mode is designed for landscape on phones so the full table, players, cards and controls remain readable.</p><button type="button" id="v242RotateExit">EXIT HAND</button></div>';
+      document.body.appendChild(overlay);
+      document.getElementById('v242RotateExit')?.addEventListener('click',()=>document.getElementById('v235ExitHand')?.click());
+    }
+
+    if(!actionObserver){
+      const action=document.getElementById('v235CurrentAction');
+      if(action && 'MutationObserver' in window){
+        actionObserver=new MutationObserver(updateActionBar);
+        actionObserver.observe(action,{subtree:true,childList:true,characterData:true});
+      }
+    }
+    updateActionBar();
+  }
+
+  function refit(){
+    ensureUI();
+    if(!window.matchMedia(PHONE_LANDSCAPE).matches) closeRail();
+    requestAnimationFrame(()=>{
+      if(typeof window.v2411FitMasterScene==='function') window.v2411FitMasterScene();
+    });
+    setTimeout(()=>{ if(typeof window.v2411FitMasterScene==='function') window.v2411FitMasterScene(); },120);
+  }
+
+  function stamp(){
+    document.title='Poker Dealer Trainer V24.2 — Mobile Support';
+    const rules=document.querySelector('#v23RulesPanel .v23-title');
+    if(rules) rules.textContent='V24.2 MOBILE / LIVE DEALER LOGIC';
+  }
+
+  function init(){
+    ensureUI();
+    stamp();
+    window.addEventListener('resize',refit,{passive:true});
+    window.addEventListener('orientationchange',()=>{closeRail();refit();},{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refit();});
+    document.getElementById('v235ExitHand')?.addEventListener('click',closeRail);
+    document.getElementById('v235NewHand')?.addEventListener('click',closeRail);
+    document.querySelectorAll('[data-open-panel]').forEach(btn=>btn.addEventListener('click',closeRail));
+    const bodyObserver=new MutationObserver(()=>{ensureUI();refit();});
+    bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+    refit();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+  window.v242OpenMobileRail=openRail;
+  window.v242CloseMobileRail=closeRail;
 })();
 </script>
 
