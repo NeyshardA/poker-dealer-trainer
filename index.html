@@ -11404,5 +11404,175 @@ body.v235-live #seatTunerToggle{display:block!important;}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
 })();
 </script>
+
+
+<style id="v24-1-0-dev-scenario-lab-style">
+#devScenarioToggle{
+  position:fixed;left:14px;top:88px;z-index:250;height:38px;padding:0 15px;border-radius:999px;
+  border:1px solid #a87837;background:linear-gradient(180deg,#21170d,#0c0906);color:#f0cb74;
+  font:800 11px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.38)
+}
+#devScenarioToggle:hover{filter:brightness(1.12)}
+#devScenarioPanel{
+  position:fixed;left:14px;top:136px;z-index:249;width:385px;max-height:calc(100vh - 154px);overflow:auto;display:none;
+  color:#f6f2e8;background:linear-gradient(180deg,rgba(18,15,11,.99),rgba(6,8,7,.99));
+  border:1px solid #8d6b31;border-radius:15px;box-shadow:0 20px 48px rgba(0,0,0,.58);padding:13px
+}
+#devScenarioPanel.open{display:block}
+.dev-scenario-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.dev-scenario-head strong{color:#f0cb74;font-size:12px;letter-spacing:.8px}
+#devScenarioClose{border:1px solid #5a4828;background:#15120e;color:#e9d7ad;border-radius:7px;width:30px;height:30px;cursor:pointer}
+.dev-scenario-help{font-size:10px;color:#b9c2bd;line-height:1.45;margin-bottom:10px}
+.dev-scenario-grid{display:grid;grid-template-columns:1fr;gap:7px}
+.dev-scenario-btn{width:100%;min-height:43px;border:1px solid #71562c;border-radius:8px;background:#111916;color:#f5e8c4;font-weight:800;font-size:11px;cursor:pointer;padding:8px 10px;text-align:left}
+.dev-scenario-btn small{display:block;color:#aeb8b2;font-size:9px;margin-top:3px;font-weight:500;line-height:1.3}
+.dev-scenario-btn:hover{border-color:#d1a957;background:#17211d}
+.dev-scenario-btn.danger{border-color:#74413c;color:#f5c4bd;background:#1c1110}
+#devScenarioRepeatRow{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-size:10px;color:#d9d0b8}
+#devScenarioRepeatRow input{width:auto!important;margin:0}
+#devScenarioStatus{margin-top:9px;padding:9px;border:1px solid #3c4b44;border-radius:7px;background:#09100e;color:#dcd5c2;font-size:10px;line-height:1.45;min-height:36px}
+#devScenarioBanner{position:fixed;left:50%;top:92px;transform:translateX(-50%);z-index:248;background:rgba(25,16,8,.96);border:1px solid #bb8c45;border-radius:999px;padding:7px 14px;color:#f3d58e;font:800 10px/1.2 Arial,sans-serif;letter-spacing:.5px;display:none;pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.38)}
+body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,body:not(.v235-live) #devScenarioBanner{display:none!important}
+@media(max-width:700px){#devScenarioPanel{width:calc(100vw - 20px);left:10px;top:128px}#devScenarioToggle{left:10px}}
+</style>
+
+<button id="devScenarioToggle" type="button">DEV SCENARIOS</button>
+<div id="devScenarioPanel" aria-hidden="true">
+  <div class="dev-scenario-head"><strong>ALL-IN / SIDE-POT SCENARIO LAB</strong><button id="devScenarioClose" type="button">×</button></div>
+  <div class="dev-scenario-help">DEV-only deterministic test hands. These do not change the normal public hand generator. Arm one scenario, then press START / NEW HAND.</div>
+  <div class="dev-scenario-grid">
+    <button type="button" class="dev-scenario-btn" data-dev-scenario="side3">3-WAY ALL-IN • 1 SIDE POT<small>For testing one main pot plus one side pot.</small></button>
+    <button type="button" class="dev-scenario-btn" data-dev-scenario="side4">4-WAY ALL-IN • 2 SIDE POTS<small>For testing multiple eligibility layers and payouts.</small></button>
+    <button type="button" class="dev-scenario-btn" data-dev-scenario="side5">5-WAY ALL-IN • 3 SIDE POTS<small>Stress test for deep multi-side-pot accounting.</small></button>
+    <button type="button" class="dev-scenario-btn danger" id="devScenarioCancel">CANCEL TEST • RETURN TO NORMAL HANDS</button>
+  </div>
+  <label id="devScenarioRepeatRow"><input id="devScenarioRepeat" type="checkbox"> Repeat the selected scenario on every NEW HAND until cancelled</label>
+  <div id="devScenarioStatus">NORMAL HAND GENERATOR ACTIVE.</div>
+</div>
+<div id="devScenarioBanner" aria-live="polite"></div>
+
+<script id="v24-1-0-dev-scenario-lab">
+(function(){
+  if(window.__pdtDevScenarioLabLoaded) return;
+  window.__pdtDevScenarioLabLoaded=true;
+  window.PDT_DEV_VERSION='24.1.0-dev';
+
+  const defs={
+    side3:{label:'3-WAY ALL-IN • 1 SIDE POT',need:3,stacks:[35,70,120]},
+    side4:{label:'4-WAY ALL-IN • 2 SIDE POTS',need:4,stacks:[30,55,90,140]},
+    side5:{label:'5-WAY ALL-IN • 3 SIDE POTS',need:5,stacks:[25,45,70,110,170]}
+  };
+  const ctl={armed:null,repeat:false,run:null,lastWasScenario:false};
+  window.__pdtDevScenarioCtl=ctl;
+  const $d=id=>document.getElementById(id);
+  const running=()=>ctl.run&&ctl.run.active?ctl.run:null;
+
+  function status(msg){const el=$d('devScenarioStatus');if(el)el.textContent=msg}
+  function banner(msg){const el=$d('devScenarioBanner');if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none'}
+  function showPanel(show){const p=$d('devScenarioPanel');if(!p)return;p.classList.toggle('open',!!show);p.setAttribute('aria-hidden',show?'false':'true')}
+
+  function arm(key){
+    const def=defs[key];if(!def)return;
+    ctl.armed=key;
+    status(`ARMED: ${def.label}. Test stacks: ${def.stacks.map((s,i)=>`P${i+1} $${s}`).join(' • ')}. Other players will fold. Press START / NEW HAND.`);
+  }
+
+  function cancel(){
+    ctl.armed=null;ctl.run=null;ctl.repeat=false;ctl.lastWasScenario=true;
+    if(typeof sessionStacks!=='undefined') sessionStacks=null;
+    const cb=$d('devScenarioRepeat');if(cb)cb.checked=false;
+    banner('');status('NORMAL HAND GENERATOR ACTIVE. Next hand resets to normal equal starting stacks.');
+  }
+
+  if(typeof buildActionForPlayer==='function'){
+    const baseBuild=buildActionForPlayer;
+    buildActionForPlayer=function(p){
+      const run=running();
+      if(run && state && state.street==='Preflop'){
+        if(run.participants.includes(p.id) && !p.folded && !p.allin && p.stack>0){
+          const target=p.streetBet+p.stack;
+          const add=p.stack;
+          const isCallOnly=target<=state.currentBet;
+          return {
+            type:'allin',target,amount:add,pullAmount:add,devScenario:true,
+            label:isCallOnly
+              ? `DEV SIDE-POT TEST — PLAYER ${p.id} IS ALL-IN FOR ${money(target)} — ADD ${money(add)}`
+              : `DEV SIDE-POT TEST — PLAYER ${p.id} IS ALL-IN TO ${money(target)} — ADD ${money(add)}`,
+            short:isCallOnly?`ALL-IN CALL • ${money(target)}`:`ALL-IN TO ${money(target)}`
+          };
+        }
+        if(!run.participants.includes(p.id) && !p.folded && !p.allin){
+          return {type:'fold',label:`DEV SIDE-POT TEST — PLAYER ${p.id} FOLDS`,short:'FOLDS',pullAmount:0,devScenario:true};
+        }
+      }
+      return baseBuild.apply(this,arguments);
+    };
+  }
+
+  /* Scenario hands focus on the all-in / pot workflow, not unrelated random quizzes. */
+  if(typeof maybeAskActionOrderQuestion==='function'){
+    const base=maybeAskActionOrderQuestion;
+    maybeAskActionOrderQuestion=function(onDone){if(running()){if(typeof onDone==='function')onDone();return;}return base.apply(this,arguments)};
+  }
+  if(typeof maybeQuestion==='function'){
+    const base=maybeQuestion;
+    maybeQuestion=function(){if(running())return false;return base.apply(this,arguments)};
+  }
+  if(typeof maybeAdvancedProcedureQuestion==='function'){
+    const base=maybeAdvancedProcedureQuestion;
+    maybeAdvancedProcedureQuestion=function(){if(running())return false;return base.apply(this,arguments)};
+  }
+
+  if(typeof startHand==='function'){
+    const baseStart=startHand;
+    startHand=function(){
+      const requested=ctl.armed;
+      if(!requested){
+        if(ctl.lastWasScenario){
+          sessionStacks=null;
+          ctl.lastWasScenario=false;
+          status('NORMAL HAND GENERATOR ACTIVE. Test stacks cleared.');
+        }
+        ctl.run=null;banner('');
+        return baseStart.apply(this,arguments);
+      }
+
+      const def=defs[requested];
+      const pc=typeof playerCount==='function'?playerCount():0;
+      if(pc<def.need){
+        status(`${def.label} requires at least ${def.need} players. Current table has ${pc}. Change the player count, then arm the scenario again.`);
+        if(!ctl.repeat)ctl.armed=null;
+        ctl.run=null;banner('');
+        return;
+      }
+
+      const normalStack=Number($d('stack')?.value)||300;
+      sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
+      ctl.run={active:true,key:requested,label:def.label,participants:Array.from({length:def.need},(_,i)=>i+1),stacks:[...def.stacks]};
+      ctl.lastWasScenario=true;
+      banner(`DEV TEST • ${def.label}`);
+      status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. Complete the hand and verify pot amounts, eligibility and payouts.`);
+      if(!ctl.repeat)ctl.armed=null;
+      const out=baseStart.apply(this,arguments);
+      if(state){
+        state.devScenario={...ctl.run};
+        state.advancedSpot=`DEV ${def.label}`;
+        const alert=$d('dealerAlert');if(alert){alert.textContent=`DEV TEST • ${def.label}`;alert.classList.add('dealer-alert-hot')}
+      }
+      return out;
+    };
+  }
+
+  function wire(){
+    $d('devScenarioToggle')?.addEventListener('click',()=>showPanel(!$d('devScenarioPanel')?.classList.contains('open')));
+    $d('devScenarioClose')?.addEventListener('click',()=>showPanel(false));
+    document.querySelectorAll('[data-dev-scenario]').forEach(btn=>btn.addEventListener('click',()=>arm(btn.dataset.devScenario)));
+    $d('devScenarioCancel')?.addEventListener('click',cancel);
+    $d('devScenarioRepeat')?.addEventListener('change',e=>{ctl.repeat=!!e.target.checked});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
+})();
+</script>
+
 </body>
 </html>
