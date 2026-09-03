@@ -9300,9 +9300,10 @@ renderPlayers();
     </div>
     <div class="seat-tuner-section">
       <h4>Nameplate Appearance — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">These change only the visual size of the poker-chip edge, player name, and money text. They do not change seat X/Y, nameplate rotation, money X/Y, cards, bets, or buttons.</div>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Whole Nameplate Size scales the complete poker-chip nameplate around its center for all 8 seats at once. It does NOT change any seat X/Y coordinates and does not move cards, bets, or D/SB/BB markers. Edge Thickness remains independent, so you can shrink the whole nameplate and still make the gold/black edge thicker.</div>
       <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px)</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="20" value="6"></div>
+        <div class="seat-tuner-field"><label>Whole Nameplate Size (%) — ALL 8 SEATS</label><input id="stPlateScale" type="number" step="1" min="40" max="180" value="100"></div>
+        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px)</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="30" value="6"></div>
         <div class="seat-tuner-field"><label>Player Name Size (px)</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="17"></div>
         <div class="seat-tuner-field"><label>Money Size (px)</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="16"></div>
       </div>
@@ -9320,6 +9321,7 @@ renderPlayers();
 </div>
 
 
+<!-- V24.0.2 DEV: Global whole-nameplate scale control. DEV ONLY. -->
 <script>
 (function(){
   if(window.__v235SeatTunerLoaded) return;
@@ -9334,7 +9336,7 @@ renderPlayers();
   let layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
   let initialized=false;
   let dirty=false;
-  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
+  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":1,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
   let globalLayout={...GLOBAL_DEFAULTS};
   const SCENE_DEFAULTS={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
   let sceneLayout={...SCENE_DEFAULTS};
@@ -9342,8 +9344,8 @@ renderPlayers();
   const $id=id=>document.getElementById(id);
   const fields=['seatX','seatY','nameplateRot','chairX','chairY','chairScale','chairRot','cardsX','cardsY','cardsRot','betX','betY','betRot','dX','dY','dRot','sbX','sbY','sbRot','bbX','bbY','bbRot'];
   const ids={seatX:'stSeatX',seatY:'stSeatY',nameplateRot:'stNameplateRot',chairX:'stChairX',chairY:'stChairY',chairScale:'stChairScale',chairRot:'stChairRot',cardsX:'stCardsX',cardsY:'stCardsY',cardsRot:'stCardsRot',betX:'stBetX',betY:'stBetY',betRot:'stBetRot',dX:'stDX',dY:'stDY',dRot:'stDRot',sbX:'stSBX',sbY:'stSBY',sbRot:'stSBRot',bbX:'stBBX',bbY:'stBBY',bbRot:'stBBRot'};
-  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateEdgeSize','plateNameSize','plateMoneySize'];
-  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
+  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateScale','plateEdgeSize','plateNameSize','plateMoneySize'];
+  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateScale:'stPlateScale',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
   const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot'];
   const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot'};
 
@@ -9416,7 +9418,7 @@ renderPlayers();
       seat.style.setProperty('transform','translate(-50%,-50%)','important');
       const nameplate=seat.querySelector('.pro-seat-card');
       if(nameplate){
-        nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');
+        nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg) scale(${globalLayout.plateScale||1})`,'important');
         nameplate.style.setProperty('transform-origin','50% 50%','important');
       }
       const hand=seat.querySelector('.seat-hand');
@@ -9570,7 +9572,7 @@ renderPlayers();
   function writeGlobalFields(){
     globalFields.forEach(k=>{
       const el=$id(globalIds[k]); if(!el) return;
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') el.value=Math.round((globalLayout[k]??1)*100);
+      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') el.value=Math.round((globalLayout[k]??1)*100);
       else el.value=globalLayout[k]??0;
     });
   }
@@ -9578,7 +9580,7 @@ renderPlayers();
     globalFields.forEach(k=>{
       const el=$id(globalIds[k]); if(!el) return;
       const v=Number(el.value);
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
+      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
       else globalLayout[k]=Number.isFinite(v)?v:0;
     });
     applyAll();dirty=true;
@@ -9746,11 +9748,12 @@ renderPlayers();
     };
     const appearanceReset=$id('stPlateAppearanceReset');
     if(appearanceReset) appearanceReset.onclick=()=>{
+      globalLayout.plateScale=1;
       globalLayout.plateEdgeSize=6;
       globalLayout.plateNameSize=17;
       globalLayout.plateMoneySize=16;
-      applyGlobalElements(); writeGlobalFields(); dirty=true;
-      status('Nameplate edge, name size, and money size reset.');
+      applyAll(); writeGlobalFields(); dirty=true;
+      status('Whole nameplate size, edge, name size, and money size reset.');
     };
     $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
     $id('seatTunerResetAll').onclick=()=>{
