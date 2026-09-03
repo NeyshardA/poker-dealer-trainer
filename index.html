@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
-<title>Poker Dealer Trainer V24.0 — Live Dealer Logic</title>
+<title>Poker Dealer Trainer V1</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -5138,6 +5135,33 @@ body.audition-mode .v235-app .table,
 }
 </style>
 
+<style id="v1-dealer-only-and-center-pot">
+/* Public V1 — room uses Dealer Button only. Internal blind logic is unchanged. */
+.v235-app .seat-marker-sb,.v235-app .seat-marker-bb{display:none!important;visibility:hidden!important;opacity:0!important;}
+#centerPotTunerSection{border-color:#8d6b31!important;}
+</style>
+<style id="v24-0-6-hole-card-showdown-lock">
+/* V24.0.6 — Face-down and face-up table hole cards share the exact same dimensions, anchor, rotation and global scale. */
+.v235-app .visual-seat .seat-hand .playing-card{
+  width:35px!important;
+  height:49px!important;
+  font-size:15px!important;
+  flex:0 0 auto!important;
+}
+.v235-app .visual-seat .seat-hand .playing-card:not(.back).deal-in{animation:none!important;}
+
+.v235-app .visual-seat .seat-hand .playing-card.back,
+.v235-app .visual-seat .seat-hand .playing-card:not(.back){
+  box-sizing:border-box!important;
+  flex-basis:35px!important;
+}
+</style>
+<style id="v1-public-audition-lock">
+/* Public V1: Audition is intentionally unavailable until the mode is production-ready. */
+.mode-audition{cursor:not-allowed!important;pointer-events:none!important;}
+.ref-audition-coming-soon{position:absolute!important;z-index:39!important;left:63.0%!important;top:44.2%!important;width:26.3%!important;height:35.8%!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(72,76,76,.42)!important;backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;-webkit-backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;border:1px solid rgba(185,185,185,.35)!important;pointer-events:none!important;}
+.ref-audition-coming-soon span{display:inline-block!important;padding:10px 16px!important;border-radius:999px!important;background:rgba(4,7,7,.88)!important;border:1px solid rgba(218,194,126,.65)!important;color:#e9d39a!important;font:900 13px/1 Arial,sans-serif!important;letter-spacing:1.8px!important;text-shadow:0 1px 2px #000!important;}
+</style>
 </head>
 <body>
 
@@ -5152,9 +5176,10 @@ body.audition-mode .v235-app .table,
     <button class="ref-hotspot nav-logout" type="button" aria-label="Logout" data-ref-access></button>
 
     <!-- Functional mode SELECT zones. -->
-    <button class="ref-hotspot mode-real" type="button" aria-label="Select Real Table Mode" data-ref-mode="real" onclick="chooseTrainingMode('real')"></button>
-    <button class="ref-hotspot mode-visual" type="button" aria-label="Select Visual Dealer Mode" data-ref-mode="visual" onclick="chooseTrainingMode('visual')"></button>
-    <button class="ref-hotspot mode-audition" type="button" aria-label="Select Audition Mode" data-ref-mode="audition" onclick="chooseTrainingMode('audition')"></button>
+    <button class="ref-hotspot mode-real" type="button" aria-label="Select Real Table Mode" data-ref-mode="real"></button>
+    <button class="ref-hotspot mode-visual" type="button" aria-label="Select Visual Dealer Mode" data-ref-mode="visual"></button>
+    <button class="ref-hotspot mode-audition" type="button" aria-label="Audition Mode — Coming Soon" aria-disabled="true" disabled></button>
+    <div class="ref-audition-coming-soon" aria-hidden="true"><span>COMING SOON...</span></div>
 
     <!-- Dynamic game/player panel. This is real HTML so it can change later. -->
     <div class="ref-dynamic-game-panel" id="refDynamicGamePanel">
@@ -5956,8 +5981,12 @@ function revealVisualHoleCards(){
     if(!h) return;
     h.innerHTML="";
     if(p.folded) return;
-    (state.holeCards[i]||[]).forEach(c=>h.insertAdjacentHTML("beforeend",cardHTML(c,false,true)));
+    (state.holeCards[i]||[]).forEach(c=>h.insertAdjacentHTML("beforeend",cardHTML(c,false,false)));
   });
+  // V24.0.6: face-up cards are the SAME table object/anchor as face-down cards.
+  // Reapply the approved Laptop profile immediately after the DOM swap so showdown
+  // cannot introduce its own X/Y/rotation/scale.
+  if(typeof window.__v235ReapplySeatLayout==='function') window.__v235ReapplySeatLayout();
 }
 
 function gameCfg(){ return selectedGame ? GAME_CONFIG[selectedGame] : GAME_CONFIG.nlh; }
@@ -6028,8 +6057,6 @@ function renderVisualSeats(){
       <div class="seat-hand" id="vhand${i}"></div>
       <div class="visual-bet" id="vbet${i}"></div>
       <div class="seat-marker seat-marker-d" aria-label="Dealer button">D</div>
-      <div class="seat-marker seat-marker-sb" aria-label="Small blind">SB</div>
-      <div class="seat-marker seat-marker-bb" aria-label="Big blind">BB</div>
     `;
     wrap.appendChild(seat);
   }
@@ -8485,11 +8512,12 @@ renderPlayers();
     if(ri&&i) ri.textContent=i.textContent||'';
     const street=state?.street||''; document.querySelectorAll('.v235-street-track span').forEach(x=>x.classList.toggle('active',x.dataset.street===street));
     const q=Number(document.getElementById('qs')?.textContent||0), c=Number(document.getElementById('correct')?.textContent||0), acc=document.getElementById('accuracy')?.textContent||'—';
+    const hideMinRaiseAnswer=Boolean(state?.pendingQuestion?.type==='minraise' && waitingQuestion && !awaitingFeedbackDone);
     const vals={
       v235RailQuestions:q,v235RailCorrect:c,v235RailIncorrect:Math.max(0,q-c),
       v235RailMissed:auditionStats?.mistakes||0,v235RailAccuracy:acc,v235RailHands:generalHands,
       v235RailWager:document.getElementById('currentBet')?.textContent||'$0',
-      v235RailMinRaise:document.getElementById('minRaise')?.textContent||'$0',
+      v235RailMinRaise:hideMinRaiseAnswer?'?':(document.getElementById('minRaise')?.textContent||'$0'),
       v235SB:money(Number(document.getElementById('sb')?.value||1)),
       v235BB:money(Number(document.getElementById('bb')?.value||2)),
       v235HandDisplay:generalHands,
@@ -9620,9 +9648,15 @@ body.v235-live #v235Rail{
       x=((left+right)/2)-sr.left;
       y=(bottom-sr.top)+32;
     }
+    const devScene=(typeof window.__pdtGetLaptopSceneLayout==='function' ? window.__pdtGetLaptopSceneLayout() : null);
+    const potX=Number(devScene?.centerPotX)||0;
+    const potY=Number(devScene?.centerPotY)||0;
+    const potScale=Math.max(.01,Number(devScene?.centerPotScale)||1);
+    x+=potX; y+=potY;
     pot.style.setProperty('left',`${x}px`,'important');
     pot.style.setProperty('top',`${y}px`,'important');
-    pot.style.setProperty('transform','translate(-50%,-50%)','important');
+    pot.style.setProperty('transform',`translate(-50%,-50%) scale(${potScale})`,'important');
+    pot.style.setProperty('transform-origin','50% 50%','important');
   }
 
   function potTargetViewport(){
@@ -10495,7 +10529,7 @@ body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
 
   /* Keep the version visible in existing status/help text without moving UI elements. */
   function stampVersion(){
-    document.title='Poker Dealer Trainer V24.0 — Live Dealer Logic';
+    document.title='Poker Dealer Trainer V1';
     const rules=document.querySelector('#v23RulesPanel .v23-title');
     if(rules) rules.textContent='V24 LIVE DEALER LOGIC';
     const info=$v('structureInfo');
@@ -10511,58 +10545,123 @@ body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
 </script>
 
 
-<script id="production-layout-runtime-v24">
+<script id="production-layout-runtime-v1">
 (function(){
-  const LAYOUT={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
-  const GLOBAL={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
-  const SCENE={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
+  const PROFILES={
+    desktop:{
+      layout:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1}},
+      global:{"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13,"plateScale":1.0,"holeCardScale":1.0},
+      scene:{"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5,"centerPotX":0,"centerPotY":0,"centerPotScale":1.0}
+    },
+    laptop:{
+      layout:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}},
+      global:{"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.55,"markerScale":0.49,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":0.6},
+      scene:{"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73}
+    }
+  };
+  let activeName='';
+  let active=PROFILES.desktop;
   const seatEl=n=>document.querySelector(`.visual-seat.vpos${n-1}`);
   const chairEl=n=>document.querySelector(`.chair-seat${n}`);
+  function detectProfile(){
+    // Dedicated coordinate profiles: desktop is the approved large-screen layout;
+    // laptop is the separately tuned compact-screen layout. Mobile gets its own profile later.
+    return (window.innerWidth>=1600)?'desktop':'laptop';
+  }
+  function setActiveProfile(force=false){
+    const next=detectProfile();
+    if(!force && next===activeName) return false;
+    activeName=next; active=PROFILES[next];
+    document.documentElement.dataset.pdtLayoutProfile=next;
+    window.__PDT_LAYOUT_PROFILE=next;
+    return true;
+  }
+  window.__pdtGetLaptopSceneLayout=()=>active.scene; // shared hook used by the center-pot renderer
+
   function applySeat(n,data){
     if(!data)return;
-    const seat=seatEl(n),chair=chairEl(n);
+    const G=active.global,seat=seatEl(n),chair=chairEl(n);
     if(seat){
-      seat.style.setProperty('left',`${data.seatX}%`,'important');seat.style.setProperty('top',`${data.seatY}%`,'important');
-      seat.style.setProperty('right','auto','important');seat.style.setProperty('bottom','auto','important');seat.style.setProperty('transform','translate(-50%,-50%)','important');
+      seat.style.setProperty('left',`${data.seatX}%`,'important');
+      seat.style.setProperty('top',`${data.seatY}%`,'important');
+      seat.style.setProperty('right','auto','important');seat.style.setProperty('bottom','auto','important');
+      seat.style.setProperty('transform','translate(-50%,-50%)','important');
       const nameplate=seat.querySelector('.pro-seat-card');
-      if(nameplate){nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');nameplate.style.setProperty('transform-origin','50% 50%','important');}
+      if(nameplate){nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg) scale(${G.plateScale||1})`,'important');nameplate.style.setProperty('transform-origin','50% 50%','important');}
       const hand=seat.querySelector('.seat-hand');
-      if(hand){hand.style.setProperty('left','50%','important');hand.style.setProperty('right','auto','important');hand.style.setProperty('top','50%','important');hand.style.setProperty('bottom','auto','important');hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg)`,'important');}
+      if(hand){
+        hand.style.setProperty('left','50%','important');hand.style.setProperty('right','auto','important');
+        hand.style.setProperty('top','50%','important');hand.style.setProperty('bottom','auto','important');
+        hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg) scale(${G.holeCardScale||1})`,'important');
+        hand.style.setProperty('transform-origin','50% 50%','important');
+      }
       const bet=seat.querySelector('.visual-bet');
-      if(bet){bet.style.setProperty('left','50%','important');bet.style.setProperty('right','auto','important');bet.style.setProperty('top','50%','important');bet.style.setProperty('bottom','auto','important');bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX}px),calc(-50% + ${data.betY}px)) rotate(${data.betRot||0}deg) scale(${GLOBAL.betScale||1})`,'important');bet.style.setProperty('transform-origin','50% 50%','important');}
-      [['.seat-marker-d','dX','dY','dRot'],['.seat-marker-sb','sbX','sbY','sbRot'],['.seat-marker-bb','bbX','bbY','bbRot']].forEach(([sel,xk,yk,rk])=>{const marker=seat.querySelector(sel);if(!marker)return;marker.style.setProperty('left','50%','important');marker.style.setProperty('top','50%','important');marker.style.setProperty('right','auto','important');marker.style.setProperty('bottom','auto','important');marker.style.setProperty('transform',`translate(calc(-50% + ${data[xk]||0}px),calc(-50% + ${data[yk]||0}px)) rotate(${data[rk]||0}deg) scale(${GLOBAL.markerScale||1})`,'important');});
+      if(bet){
+        bet.style.setProperty('left','50%','important');bet.style.setProperty('right','auto','important');bet.style.setProperty('top','50%','important');bet.style.setProperty('bottom','auto','important');
+        bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX}px),calc(-50% + ${data.betY}px)) rotate(${data.betRot||0}deg) scale(${G.betScale||1})`,'important');
+        bet.style.setProperty('transform-origin','50% 50%','important');
+      }
+      const marker=seat.querySelector('.seat-marker-d');
+      if(marker){
+        marker.style.setProperty('left','50%','important');marker.style.setProperty('top','50%','important');marker.style.setProperty('right','auto','important');marker.style.setProperty('bottom','auto','important');
+        marker.style.setProperty('transform',`translate(calc(-50% + ${data.dX||0}px),calc(-50% + ${data.dY||0}px)) rotate(${data.dRot||0}deg) scale(${G.markerScale||1})`,'important');
+      }
     }
-    if(chair){chair.style.setProperty('left',`${data.chairX}%`,'important');chair.style.setProperty('top',`${data.chairY}%`,'important');chair.style.setProperty('right','auto','important');chair.style.setProperty('bottom','auto','important');chair.style.setProperty('transform',`translate(-50%,-50%) rotate(${data.chairRot||0}deg) scale(${data.chairScale||1})`,'important');}
+    if(chair){
+      chair.style.setProperty('left',`${data.chairX||0}%`,'important');chair.style.setProperty('top',`${data.chairY||0}%`,'important');chair.style.setProperty('right','auto','important');chair.style.setProperty('bottom','auto','important');
+      chair.style.setProperty('transform',`translate(-50%,-50%) rotate(${data.chairRot||0}deg) scale(${data.chairScale||1})`,'important');
+    }
   }
   function applyGlobal(){
-    document.querySelectorAll('.visual-seat .pro-seat-card.poker-chip-nameplate').forEach(el=>{el.style.setProperty('--chip-bg-x',`${GLOBAL.plateBgX||0}px`);el.style.setProperty('--chip-bg-y',`${GLOBAL.plateBgY||0}px`);el.style.setProperty('--chip-bg-scale-x',`${GLOBAL.plateBgScaleX||1}`);el.style.setProperty('--chip-bg-scale-y',`${GLOBAL.plateBgScaleY||1}`);el.style.setProperty('--chip-bg-rot',`${GLOBAL.plateBgRot||0}deg`);el.style.setProperty('--chip-edge-size',`${GLOBAL.plateEdgeSize}px`);el.style.setProperty('--chip-name-size',`${GLOBAL.plateNameSize}px`);el.style.setProperty('--chip-money-size',`${GLOBAL.plateMoneySize}px`);});
-    document.querySelectorAll('.visual-seat .visual-stack').forEach(el=>{el.style.setProperty('transform',`translate(${GLOBAL.moneyX||0}px, ${GLOBAL.moneyY||0}px) rotate(${GLOBAL.moneyRot||0}deg)`,'important');el.style.setProperty('transform-origin','left center','important');});
-    document.querySelectorAll('.visual-seat .pro-seat-number').forEach(el=>{el.style.setProperty('transform',`translate(${GLOBAL.circleX||0}px, calc(-50% + ${GLOBAL.circleY||0}px)) rotate(${GLOBAL.circleRot||0}deg)`,'important');el.style.setProperty('transform-origin','50% 50%','important');});
+    const G=active.global;
+    document.querySelectorAll('.visual-seat .pro-seat-card.poker-chip-nameplate').forEach(el=>{
+      el.style.setProperty('--chip-bg-x',`${G.plateBgX||0}px`);el.style.setProperty('--chip-bg-y',`${G.plateBgY||0}px`);
+      el.style.setProperty('--chip-bg-scale-x',`${G.plateBgScaleX||1}`);el.style.setProperty('--chip-bg-scale-y',`${G.plateBgScaleY||1}`);el.style.setProperty('--chip-bg-rot',`${G.plateBgRot||0}deg`);
+      el.style.setProperty('--chip-edge-size',`${Number.isFinite(Number(G.plateEdgeSize))?G.plateEdgeSize:4}px`);
+      el.style.setProperty('--chip-name-size',`${Number.isFinite(Number(G.plateNameSize))?G.plateNameSize:13}px`);
+      el.style.setProperty('--chip-money-size',`${Number.isFinite(Number(G.plateMoneySize))?G.plateMoneySize:13}px`);
+    });
+    document.querySelectorAll('.visual-seat .visual-stack').forEach(el=>{el.style.setProperty('transform',`translate(${G.moneyX||0}px, ${G.moneyY||0}px) rotate(${G.moneyRot||0}deg)`,'important');el.style.setProperty('transform-origin','left center','important');});
   }
   function applyScene(){
+    const S=active.scene;
     const zone=document.querySelector('.v235-app .board-zone'),board=document.getElementById('boardCards');
     if(zone){zone.style.setProperty('left','50%','important');zone.style.setProperty('top','50%','important');zone.style.setProperty('width','0','important');zone.style.setProperty('height','0','important');zone.style.setProperty('min-width','0','important');zone.style.setProperty('padding','0','important');zone.style.setProperty('transform','none','important');zone.style.setProperty('overflow','visible','important');}
-    if(board){board.style.setProperty('position','absolute','important');board.style.setProperty('left','0','important');board.style.setProperty('top','0','important');board.style.setProperty('width','0','important');board.style.setProperty('height','0','important');board.style.setProperty('display','block','important');board.style.setProperty('overflow','visible','important');const cards=[...board.children];const rad=(SCENE.flopRot||0)*Math.PI/180,c=Math.cos(rad),s=Math.sin(rad);const baseCardWidth=(cards[0]?.offsetWidth||54),gap=(baseCardWidth*(SCENE.communityScale||1))+(SCENE.flopGap??25);cards.forEach((card,i)=>{let x=0,y=0,r=0;if(i<3){const dx=(i-1)*gap;x=(SCENE.flopX||0)+dx*c;y=(SCENE.flopY||0)+dx*s;r=SCENE.flopRot||0;}else if(i===3){x=SCENE.turnX||0;y=SCENE.turnY||0;r=SCENE.turnRot||0;}else{x=SCENE.riverX||0;y=SCENE.riverY||0;r=SCENE.riverRot||0;}card.style.setProperty('position','absolute','important');card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('translate','-50% -50%','important');card.style.setProperty('rotate',`${r}deg`,'important');card.style.setProperty('scale',`${SCENE.communityScale||1}`,'important');card.style.setProperty('transform-origin','50% 50%','important');});}
+    if(board){
+      board.style.setProperty('position','absolute','important');board.style.setProperty('left','0','important');board.style.setProperty('top','0','important');board.style.setProperty('width','0','important');board.style.setProperty('height','0','important');board.style.setProperty('display','block','important');board.style.setProperty('overflow','visible','important');
+      const cards=[...board.children],rad=(S.flopRot||0)*Math.PI/180,c=Math.cos(rad),s=Math.sin(rad),baseCardWidth=(cards[0]?.offsetWidth||54),gap=(baseCardWidth*(S.communityScale||1))+(S.flopGap??25);
+      cards.forEach((card,i)=>{let x=0,y=0,r=0;if(i<3){const dx=(i-1)*gap;x=(S.flopX||0)+dx*c;y=(S.flopY||0)+dx*s;r=S.flopRot||0;}else if(i===3){x=S.turnX||0;y=S.turnY||0;r=S.turnRot||0;}else{x=S.riverX||0;y=S.riverY||0;r=S.riverRot||0;}card.style.setProperty('position','absolute','important');card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('translate','-50% -50%','important');card.style.setProperty('rotate',`${r}deg`,'important');card.style.setProperty('scale',`${S.communityScale||1}`,'important');card.style.setProperty('transform-origin','50% 50%','important');});
+    }
+    const blindsBox=document.getElementById('v235BlindsBox');
+    if(blindsBox){
+      if(activeName==='laptop'){
+        const bx=Number(S.blindsBoxX)||0,by=Number(S.blindsBoxY)||0,bs=Math.max(.01,Number(S.blindsBoxScale)||1);
+        blindsBox.style.setProperty('left',`calc(12px + ${bx}px)`,'important');blindsBox.style.setProperty('bottom',`calc(72px - ${by}px)`,'important');blindsBox.style.setProperty('right','auto','important');blindsBox.style.setProperty('top','auto','important');blindsBox.style.setProperty('transform',`scale(${bs})`,'important');blindsBox.style.setProperty('transform-origin','left bottom','important');
+      }else{
+        // Preserve the approved desktop CSS position exactly.
+        ['left','bottom','right','top','transform','transform-origin'].forEach(k=>blindsBox.style.removeProperty(k));
+      }
+    }
     const burn=document.querySelector('.v235-app .burn-zone');if(burn){burn.style.setProperty('display','none','important');burn.setAttribute('aria-hidden','true');}
   }
-  function applyAll(){Object.keys(LAYOUT).forEach(k=>applySeat(Number(k),LAYOUT[k]));applyGlobal();applyScene();}
-  function wire(){const seats=document.getElementById('visualSeats');if(seats)new MutationObserver(()=>requestAnimationFrame(applyAll)).observe(seats,{childList:true,subtree:false});const board=document.getElementById('boardCards');if(board)new MutationObserver(()=>requestAnimationFrame(applyScene)).observe(board,{childList:true,subtree:false});let tries=0;const timer=setInterval(()=>{tries++;applyAll();if(document.querySelector('.visual-seat')||tries>40)clearInterval(timer);},150);requestAnimationFrame(applyAll);}
+  function applyAll(forceProfile=false){setActiveProfile(forceProfile);Object.keys(active.layout).forEach(k=>applySeat(Number(k),active.layout[k]));applyGlobal();applyScene();}
+  window.__v235ReapplySeatLayout=()=>requestAnimationFrame(()=>applyAll(false));
+  function wire(){
+    setActiveProfile(true);
+    const seats=document.getElementById('visualSeats');if(seats)new MutationObserver(()=>requestAnimationFrame(()=>applyAll(false))).observe(seats,{childList:true,subtree:false});
+    const board=document.getElementById('boardCards');if(board)new MutationObserver(()=>requestAnimationFrame(applyScene)).observe(board,{childList:true,subtree:false});
+    let resizeTimer=0;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>requestAnimationFrame(()=>applyAll(true)),100);});
+    let tries=0;const timer=setInterval(()=>{tries++;applyAll(false);if(document.querySelector('.visual-seat')||tries>40)clearInterval(timer);},150);requestAnimationFrame(()=>applyAll(true));
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 })();
 </script>
 
-
-<script id="v24-0-1-public-navigation-hotfix">
+<script id="v1-public-navigation-hardening">
 (function(){
-  window.PDT_PUBLIC_VERSION='24.0.1';
-  function ensureModeButtons(){
-    document.querySelectorAll('[data-ref-mode]').forEach(function(btn){
-      btn.style.pointerEvents='auto';
-      btn.style.touchAction='manipulation';
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',ensureModeButtons,{once:true});
-  else ensureModeButtons();
+  window.PDT_PUBLIC_VERSION='1';
+  function ensureModeButtons(){document.querySelectorAll('[data-ref-mode]').forEach(btn=>{btn.style.pointerEvents='auto';btn.style.touchAction='manipulation';});const original=window.chooseTrainingMode;if(typeof original==='function'&&!original.__pdtV1AuditionGuard){const guarded=function(mode){if(mode==='audition')return false;return original.apply(this,arguments);};guarded.__pdtV1AuditionGuard=true;window.chooseTrainingMode=guarded;}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureModeButtons,{once:true});else ensureModeButtons();
 })();
 </script>
 </body>
