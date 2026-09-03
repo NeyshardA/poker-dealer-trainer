@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.0 — Live Dealer Logic</title>
+<title>Poker Dealer Trainer V24.0.3 DEV — Laptop Profile</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -9202,8 +9202,8 @@ renderPlayers();
 <button id="seatTunerToggle" type="button">SEAT TUNER</button>
 <div id="seatTunerPanel" aria-hidden="true">
   <div class="seat-tuner-head">
-    <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
-    <div class="seat-tuner-help">Changes happen live. X: smaller = left, larger = right. Y: smaller = up, larger = down. Select a seat, adjust it, then save.</div>
+    <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER — LAPTOP PROFILE</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
+    <div class="seat-tuner-help">Editing the LAPTOP profile. X: smaller = left, larger = right. Y: smaller = up, larger = down. Position/rotation controls are per seat. All resize controls are global.</div>
     <div class="seat-tuner-seats" id="seatTunerSeatButtons"></div>
   </div>
   <div class="seat-tuner-body">
@@ -9238,7 +9238,6 @@ renderPlayers();
         <div class="seat-tuner-field"><label>Bet X (px)</label><input id="stBetX" type="number" step="1" min="-2000" max="2000"></div>
         <div class="seat-tuner-field"><label>Bet Y (px)</label><input id="stBetY" type="number" step="1" min="-2000" max="2000"></div>
         <div class="seat-tuner-field"><label>Bet / Chips Rotation (°)</label><input id="stBetRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>Bet / Chips Size (%) — ALL SEATS</label><input id="stBetScale" type="number" step="1" min="25" max="400" value="75"></div>
       </div>
     </div>
     <div class="seat-tuner-section">
@@ -9254,14 +9253,12 @@ renderPlayers();
         <div class="seat-tuner-field"><label>BB X (px)</label><input id="stBBX" type="number" step="1" min="-500" max="500"></div>
         <div class="seat-tuner-field"><label>BB Y (px)</label><input id="stBBY" type="number" step="1" min="-500" max="500"></div>
         <div class="seat-tuner-field"><label>BB Rotation (°)</label><input id="stBBRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>D / SB / BB Size (%) — ALL BUTTONS</label><input id="stMarkerScale" type="number" step="1" min="25" max="400" value="70"></div>
       </div>
     </div>
     <div class="seat-tuner-section">
       <h4>Community Cards — global table positions</h4>
       <div class="seat-tuner-help" style="margin:0 0 9px">Flop moves all three flop cards together. Use Flop Gap to bring the 3 flop cards closer together or farther apart independently of card size. Turn and River move separately. The BURN label and burn cards are hidden from the table.</div>
       <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Community Card Size (%)</label><input id="stCommunityScale" type="number" step="1" min="25" max="300" value="100"></div>
         <div class="seat-tuner-field"><label>Flop Gap Between Cards (px)</label><input id="stFlopGap" type="number" step="1" min="-40" max="200" value="25"></div>
         <div class="seat-tuner-field"><label>Flop X (px)</label><input id="stFlopX" type="number" step="1" min="-800" max="800"></div>
         <div class="seat-tuner-field"><label>Flop Y (px)</label><input id="stFlopY" type="number" step="1" min="-500" max="500"></div>
@@ -9298,16 +9295,20 @@ renderPlayers();
       </div>
       <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateBgReset" type="button">RESET NAMEPLATE BACKGROUND</button></div>
     </div>
-    <div class="seat-tuner-section">
-      <h4>Nameplate Appearance — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Whole Nameplate Size scales the complete poker-chip nameplate around its center for all 8 seats at once. It does NOT change any seat X/Y coordinates and does not move cards, bets, or D/SB/BB markers. Edge Thickness remains independent, so you can shrink the whole nameplate and still make the gold/black edge thicker.</div>
+    <div class="seat-tuner-section" id="globalResizeSection">
+      <h4>GLOBAL RESIZE CONTROLS — LAPTOP PROFILE</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Every control in this section applies globally. Changing a size here resizes that visual element at ALL seats without changing any saved X/Y coordinates or rotations.</div>
       <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Whole Nameplate Size (%) — ALL 8 SEATS</label><input id="stPlateScale" type="number" step="1" min="40" max="180" value="100"></div>
-        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px)</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="30" value="6"></div>
-        <div class="seat-tuner-field"><label>Player Name Size (px)</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="17"></div>
-        <div class="seat-tuner-field"><label>Money Size (px)</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="16"></div>
+        <div class="seat-tuner-field"><label>Whole Nameplate Size (%) — ALL SEATS</label><input id="stPlateScale" type="number" step="1" min="25" max="220" value="62"></div>
+        <div class="seat-tuner-field"><label>Hole Cards Size (%) — ALL SEATS</label><input id="stHoleCardScale" type="number" step="1" min="25" max="250" value="100"></div>
+        <div class="seat-tuner-field"><label>Bet / Chips Size (%) — ALL SEATS</label><input id="stBetScale" type="number" step="1" min="25" max="400" value="75"></div>
+        <div class="seat-tuner-field"><label>D / SB / BB Size (%) — ALL BUTTONS</label><input id="stMarkerScale" type="number" step="1" min="25" max="400" value="70"></div>
+        <div class="seat-tuner-field"><label>Community Card Size (%) — ALL BOARD CARDS</label><input id="stCommunityScale" type="number" step="1" min="25" max="300" value="71"></div>
+        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px) — ALL NAMEPLATES</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="30" value="5"></div>
+        <div class="seat-tuner-field"><label>Player Name Size (px) — ALL NAMEPLATES</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="14"></div>
+        <div class="seat-tuner-field"><label>Money Size (px) — ALL NAMEPLATES</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="13"></div>
       </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateAppearanceReset" type="button">RESET NAMEPLATE APPEARANCE</button></div>
+      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stGlobalResizeReset" type="button">RESET GLOBAL SIZES TO LAPTOP DEFAULTS</button></div>
     </div>
     <div class="seat-tuner-actions">
       <button id="seatTunerSave" class="primary" type="button">SAVE LAYOUT</button>
@@ -9327,16 +9328,16 @@ renderPlayers();
   if(window.__v235SeatTunerLoaded) return;
   window.__v235SeatTunerLoaded=true;
 
-  const STORAGE_KEY='v235-seat-layout-template3-pass48';
-  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-template3-pass48';
-  const SCENE_STORAGE_KEY='v235-scene-layout-template3-pass48';
+  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-3';
+  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-3';
+  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-3';
   let selectedSeat=1;
   let baseline={};
   const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
   let layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
   let initialized=false;
   let dirty=false;
-  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":1,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
+  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":1.0};
   let globalLayout={...GLOBAL_DEFAULTS};
   const SCENE_DEFAULTS={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
   let sceneLayout={...SCENE_DEFAULTS};
@@ -9344,8 +9345,8 @@ renderPlayers();
   const $id=id=>document.getElementById(id);
   const fields=['seatX','seatY','nameplateRot','chairX','chairY','chairScale','chairRot','cardsX','cardsY','cardsRot','betX','betY','betRot','dX','dY','dRot','sbX','sbY','sbRot','bbX','bbY','bbRot'];
   const ids={seatX:'stSeatX',seatY:'stSeatY',nameplateRot:'stNameplateRot',chairX:'stChairX',chairY:'stChairY',chairScale:'stChairScale',chairRot:'stChairRot',cardsX:'stCardsX',cardsY:'stCardsY',cardsRot:'stCardsRot',betX:'stBetX',betY:'stBetY',betRot:'stBetRot',dX:'stDX',dY:'stDY',dRot:'stDRot',sbX:'stSBX',sbY:'stSBY',sbRot:'stSBRot',bbX:'stBBX',bbY:'stBBY',bbRot:'stBBRot'};
-  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateScale','plateEdgeSize','plateNameSize','plateMoneySize'];
-  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateScale:'stPlateScale',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
+  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','holeCardScale','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateScale','plateEdgeSize','plateNameSize','plateMoneySize'];
+  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',holeCardScale:'stHoleCardScale',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateScale:'stPlateScale',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
   const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot'];
   const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot'};
 
@@ -9427,7 +9428,8 @@ renderPlayers();
         hand.style.setProperty('right','auto','important');
         hand.style.setProperty('top','50%','important');
         hand.style.setProperty('bottom','auto','important');
-        hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg)`,'important');
+        hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg) scale(${globalLayout.holeCardScale||1})`,'important');
+        hand.style.setProperty('transform-origin','50% 50%','important');
       }
       const bet=seat.querySelector('.visual-bet');
       if(bet){
@@ -9572,7 +9574,7 @@ renderPlayers();
   function writeGlobalFields(){
     globalFields.forEach(k=>{
       const el=$id(globalIds[k]); if(!el) return;
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') el.value=Math.round((globalLayout[k]??1)*100);
+      if(k==='holeCardScale'||k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') el.value=Math.round((globalLayout[k]??1)*100);
       else el.value=globalLayout[k]??0;
     });
   }
@@ -9580,7 +9582,7 @@ renderPlayers();
     globalFields.forEach(k=>{
       const el=$id(globalIds[k]); if(!el) return;
       const v=Number(el.value);
-      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
+      if(k==='holeCardScale'||k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY'||k==='plateScale') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
       else globalLayout[k]=Number.isFinite(v)?v:0;
     });
     applyAll();dirty=true;
@@ -9669,7 +9671,8 @@ renderPlayers();
 
   function exportLayoutObject(){
     return {
-      layoutVersion:'Template 3 Pass 48 — Shared Visuals + Navigation',
+      layoutVersion:'V24.0.3 DEV — Laptop Profile + Global Resizes',
+        deviceProfile:'laptop',
       savedAt:new Date().toISOString(),
       seats:layout,
       globalNameplateElements:globalLayout,
@@ -9746,14 +9749,18 @@ renderPlayers();
       applyGlobalElements(); writeGlobalFields(); dirty=true;
       status('Nameplate inner background reset to the Pass 42 look.');
     };
-    const appearanceReset=$id('stPlateAppearanceReset');
-    if(appearanceReset) appearanceReset.onclick=()=>{
-      globalLayout.plateScale=1;
-      globalLayout.plateEdgeSize=6;
-      globalLayout.plateNameSize=17;
-      globalLayout.plateMoneySize=16;
-      applyAll(); writeGlobalFields(); dirty=true;
-      status('Whole nameplate size, edge, name size, and money size reset.');
+    const globalResizeReset=$id('stGlobalResizeReset');
+    if(globalResizeReset) globalResizeReset.onclick=()=>{
+      globalLayout.plateScale=0.62;
+      globalLayout.holeCardScale=1;
+      globalLayout.betScale=0.75;
+      globalLayout.markerScale=0.7;
+      globalLayout.plateEdgeSize=5;
+      globalLayout.plateNameSize=14;
+      globalLayout.plateMoneySize=13;
+      sceneLayout.communityScale=0.71;
+      applyAll(); writeGlobalFields(); writeSceneFields(); dirty=true;
+      status('Global visual sizes reset to the current Laptop profile defaults.');
     };
     $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
     $id('seatTunerResetAll').onclick=()=>{
@@ -11226,5 +11233,11 @@ body.v235-live #seatTunerToggle{display:block!important;}
   else ensureModeButtons();
 })();
 </script>
+
+<style id="v2403-laptop-global-resize-style">
+#globalResizeSection{border-color:#b88b3e!important;box-shadow:inset 0 0 0 1px rgba(216,180,93,.12)!important}
+#globalResizeSection h4{color:#f0cf76!important}
+</style>
+
 </body>
 </html>
