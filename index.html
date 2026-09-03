@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.0.6 DEV — Laptop Latest Coordinates + Showdown Lock</title>
+<title>Poker Dealer Trainer V24.0.7 DEV — Final Laptop Profile</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -9345,9 +9345,9 @@ renderPlayers();
   if(window.__v235SeatTunerLoaded) return;
   window.__v235SeatTunerLoaded=true;
 
-  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-6';
-  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-6';
-  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-6';
+  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-7';
+  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-7';
+  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-7';
   let selectedSeat=1;
   let baseline={};
   const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}};
@@ -9356,7 +9356,7 @@ renderPlayers();
   let dirty=false;
   const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.55,"markerScale":0.49,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":0.6};
   let globalLayout={...GLOBAL_DEFAULTS};
-  const SCENE_DEFAULTS={"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":0,"blindsBoxY":0,"blindsBoxScale":0.9};
+  const SCENE_DEFAULTS={"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73};
   let sceneLayout={...SCENE_DEFAULTS};
   window.__pdtGetLaptopSceneLayout=()=>sceneLayout;
 
@@ -9705,7 +9705,7 @@ renderPlayers();
       exportedSeats[seatNo]=dealerOnly;
     });
     return {
-      layoutVersion:'V24.0.6 DEV — Laptop Latest Coordinates + Exact Showdown Hole-Card Lock',
+      layoutVersion:'V24.0.7 DEV — Final Laptop Profile',
       deviceProfile:'laptop',
       savedAt:new Date().toISOString(),
       seats:exportedSeats,
@@ -11274,7 +11274,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
 
 <script id="v24-0-1-dev-navigation-hotfix">
 (function(){
-  window.PDT_DEV_VERSION='24.0.4-dev';
+  window.PDT_DEV_VERSION='24.0.7-dev';
   function ensureModeButtons(){
     document.querySelectorAll('[data-ref-mode]').forEach(function(btn){
       btn.style.pointerEvents='auto';
