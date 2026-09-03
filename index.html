@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.0.7 DEV — Final Laptop Profile</title>
+<title>Poker Dealer Trainer V24.0.8 DEV — Audition Lock Tuner</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -5182,6 +5182,13 @@ body.audition-mode .v235-app .table,
 }
 </style>
 
+
+<style id="v24-0-8-dev-audition-lock-preview">
+/* DEV ONLY — Public Audition Coming Soon overlay preview. Pointer events stay off so Audition remains testable. */
+#devAuditionComingSoon{position:absolute!important;z-index:39!important;left:63%!important;top:44.2%!important;width:26.3%!important;height:35.8%!important;border-radius:14px!important;background:rgba(72,76,76,.42)!important;backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;-webkit-backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;border:1px solid rgba(185,185,185,.35)!important;pointer-events:none!important;}
+#devAuditionComingSoon span{position:absolute!important;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:50% 50%;display:inline-block!important;white-space:nowrap!important;padding:10px 16px!important;border-radius:999px!important;background:rgba(4,7,7,.88)!important;border:1px solid rgba(218,194,126,.65)!important;color:#e9d39a!important;font:900 13px/1 Arial,sans-serif!important;letter-spacing:1.8px!important;text-shadow:0 1px 2px #000!important;}
+#auditionLockTunerSection{border-color:#8d6b31!important;}
+</style>
 </head>
 <body>
 
@@ -5199,6 +5206,7 @@ body.audition-mode .v235-app .table,
     <button class="ref-hotspot mode-real" type="button" aria-label="Select Real Table Mode" data-ref-mode="real" onclick="chooseTrainingMode('real')"></button>
     <button class="ref-hotspot mode-visual" type="button" aria-label="Select Visual Dealer Mode" data-ref-mode="visual" onclick="chooseTrainingMode('visual')"></button>
     <button class="ref-hotspot mode-audition" type="button" aria-label="Select Audition Mode" data-ref-mode="audition" onclick="chooseTrainingMode('audition')"></button>
+    <div id="devAuditionComingSoon" aria-hidden="true"><span>COMING SOON...</span></div>
 
     <!-- Dynamic game/player panel. This is real HTML so it can change later. -->
     <div class="ref-dynamic-game-panel" id="refDynamicGamePanel">
@@ -9288,6 +9296,21 @@ renderPlayers();
       </div>
       <div class="seat-tuner-actions" style="margin-top:8px"><button id="stBlindsBoxReset" type="button">RESET BLINDS / HAND BOX</button></div>
     </div>
+    <div class="seat-tuner-section" id="auditionLockTunerSection">
+      <h4>Audition Coming Soon Lock — PUBLIC PREVIEW</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Move and resize the gray Audition lock exactly where you want it on the main menu. These controls are DEV-only. The public site will receive the final values after you approve them.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Gray Area X (%)</label><input id="stAuditionLockX" type="number" step="0.1" min="0" max="100" value="63"></div>
+        <div class="seat-tuner-field"><label>Gray Area Y (%)</label><input id="stAuditionLockY" type="number" step="0.1" min="0" max="100" value="44.2"></div>
+        <div class="seat-tuner-field"><label>Gray Area Width (%)</label><input id="stAuditionLockW" type="number" step="0.1" min="5" max="100" value="26.3"></div>
+        <div class="seat-tuner-field"><label>Gray Area Height (%)</label><input id="stAuditionLockH" type="number" step="0.1" min="5" max="100" value="35.8"></div>
+        <div class="seat-tuner-field"><label>Gray Area Darkness (%)</label><input id="stAuditionLockOpacity" type="number" step="1" min="0" max="90" value="42"></div>
+        <div class="seat-tuner-field"><label>Coming Soon Badge X (%)</label><input id="stAuditionBadgeX" type="number" step="0.5" min="0" max="100" value="50"></div>
+        <div class="seat-tuner-field"><label>Coming Soon Badge Y (%)</label><input id="stAuditionBadgeY" type="number" step="0.5" min="0" max="100" value="50"></div>
+        <div class="seat-tuner-field"><label>Coming Soon Badge Size (%)</label><input id="stAuditionBadgeScale" type="number" step="1" min="40" max="200" value="100"></div>
+      </div>
+      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stAuditionLockReset" type="button">RESET AUDITION LOCK</button></div>
+    </div>
     <div class="seat-tuner-section">
       <h4>Global Nameplate Elements — applies to all 8 seats</h4>
       <div class="seat-tuner-help" style="margin:0 0 9px">Adjust these once. Every player nameplate uses the same money and seat-circle offsets.</div>
@@ -9345,9 +9368,9 @@ renderPlayers();
   if(window.__v235SeatTunerLoaded) return;
   window.__v235SeatTunerLoaded=true;
 
-  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-7';
-  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-7';
-  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-7';
+  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-8';
+  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-8';
+  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-8';
   let selectedSeat=1;
   let baseline={};
   const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}};
@@ -9356,7 +9379,7 @@ renderPlayers();
   let dirty=false;
   const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.55,"markerScale":0.49,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":0.6};
   let globalLayout={...GLOBAL_DEFAULTS};
-  const SCENE_DEFAULTS={"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73};
+  const SCENE_DEFAULTS={"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73,"auditionLockX":63.0,"auditionLockY":44.2,"auditionLockW":26.3,"auditionLockH":35.8,"auditionLockOpacity":42,"auditionBadgeX":50,"auditionBadgeY":50,"auditionBadgeScale":1};
   let sceneLayout={...SCENE_DEFAULTS};
   window.__pdtGetLaptopSceneLayout=()=>sceneLayout;
 
@@ -9365,8 +9388,8 @@ renderPlayers();
   const ids={seatX:'stSeatX',seatY:'stSeatY',nameplateRot:'stNameplateRot',chairX:'stChairX',chairY:'stChairY',chairScale:'stChairScale',chairRot:'stChairRot',cardsX:'stCardsX',cardsY:'stCardsY',cardsRot:'stCardsRot',betX:'stBetX',betY:'stBetY',betRot:'stBetRot',dX:'stDX',dY:'stDY',dRot:'stDRot'};
   const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','holeCardScale','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateScale','plateEdgeSize','plateNameSize','plateMoneySize'];
   const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',holeCardScale:'stHoleCardScale',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateScale:'stPlateScale',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
-  const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot','centerPotX','centerPotY','centerPotScale','blindsBoxX','blindsBoxY','blindsBoxScale'];
-  const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot',centerPotX:'stCenterPotX',centerPotY:'stCenterPotY',centerPotScale:'stCenterPotScale',blindsBoxX:'stBlindsBoxX',blindsBoxY:'stBlindsBoxY',blindsBoxScale:'stBlindsBoxScale'};
+  const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot','centerPotX','centerPotY','centerPotScale','blindsBoxX','blindsBoxY','blindsBoxScale','auditionLockX','auditionLockY','auditionLockW','auditionLockH','auditionLockOpacity','auditionBadgeX','auditionBadgeY','auditionBadgeScale'];
+  const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot',centerPotX:'stCenterPotX',centerPotY:'stCenterPotY',centerPotScale:'stCenterPotScale',blindsBoxX:'stBlindsBoxX',blindsBoxY:'stBlindsBoxY',blindsBoxScale:'stBlindsBoxScale',auditionLockX:'stAuditionLockX',auditionLockY:'stAuditionLockY',auditionLockW:'stAuditionLockW',auditionLockH:'stAuditionLockH',auditionLockOpacity:'stAuditionLockOpacity',auditionBadgeX:'stAuditionBadgeX',auditionBadgeY:'stAuditionBadgeY',auditionBadgeScale:'stAuditionBadgeScale'};
 
   function round(n,places=2){const p=10**places;return Math.round((Number(n)||0)*p)/p;}
   function parseTransform(el){
@@ -9557,7 +9580,29 @@ renderPlayers();
       burn.setAttribute('aria-hidden','true');
     }
   }
-  function applyAll(){Object.keys(layout).forEach(k=>applySeat(Number(k),layout[k]));applyGlobalElements();applySceneElements();highlight();}
+  function applyAuditionLock(){
+    const overlay=document.getElementById('devAuditionComingSoon');
+    const badge=overlay?.querySelector('span');
+    if(!overlay) return;
+    const x=Number(sceneLayout.auditionLockX);
+    const y=Number(sceneLayout.auditionLockY);
+    const w=Number(sceneLayout.auditionLockW);
+    const h=Number(sceneLayout.auditionLockH);
+    const opacity=Math.max(0,Math.min(90,Number(sceneLayout.auditionLockOpacity)||0))/100;
+    overlay.style.setProperty('left',`${Number.isFinite(x)?x:63}%`,'important');
+    overlay.style.setProperty('top',`${Number.isFinite(y)?y:44.2}%`,'important');
+    overlay.style.setProperty('width',`${Number.isFinite(w)?w:26.3}%`,'important');
+    overlay.style.setProperty('height',`${Number.isFinite(h)?h:35.8}%`,'important');
+    overlay.style.setProperty('background',`rgba(72,76,76,${opacity})`,'important');
+    if(badge){
+      const bx=Number(sceneLayout.auditionBadgeX), by=Number(sceneLayout.auditionBadgeY);
+      const bs=Number(sceneLayout.auditionBadgeScale)||1;
+      badge.style.setProperty('left',`${Number.isFinite(bx)?bx:50}%`,'important');
+      badge.style.setProperty('top',`${Number.isFinite(by)?by:50}%`,'important');
+      badge.style.setProperty('transform',`translate(-50%,-50%) scale(${bs})`,'important');
+    }
+  }
+  function applyAll(){Object.keys(layout).forEach(k=>applySeat(Number(k),layout[k]));applyGlobalElements();applySceneElements();applyAuditionLock();highlight();}
   window.__v235ReapplySeatLayout=()=>requestAnimationFrame(()=>applyAll());
 
   function readStored(){
@@ -9705,14 +9750,15 @@ renderPlayers();
       exportedSeats[seatNo]=dealerOnly;
     });
     return {
-      layoutVersion:'V24.0.7 DEV — Final Laptop Profile',
+      layoutVersion:'V24.0.8 DEV — Audition Lock Tuner',
       deviceProfile:'laptop',
       savedAt:new Date().toISOString(),
       seats:exportedSeats,
       globalNameplateElements:globalLayout,
       communityAndBurn:{...sceneLayout,burnVisible:false},
       centerPot:{x:sceneLayout.centerPotX||0,y:sceneLayout.centerPotY||0,scale:sceneLayout.centerPotScale||1},
-      tableHud:{blindsHandBox:{x:sceneLayout.blindsBoxX||0,y:sceneLayout.blindsBoxY||0,scale:sceneLayout.blindsBoxScale||0.90}}
+      tableHud:{blindsHandBox:{x:sceneLayout.blindsBoxX||0,y:sceneLayout.blindsBoxY||0,scale:sceneLayout.blindsBoxScale||0.90}},
+      auditionComingSoon:{x:sceneLayout.auditionLockX??63,y:sceneLayout.auditionLockY??44.2,width:sceneLayout.auditionLockW??26.3,height:sceneLayout.auditionLockH??35.8,darkness:sceneLayout.auditionLockOpacity??42,badgeX:sceneLayout.auditionBadgeX??50,badgeY:sceneLayout.auditionBadgeY??50,badgeScale:sceneLayout.auditionBadgeScale||1}
     };
   }
   function copyCoordinates(){
@@ -9797,6 +9843,12 @@ renderPlayers();
       sceneLayout.blindsBoxX=0; sceneLayout.blindsBoxY=0; sceneLayout.blindsBoxScale=0.90;
       applySceneElements(); writeSceneFields(); dirty=true;
       status('Blinds / Hand box position and size reset.');
+    };
+    const auditionLockReset=$id('stAuditionLockReset');
+    if(auditionLockReset) auditionLockReset.onclick=()=>{
+      ['auditionLockX','auditionLockY','auditionLockW','auditionLockH','auditionLockOpacity','auditionBadgeX','auditionBadgeY','auditionBadgeScale'].forEach(k=>sceneLayout[k]=SCENE_DEFAULTS[k]);
+      applyAuditionLock(); writeSceneFields(); dirty=true;
+      status('Audition Coming Soon lock reset to the current public position.');
     };
     const globalResizeReset=$id('stGlobalResizeReset');
     if(globalResizeReset) globalResizeReset.onclick=()=>{
@@ -11316,5 +11368,41 @@ body.v235-live #seatTunerToggle{display:block!important;}
 </style>
 
 <div id="devBuildMarker" data-build="V24.0.6-LAPTOP" hidden></div>
+
+<script id="v24-0-8-audition-lock-live-preview">
+(function(){
+  function refresh(){
+    const panel=document.getElementById('seatTunerPanel');
+    if(!panel) return;
+    const ids=['stAuditionLockX','stAuditionLockY','stAuditionLockW','stAuditionLockH','stAuditionLockOpacity','stAuditionBadgeX','stAuditionBadgeY','stAuditionBadgeScale'];
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el || el.dataset.v2408Wired) return;
+      el.dataset.v2408Wired='1';
+      const evt=()=>{
+        // Existing tuner listeners update sceneLayout/applyAuditionLock. This RAF keeps preview immediate if listener order differs.
+        requestAnimationFrame(()=>{
+          const overlay=document.getElementById('devAuditionComingSoon');
+          if(!overlay) return;
+          const val=(x,f)=>{const n=Number(document.getElementById(x)?.value);return Number.isFinite(n)?n:f};
+          overlay.style.left=val('stAuditionLockX',63)+'%';
+          overlay.style.top=val('stAuditionLockY',44.2)+'%';
+          overlay.style.width=val('stAuditionLockW',26.3)+'%';
+          overlay.style.height=val('stAuditionLockH',35.8)+'%';
+          overlay.style.background=`rgba(72,76,76,${Math.max(0,Math.min(90,val('stAuditionLockOpacity',42)))/100})`;
+          const badge=overlay.querySelector('span');
+          if(badge){
+            badge.style.left=val('stAuditionBadgeX',50)+'%';
+            badge.style.top=val('stAuditionBadgeY',50)+'%';
+            badge.style.transform=`translate(-50%,-50%) scale(${Math.max(.01,val('stAuditionBadgeScale',100)/100)})`;
+          }
+        });
+      };
+      el.addEventListener('input',evt);el.addEventListener('change',evt);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
+})();
+</script>
 </body>
 </html>
