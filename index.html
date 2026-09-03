@@ -11451,11 +11451,11 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </div>
 <div id="devScenarioBanner" aria-live="polite"></div>
 
-<script id="v24-1-0-dev-scenario-lab">
+<script id="v24-1-1-dev-scenario-lab">
 (function(){
   if(window.__pdtDevScenarioLabLoaded) return;
   window.__pdtDevScenarioLabLoaded=true;
-  window.PDT_DEV_VERSION='24.1.0-dev';
+  window.PDT_DEV_VERSION='24.1.1-dev';
 
   const defs={
     side3:{label:'3-WAY ALL-IN • 1 SIDE POT',need:3,stacks:[35,70,120]},
@@ -11561,6 +11561,61 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
       }
       return out;
     };
+  }
+
+  /* V24.1.1 FIX — the polished UI captured the original startHand() before
+     this DEV lab was appended. Intercept the real #newHand click in capture
+     phase so the scenario is prepared BEFORE that older onclick runs. */
+  function prepareScenarioFromNewHandClick(ev){
+    const requested=ctl.armed;
+
+    if(!requested){
+      if(ctl.lastWasScenario){
+        sessionStacks=null;
+        ctl.run=null;
+        ctl.lastWasScenario=false;
+        banner('');
+        status('NORMAL HAND GENERATOR ACTIVE. Test stacks cleared.');
+      }
+      return true;
+    }
+
+    const def=defs[requested];
+    const pc=typeof playerCount==='function'?playerCount():0;
+    if(pc<def.need){
+      status(`${def.label} requires at least ${def.need} players. Current table has ${pc}. Change the player count, then arm the scenario again.`);
+      banner('');
+      ctl.run=null;
+      if(!ctl.repeat) ctl.armed=null;
+      if(ev){ev.preventDefault();ev.stopImmediatePropagation();}
+      return false;
+    }
+
+    const normalStack=Number($d('stack')?.value)||300;
+    sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
+    ctl.run={active:true,key:requested,label:def.label,participants:Array.from({length:def.need},(_,i)=>i+1),stacks:[...def.stacks]};
+    ctl.lastWasScenario=true;
+    banner(`DEV TEST • ${def.label}`);
+    status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. This hand is forced immediately.`);
+    if(!ctl.repeat) ctl.armed=null;
+
+    /* The older onclick now starts the hand using the prepared sessionStacks.
+       Tag the created state immediately afterward for debugging/visibility. */
+    setTimeout(()=>{
+      if(state && ctl.run?.active){
+        state.devScenario={...ctl.run};
+        state.advancedSpot=`DEV ${def.label}`;
+        const alert=$d('dealerAlert');
+        if(alert){alert.textContent=`DEV TEST • ${def.label}`;alert.classList.add('dealer-alert-hot')}
+      }
+    },0);
+    return true;
+  }
+
+  const realNewHand=$d('newHand');
+  if(realNewHand && !realNewHand.__devScenarioCapture){
+    realNewHand.__devScenarioCapture=true;
+    realNewHand.addEventListener('click',prepareScenarioFromNewHandClick,true);
   }
 
   function wire(){
