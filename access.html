@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Poker Dealer Trainer V1 — Private Access</title>
+<style>
+  :root{--bg:#030807;--panel:#07100e;--panel2:#091310;--gold:#e4b94f;--gold2:#f1cf71;--green:#0d6b46;--green2:#0a4d35;--text:#f6f2e8;--muted:#a9b6ae;--line:#7f6429;--bad:#ff8b7c}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#020706;color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+  body{min-height:100vh;display:grid;place-items:center;padding:28px;background:
+    radial-gradient(circle at 50% 46%,rgba(16,68,45,.18),transparent 34%),
+    linear-gradient(rgba(2,7,6,.88),rgba(2,7,6,.96)),
+    repeating-linear-gradient(45deg,rgba(197,156,65,.12) 0 2px,transparent 2px 49px),
+    repeating-linear-gradient(-45deg,rgba(197,156,65,.08) 0 2px,transparent 2px 49px),#030807}
+  .shell{width:min(520px,100%);position:relative;border:1px solid #8f712d;border-radius:8px;padding:48px 48px 62px;background:linear-gradient(180deg,rgba(5,14,11,.985),rgba(3,9,7,.99));box-shadow:0 28px 90px rgba(0,0,0,.55)}
+  .chip{position:absolute;left:50%;top:-36px;transform:translateX(-50%);width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#174d34 0 34%,#0a1712 35% 48%,#e2bb58 49% 58%,#103a29 59% 100%);border:5px solid #e0b958;box-shadow:0 0 0 3px #173526,0 9px 24px rgba(0,0,0,.5)}
+  .chip:after{content:'♠';font-size:31px;color:#efc65c;line-height:1}
+  .brand{text-align:center;margin-bottom:24px}
+  .brand h1{font:500 46px/1 Georgia,serif;letter-spacing:2px;margin:0;color:#fff}
+  .brand p{margin:6px 0 0;color:#f0c851;letter-spacing:6px;font-size:17px;font-weight:800}
+  .access-card{border:1px solid #876822;border-radius:7px;padding:26px 24px 20px;background:rgba(4,11,9,.82);box-shadow:inset 0 0 35px rgba(0,0,0,.24)}
+  .access-card h2{font-size:19px;color:var(--gold2);margin:0;text-align:center;letter-spacing:.2px}
+  .access-card .sub{text-align:center;margin:8px 0 16px;font-size:12px;color:#f5f2e9}
+  .code-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:340px;margin:0 auto 17px}
+  .code-row input{width:100%;height:55px;border-radius:6px;border:1px solid #14764e;background:#06130f;color:#fff;text-align:center;font-size:25px;font-weight:900;outline:none;caret-color:var(--gold)}
+  .code-row input:focus{border-color:#e1b64b;box-shadow:0 0 0 2px rgba(225,182,75,.12)}
+  .unlock{width:100%;height:50px;border:1px solid #15855a;border-radius:5px;background:linear-gradient(180deg,#0f6c49,#0b5339);color:#fff;font-weight:950;letter-spacing:.4px;cursor:pointer;font-size:13px}
+  .unlock:hover{filter:brightness(1.08)}.unlock:disabled{opacity:.55;cursor:wait}
+  .status{min-height:28px;margin:11px 0 0;text-align:center;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+  .status.bad{color:var(--bad)}.status.good{color:#83e0ad}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,#8b6b2a 14%,#8b6b2a 86%,transparent);margin:4px 0 16px}
+  .class-note{text-align:center;color:#c5b77e;font-size:11px;line-height:1.55}
+  .class-note strong{color:#efc65a}
+  .foot{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#52615a;font-size:9px;letter-spacing:.5px}
+  @media(max-width:560px){body{padding:24px 14px}.shell{padding:46px 18px 50px}.brand h1{font-size:37px}.brand p{font-size:13px;letter-spacing:4px}.access-card{padding:23px 14px 18px}.code-row{gap:7px}.code-row input{height:51px;font-size:21px}}
+</style>
+</head>
+<body>
+<main class="shell" aria-labelledby="pageTitle">
+  <div class="chip" aria-hidden="true"></div>
+  <header class="brand">
+    <h1 id="pageTitle">POKER</h1>
+    <p>DEALER TRAINER</p>
+  </header>
+  <section class="access-card" aria-labelledby="accessTitle">
+    <h2 id="accessTitle">▣ &nbsp; PRIVATE ACCESS</h2>
+    <p class="sub">Enter your 6-digit class passcode to continue</p>
+    <form id="accessForm" novalidate>
+      <div class="code-row" id="codeRow" aria-label="Six digit class passcode">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 1" autocomplete="one-time-code">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 2">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 3">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 4">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 5">
+        <input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Passcode digit 6">
+      </div>
+      <button class="unlock" id="unlockBtn" type="submit">UNLOCK</button>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </form>
+    <div class="rule"></div>
+    <div class="class-note"><strong>CLASS BETA ACCESS</strong><br>Access is currently limited to invited dealer-class participants.</div>
+  </section>
+  <div class="foot">POKER101CLASS.COM · PRIVATE BETA</div>
+</main>
+<script>
+(() => {
+  const form = document.getElementById('accessForm');
+  const inputs = [...document.querySelectorAll('#codeRow input')];
+  const status = document.getElementById('status');
+  const button = document.getElementById('unlockBtn');
+
+  const cleanDigit = value => String(value || '').replace(/\D/g, '').slice(-1);
+  const code = () => inputs.map(i => i.value).join('');
+  const setStatus = (message, kind = '') => {
+    status.textContent = message;
+    status.className = `status ${kind}`.trim();
+  };
+
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      input.value = cleanDigit(input.value);
+      if (input.value && index < inputs.length - 1) inputs[index + 1].focus();
+      setStatus('');
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !input.value && index > 0) inputs[index - 1].focus();
+      if (e.key === 'ArrowLeft' && index > 0) { e.preventDefault(); inputs[index - 1].focus(); }
+      if (e.key === 'ArrowRight' && index < inputs.length - 1) { e.preventDefault(); inputs[index + 1].focus(); }
+    });
+    input.addEventListener('paste', e => {
+      const digits = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!digits) return;
+      e.preventDefault();
+      inputs.forEach((field, i) => field.value = digits[i] || '');
+      inputs[Math.min(digits.length, 6) - 1]?.focus();
+    });
+  });
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const value = code();
+    if (!/^\d{6}$/.test(value)) {
+      setStatus('Enter all 6 digits.', 'bad');
+      (inputs.find(i => !i.value) || inputs[0]).focus();
+      return;
+    }
+    button.disabled = true;
+    setStatus('Checking access…');
+    try {
+      const response = await fetch('/_access-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: value })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        setStatus(result.error || 'Access denied.', 'bad');
+        inputs.forEach(i => i.value = '');
+        inputs[0].focus();
+        return;
+      }
+      setStatus('Access granted. Opening trainer…', 'good');
+      setTimeout(() => location.replace('/'), 350);
+    } catch {
+      setStatus('Could not reach the access server. Try again.', 'bad');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  inputs[0].focus();
+})();
+</script>
+</body>
+</html>
