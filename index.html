@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
 <title>Poker Dealer Trainer V24.0 — Live Dealer Logic</title>
 <style>
   :root{
@@ -4646,10 +4643,56 @@ body.visual-mode .action,body.audition-mode .action,.v235-app .nextup,.v235-app 
 </style>
 
 
+<style id="v235-seat-tuner-style">
+/* PASS 24 — Seat Layout Tuner (presentation-only) */
+#seatTunerToggle{
+  position:fixed;right:14px;top:88px;z-index:20050;
+  height:38px;padding:0 16px;border-radius:999px;
+  border:1px solid #b88b3e;background:linear-gradient(180deg,#17201d,#080d0c);
+  color:#f1cf70;font:800 12px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.38)
+}
+#seatTunerToggle:hover{filter:brightness(1.12)}
+#seatTunerPanel{
+  position:fixed;right:14px;top:136px;z-index:20049;width:370px;
+  max-height:calc(100vh - 154px);overflow:auto;display:none;
+  color:#f6f2e8;background:linear-gradient(180deg,rgba(12,18,17,.985),rgba(5,9,9,.99));
+  border:1px solid #8d6b31;border-radius:15px;box-shadow:0 20px 48px rgba(0,0,0,.58);
+  font-family:Arial,Helvetica,sans-serif
+}
+#seatTunerPanel.open{display:block}
+.seat-tuner-head{position:sticky;top:0;z-index:2;padding:14px 15px 12px;background:rgba(7,12,12,.98);border-bottom:1px solid #5c4724}
+.seat-tuner-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.seat-tuner-title strong{color:#e7c66c;font-size:14px;letter-spacing:.7px}
+.seat-tuner-close{width:29px;height:29px;border-radius:50%;border:1px solid #675027;background:#111817;color:#eac96f;cursor:pointer;font-weight:900}
+.seat-tuner-help{margin-top:6px;color:#aab6b0;font-size:10px;line-height:1.35}
+.seat-tuner-seats{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}
+.seat-tuner-seat-btn{height:31px;border-radius:8px;border:1px solid #3c4a45;background:#0c1211;color:#d8dfdb;cursor:pointer;font-weight:900}
+.seat-tuner-seat-btn.active{border-color:#d1a64e;background:#2b2212;color:#f5d574;box-shadow:inset 0 0 0 1px rgba(255,220,125,.18)}
+.seat-tuner-body{padding:12px 14px 15px}
+.seat-tuner-section{padding:11px 0 12px;border-bottom:1px solid #28332f}
+.seat-tuner-section:last-of-type{border-bottom:0}
+.seat-tuner-section h4{margin:0 0 9px;color:#dcb85c;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.seat-tuner-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seat-tuner-field{display:grid;grid-template-columns:1fr 83px;align-items:center;gap:7px;padding:6px 7px;border:1px solid #273530;border-radius:9px;background:#08100e}
+.seat-tuner-field label{margin:0;color:#c5cfca;font-size:10px;line-height:1.2}
+.seat-tuner-field input{width:83px!important;height:31px!important;margin:0!important;padding:5px 7px!important;border:1px solid #45534d!important;border-radius:7px!important;background:#050908!important;color:#fff!important;text-align:right!important;font-size:12px!important}
+.seat-tuner-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.seat-tuner-actions button{min-height:37px;border-radius:9px;border:1px solid #45534c;background:#121a17;color:#f2eee2;font-weight:800;font-size:10px;cursor:pointer;letter-spacing:.35px}
+.seat-tuner-actions button.primary{border-color:#bd9142;background:linear-gradient(180deg,#dfbd67,#aa7d31);color:#171006}
+.seat-tuner-actions button.warn{border-color:#7c5231;background:#2a1810;color:#f0c7a7}
+#seatTunerStatus{margin-top:10px;min-height:17px;color:#9ecf93;font-size:10px;text-align:center}
+.seat-tuner-highlight .pro-seat-card{box-shadow:0 0 0 2px #f0c95e,0 0 25px rgba(235,195,75,.38),0 9px 17px rgba(0,0,0,.5)!important}
+.casino-chair.seat-tuner-highlight{filter:drop-shadow(0 0 9px rgba(239,198,81,.78)) drop-shadow(0 17px 15px rgba(0,0,0,.7))!important}
+@media(max-width:700px){#seatTunerPanel{width:calc(100vw - 20px);right:10px;top:128px}.seat-tuner-grid{grid-template-columns:1fr}#seatTunerToggle{right:10px}}
+</style>
 
 
-
-
+<style id="pass27-seat-tuner-click-fix">
+#seatTunerPanel,#seatTunerPanel *{pointer-events:auto!important}
+.seat-tuner-seats{position:relative!important;z-index:20!important}
+.seat-tuner-seat-btn{position:relative!important;z-index:21!important;touch-action:manipulation!important;user-select:none!important}
+</style>
 
 
 <style id="template3-dark-luxury-pass29">
@@ -4743,6 +4786,7 @@ body.audition-mode .v235-app .table,
 .v235-app .visual-status{display:none!important}
 .v235-app .pot-controls,.v235-app .reveal-note{display:none!important}
 .v235-blinds-box{z-index:25!important}
+#seatTunerToggle,#seatTunerPanel{z-index:250!important}
 @media(max-width:1200px){
   body.visual-mode .v235-app .table,body.audition-mode .v235-app .table,.v235-app .table{width:100%!important;max-width:none!important}
 }
@@ -9155,13 +9199,634 @@ renderPlayers();
 </script>
 
 
+<button id="seatTunerToggle" type="button">SEAT TUNER</button>
+<div id="seatTunerPanel" aria-hidden="true">
+  <div class="seat-tuner-head">
+    <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
+    <div class="seat-tuner-help">Changes happen live. X: smaller = left, larger = right. Y: smaller = up, larger = down. Select a seat, adjust it, then save.</div>
+    <div class="seat-tuner-seats" id="seatTunerSeatButtons"></div>
+  </div>
+  <div class="seat-tuner-body">
+    <div class="seat-tuner-section">
+      <h4>Nameplate / Seat Anchor</h4>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Nameplate X (%)</label><input id="stSeatX" type="number" step="1" min="-20" max="120"></div>
+        <div class="seat-tuner-field"><label>Nameplate Y (%)</label><input id="stSeatY" type="number" step="1" min="-30" max="140"></div>
+        <div class="seat-tuner-field"><label>Nameplate Rotation (°)</label><input id="stNameplateRot" type="number" step="1" min="-360" max="360"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Chair</h4>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Chair X (%)</label><input id="stChairX" type="number" step="1" min="-30" max="130"></div>
+        <div class="seat-tuner-field"><label>Chair Y (%)</label><input id="stChairY" type="number" step="1" min="-40" max="150"></div>
+        <div class="seat-tuner-field"><label>Chair Size (%)</label><input id="stChairScale" type="number" step="1" min="35" max="180"></div>
+        <div class="seat-tuner-field"><label>Chair Rotation (°) — -360 to 360</label><input id="stChairRot" type="number" step="1" min="-360" max="360"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Hole Cards — offset from nameplate</h4>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Cards X (px)</label><input id="stCardsX" type="number" step="1" min="-260" max="260"></div>
+        <div class="seat-tuner-field"><label>Cards Y (px)</label><input id="stCardsY" type="number" step="1" min="-180" max="180"></div>
+        <div class="seat-tuner-field"><label>Cards Rotation (°)</label><input id="stCardsRot" type="number" step="1" min="-360" max="360"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Bet / Chips — offset from nameplate</h4>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Bet X (px)</label><input id="stBetX" type="number" step="1" min="-2000" max="2000"></div>
+        <div class="seat-tuner-field"><label>Bet Y (px)</label><input id="stBetY" type="number" step="1" min="-2000" max="2000"></div>
+        <div class="seat-tuner-field"><label>Bet / Chips Rotation (°)</label><input id="stBetRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>Bet / Chips Size (%) — ALL SEATS</label><input id="stBetScale" type="number" step="1" min="25" max="400" value="75"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>D / SB / BB Markers — offset from selected nameplate</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Positions and rotations are saved per seat. Button size is GLOBAL: changing it once resizes D, SB, and BB together at every seat.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>D X (px)</label><input id="stDX" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>D Y (px)</label><input id="stDY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>D Rotation (°)</label><input id="stDRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>SB X (px)</label><input id="stSBX" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>SB Y (px)</label><input id="stSBY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>SB Rotation (°)</label><input id="stSBRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>BB X (px)</label><input id="stBBX" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>BB Y (px)</label><input id="stBBY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>BB Rotation (°)</label><input id="stBBRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>D / SB / BB Size (%) — ALL BUTTONS</label><input id="stMarkerScale" type="number" step="1" min="25" max="400" value="70"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Community Cards — global table positions</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Flop moves all three flop cards together. Use Flop Gap to bring the 3 flop cards closer together or farther apart independently of card size. Turn and River move separately. The BURN label and burn cards are hidden from the table.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Community Card Size (%)</label><input id="stCommunityScale" type="number" step="1" min="25" max="300" value="100"></div>
+        <div class="seat-tuner-field"><label>Flop Gap Between Cards (px)</label><input id="stFlopGap" type="number" step="1" min="-40" max="200" value="25"></div>
+        <div class="seat-tuner-field"><label>Flop X (px)</label><input id="stFlopX" type="number" step="1" min="-800" max="800"></div>
+        <div class="seat-tuner-field"><label>Flop Y (px)</label><input id="stFlopY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>Flop Rotation (°)</label><input id="stFlopRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>Turn X (px)</label><input id="stTurnX" type="number" step="1" min="-800" max="800"></div>
+        <div class="seat-tuner-field"><label>Turn Y (px)</label><input id="stTurnY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>Turn Rotation (°)</label><input id="stTurnRot" type="number" step="1" min="-360" max="360"></div>
+        <div class="seat-tuner-field"><label>River X (px)</label><input id="stRiverX" type="number" step="1" min="-800" max="800"></div>
+        <div class="seat-tuner-field"><label>River Y (px)</label><input id="stRiverY" type="number" step="1" min="-500" max="500"></div>
+        <div class="seat-tuner-field"><label>River Rotation (°)</label><input id="stRiverRot" type="number" step="1" min="-360" max="360"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Global Nameplate Elements — applies to all 8 seats</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">Adjust these once. Every player nameplate uses the same money and seat-circle offsets.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Money X Offset (px)</label><input id="stMoneyX" type="number" step="1" min="-120" max="120" value="0"></div>
+        <div class="seat-tuner-field"><label>Money Y Offset (px)</label><input id="stMoneyY" type="number" step="1" min="-80" max="80" value="0"></div>
+        <div class="seat-tuner-field"><label>Money Rotation (°)</label><input id="stMoneyRot" type="number" step="1" min="-360" max="360" value="0"></div>
+        <div class="seat-tuner-field"><label>Seat Circle X Offset (px)</label><input id="stCircleX" type="number" step="1" min="-120" max="120" value="0"></div>
+        <div class="seat-tuner-field"><label>Seat Circle Y Offset (px)</label><input id="stCircleY" type="number" step="1" min="-80" max="80" value="0"></div>
+        <div class="seat-tuner-field"><label>Seat Circle Rotation (°)</label><input id="stCircleRot" type="number" step="1" min="-360" max="360" value="0"></div>
+      </div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Nameplate Inner Background — applies to all 8 seats</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">This moves/resizes only the black patterned background INSIDE the poker-chip border. The nameplate X/Y, rotation, border, player name, money, cards, bets and buttons do not move.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Background X (px)</label><input id="stPlateBgX" type="number" step="1" min="-100" max="100" value="0"></div>
+        <div class="seat-tuner-field"><label>Background Y (px)</label><input id="stPlateBgY" type="number" step="1" min="-100" max="100" value="0"></div>
+        <div class="seat-tuner-field"><label>Background Width (%)</label><input id="stPlateBgScaleX" type="number" step="1" min="25" max="200" value="100"></div>
+        <div class="seat-tuner-field"><label>Background Height (%)</label><input id="stPlateBgScaleY" type="number" step="1" min="25" max="200" value="100"></div>
+        <div class="seat-tuner-field"><label>Background Rotation (°)</label><input id="stPlateBgRot" type="number" step="1" min="-360" max="360" value="0"></div>
+      </div>
+      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateBgReset" type="button">RESET NAMEPLATE BACKGROUND</button></div>
+    </div>
+    <div class="seat-tuner-section">
+      <h4>Nameplate Appearance — applies to all 8 seats</h4>
+      <div class="seat-tuner-help" style="margin:0 0 9px">These change only the visual size of the poker-chip edge, player name, and money text. They do not change seat X/Y, nameplate rotation, money X/Y, cards, bets, or buttons.</div>
+      <div class="seat-tuner-grid">
+        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px)</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="20" value="6"></div>
+        <div class="seat-tuner-field"><label>Player Name Size (px)</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="17"></div>
+        <div class="seat-tuner-field"><label>Money Size (px)</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="16"></div>
+      </div>
+      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateAppearanceReset" type="button">RESET NAMEPLATE APPEARANCE</button></div>
+    </div>
+    <div class="seat-tuner-actions">
+      <button id="seatTunerSave" class="primary" type="button">SAVE LAYOUT</button>
+      <button id="seatTunerCopy" type="button">COPY COORDINATES</button>
+      <button id="seatTunerDownload" type="button">DOWNLOAD LAYOUT NOTE (.TXT)</button>
+      <button id="seatTunerResetSeat" class="warn" type="button">RESET THIS SEAT</button>
+      <button id="seatTunerResetAll" class="warn" type="button">RESET ALL SEATS</button>
+    </div>
+    <div id="seatTunerStatus"></div>
+  </div>
+</div>
 
 
+<script>
+(function(){
+  if(window.__v235SeatTunerLoaded) return;
+  window.__v235SeatTunerLoaded=true;
+
+  const STORAGE_KEY='v235-seat-layout-template3-pass48';
+  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-template3-pass48';
+  const SCENE_STORAGE_KEY='v235-scene-layout-template3-pass48';
+  let selectedSeat=1;
+  let baseline={};
+  const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
+  let layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
+  let initialized=false;
+  let dirty=false;
+  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
+  let globalLayout={...GLOBAL_DEFAULTS};
+  const SCENE_DEFAULTS={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
+  let sceneLayout={...SCENE_DEFAULTS};
+
+  const $id=id=>document.getElementById(id);
+  const fields=['seatX','seatY','nameplateRot','chairX','chairY','chairScale','chairRot','cardsX','cardsY','cardsRot','betX','betY','betRot','dX','dY','dRot','sbX','sbY','sbRot','bbX','bbY','bbRot'];
+  const ids={seatX:'stSeatX',seatY:'stSeatY',nameplateRot:'stNameplateRot',chairX:'stChairX',chairY:'stChairY',chairScale:'stChairScale',chairRot:'stChairRot',cardsX:'stCardsX',cardsY:'stCardsY',cardsRot:'stCardsRot',betX:'stBetX',betY:'stBetY',betRot:'stBetRot',dX:'stDX',dY:'stDY',dRot:'stDRot',sbX:'stSBX',sbY:'stSBY',sbRot:'stSBRot',bbX:'stBBX',bbY:'stBBY',bbRot:'stBBRot'};
+  const globalFields=['moneyX','moneyY','moneyRot','circleX','circleY','circleRot','betScale','markerScale','plateBgX','plateBgY','plateBgScaleX','plateBgScaleY','plateBgRot','plateEdgeSize','plateNameSize','plateMoneySize'];
+  const globalIds={moneyX:'stMoneyX',moneyY:'stMoneyY',moneyRot:'stMoneyRot',circleX:'stCircleX',circleY:'stCircleY',circleRot:'stCircleRot',betScale:'stBetScale',markerScale:'stMarkerScale',plateBgX:'stPlateBgX',plateBgY:'stPlateBgY',plateBgScaleX:'stPlateBgScaleX',plateBgScaleY:'stPlateBgScaleY',plateBgRot:'stPlateBgRot',plateEdgeSize:'stPlateEdgeSize',plateNameSize:'stPlateNameSize',plateMoneySize:'stPlateMoneySize'};
+  const sceneFields=['communityScale','flopGap','flopX','flopY','flopRot','turnX','turnY','turnRot','riverX','riverY','riverRot'];
+  const sceneIds={communityScale:'stCommunityScale',flopGap:'stFlopGap',flopX:'stFlopX',flopY:'stFlopY',flopRot:'stFlopRot',turnX:'stTurnX',turnY:'stTurnY',turnRot:'stTurnRot',riverX:'stRiverX',riverY:'stRiverY',riverRot:'stRiverRot'};
+
+  function round(n,places=2){const p=10**places;return Math.round((Number(n)||0)*p)/p;}
+  function parseTransform(el){
+    const t=getComputedStyle(el).transform;
+    if(!t || t==='none') return {scale:1,rot:0};
+    try{
+      const m=new DOMMatrix(t);
+      return {scale:round(Math.sqrt(m.a*m.a+m.b*m.b),3),rot:round(Math.atan2(m.b,m.a)*180/Math.PI,1)};
+    }catch(e){return {scale:1,rot:0};}
+  }
+  function pxPercent(value,total){return total?round((value/total)*100,2):0;}
+  function seatEl(n){return document.querySelector(`.visual-seat.vpos${n-1}`);}
+  function chairEl(n){return document.querySelector(`.chair-seat${n}`);}
+
+  function captureSeat(n){
+    const seat=seatEl(n), chair=chairEl(n), table=document.querySelector('.table'), layer=document.querySelector('.casino-chair-layer');
+    if(!seat || !chair || !table || !layer) return null;
+    const sc=getComputedStyle(seat), cc=getComputedStyle(chair);
+    const seatRect=seat.getBoundingClientRect();
+    const nameplate=seat.querySelector('.pro-seat-card');
+    const hand=seat.querySelector('.seat-hand');
+    const bet=seat.querySelector('.visual-bet');
+    const handRect=hand?.getBoundingClientRect();
+    const betRect=bet?.getBoundingClientRect();
+    const centerX=seatRect.left+seatRect.width/2, centerY=seatRect.top+seatRect.height/2;
+    const ct=parseTransform(chair), nt=nameplate?parseTransform(nameplate):{rot:0}, ht=hand?parseTransform(hand):{rot:0}, bt=bet?parseTransform(bet):{rot:0};
+    return {
+      seatX:pxPercent(parseFloat(sc.left),table.clientWidth),
+      seatY:pxPercent(parseFloat(sc.top),table.clientHeight),
+      nameplateRot:nt.rot||0,
+      chairX:pxPercent(parseFloat(cc.left),layer.clientWidth),
+      chairY:pxPercent(parseFloat(cc.top),layer.clientHeight),
+      chairScale:ct.scale,chairRot:ct.rot,
+      cardsX:handRect?round(handRect.left+handRect.width/2-centerX,1):0,
+      cardsY:handRect?round(handRect.top+handRect.height/2-centerY,1):0,
+      cardsRot:ht.rot||0,
+      betX:betRect?round(betRect.left+betRect.width/2-centerX,1):0,
+      betY:betRect?round(betRect.top+betRect.height/2-centerY,1):0,
+      betRot:bt.rot||0,
+      dX:0,dY:90,dRot:0,dScale:1,
+      sbX:38,sbY:90,sbRot:0,sbScale:1,
+      bbX:76,bbY:90,bbRot:0,bbScale:1
+    };
+  }
+
+  function copyObj(obj){return JSON.parse(JSON.stringify(obj));}
+  function captureBaseline(){
+    let captured=0;
+    for(let n=1;n<=8;n++){
+      const x=captureSeat(n);
+      if(x){
+        if(!baseline[n]) baseline[n]=x;
+        if(!layout[n]) layout[n]=copyObj(x);
+        captured++;
+      }
+    }
+    return captured>0;
+  }
+
+  function applySeat(n,data){
+    if(!data) return;
+    const seat=seatEl(n), chair=chairEl(n);
+    if(seat){
+      seat.style.setProperty('left',`${data.seatX}%`,'important');
+      seat.style.setProperty('top',`${data.seatY}%`,'important');
+      seat.style.setProperty('right','auto','important');
+      seat.style.setProperty('bottom','auto','important');
+      seat.style.setProperty('transform','translate(-50%,-50%)','important');
+      const nameplate=seat.querySelector('.pro-seat-card');
+      if(nameplate){
+        nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');
+        nameplate.style.setProperty('transform-origin','50% 50%','important');
+      }
+      const hand=seat.querySelector('.seat-hand');
+      if(hand){
+        hand.style.setProperty('left','50%','important');
+        hand.style.setProperty('right','auto','important');
+        hand.style.setProperty('top','50%','important');
+        hand.style.setProperty('bottom','auto','important');
+        hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg)`,'important');
+      }
+      const bet=seat.querySelector('.visual-bet');
+      if(bet){
+        bet.style.setProperty('left','50%','important');
+        bet.style.setProperty('right','auto','important');
+        bet.style.setProperty('top','50%','important');
+        bet.style.setProperty('bottom','auto','important');
+        bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX}px),calc(-50% + ${data.betY}px)) rotate(${data.betRot||0}deg) scale(${globalLayout.betScale||1})`,'important');
+        bet.style.setProperty('transform-origin','50% 50%','important');
+      }
+      const markerMap=[
+        ['.seat-marker-d','dX','dY','dRot','dScale'],
+        ['.seat-marker-sb','sbX','sbY','sbRot','sbScale'],
+        ['.seat-marker-bb','bbX','bbY','bbRot','bbScale']
+      ];
+      markerMap.forEach(([selector,xk,yk,rk,sk])=>{
+        const marker=seat.querySelector(selector);
+        if(!marker)return;
+        marker.style.setProperty('left','50%','important');
+        marker.style.setProperty('top','50%','important');
+        marker.style.setProperty('right','auto','important');
+        marker.style.setProperty('bottom','auto','important');
+        marker.style.setProperty('transform',`translate(calc(-50% + ${data[xk]||0}px),calc(-50% + ${data[yk]||0}px)) rotate(${data[rk]||0}deg) scale(${globalLayout.markerScale||1})`,'important');
+      });
+    }
+    if(chair){
+      chair.style.setProperty('left',`${data.chairX}%`,'important');
+      chair.style.setProperty('top',`${data.chairY}%`,'important');
+      chair.style.setProperty('right','auto','important');
+      chair.style.setProperty('bottom','auto','important');
+      chair.style.setProperty('transform',`translate(-50%,-50%) rotate(${data.chairRot||0}deg) scale(${data.chairScale||1})`,'important');
+    }
+  }
+  function applyGlobalElements(){
+    document.querySelectorAll('.visual-seat .pro-seat-card.poker-chip-nameplate').forEach(el=>{
+      el.style.setProperty('--chip-bg-x',`${globalLayout.plateBgX||0}px`);
+      el.style.setProperty('--chip-bg-y',`${globalLayout.plateBgY||0}px`);
+      el.style.setProperty('--chip-bg-scale-x',`${globalLayout.plateBgScaleX||1}`);
+      el.style.setProperty('--chip-bg-scale-y',`${globalLayout.plateBgScaleY||1}`);
+      el.style.setProperty('--chip-bg-rot',`${globalLayout.plateBgRot||0}deg`);
+      el.style.setProperty('--chip-edge-size',`${Number.isFinite(Number(globalLayout.plateEdgeSize))?globalLayout.plateEdgeSize:6}px`);
+      el.style.setProperty('--chip-name-size',`${Number.isFinite(Number(globalLayout.plateNameSize))?globalLayout.plateNameSize:17}px`);
+      el.style.setProperty('--chip-money-size',`${Number.isFinite(Number(globalLayout.plateMoneySize))?globalLayout.plateMoneySize:16}px`);
+    });
+    document.querySelectorAll('.visual-seat .visual-stack').forEach(el=>{
+      el.style.setProperty('transform',`translate(${globalLayout.moneyX||0}px, ${globalLayout.moneyY||0}px) rotate(${globalLayout.moneyRot||0}deg)`,'important');
+      el.style.setProperty('transform-origin','left center','important');
+    });
+    document.querySelectorAll('.visual-seat .pro-seat-number').forEach(el=>{
+      el.style.setProperty('transform',`translate(${globalLayout.circleX||0}px, calc(-50% + ${globalLayout.circleY||0}px)) rotate(${globalLayout.circleRot||0}deg)`,'important');
+      el.style.setProperty('transform-origin','50% 50%','important');
+    });
+  }
+  function applySceneElements(){
+    const zone=document.querySelector('.v235-app .board-zone');
+    const board=document.getElementById('boardCards');
+    if(zone){
+      zone.style.setProperty('left','50%','important');
+      zone.style.setProperty('top','50%','important');
+      zone.style.setProperty('width','0','important');
+      zone.style.setProperty('height','0','important');
+      zone.style.setProperty('min-width','0','important');
+      zone.style.setProperty('padding','0','important');
+      zone.style.setProperty('transform','none','important');
+      zone.style.setProperty('overflow','visible','important');
+    }
+    if(board){
+      board.style.setProperty('position','absolute','important');
+      board.style.setProperty('left','0','important');
+      board.style.setProperty('top','0','important');
+      board.style.setProperty('width','0','important');
+      board.style.setProperty('height','0','important');
+      board.style.setProperty('display','block','important');
+      board.style.setProperty('overflow','visible','important');
+      const cards=[...board.children];
+      const rad=(sceneLayout.flopRot||0)*Math.PI/180;
+      const c=Math.cos(rad),s=Math.sin(rad);
+      // Flop spacing is an EDGE-TO-EDGE gap. As card size changes, the three flop cards
+      // automatically move closer/farther while preserving the selected visible gap.
+      const baseCardWidth=(cards[0]?.offsetWidth||54);
+      const gap=(baseCardWidth*(sceneLayout.communityScale||1))+(sceneLayout.flopGap??25);
+      cards.forEach((card,i)=>{
+        let x=0,y=0,r=0;
+        if(i<3){const dx=(i-1)*gap;x=(sceneLayout.flopX||0)+dx*c;y=(sceneLayout.flopY||0)+dx*s;r=sceneLayout.flopRot||0;}
+        else if(i===3){x=sceneLayout.turnX||0;y=sceneLayout.turnY||0;r=sceneLayout.turnRot||0;}
+        else{x=sceneLayout.riverX||0;y=sceneLayout.riverY||0;r=sceneLayout.riverRot||0;}
+        card.style.setProperty('position','absolute','important');
+        card.style.setProperty('left',`${x}px`,'important');
+        card.style.setProperty('top',`${y}px`,'important');
+        card.style.setProperty('translate','-50% -50%','important');
+        card.style.setProperty('rotate',`${r}deg`,'important');
+        card.style.setProperty('scale',`${sceneLayout.communityScale||1}`,'important');
+        card.style.setProperty('transform-origin','50% 50%','important');
+      });
+    }
+    const burn=document.querySelector('.v235-app .burn-zone');
+    if(burn){
+      burn.style.setProperty('display','none','important');
+      burn.setAttribute('aria-hidden','true');
+    }
+  }
+  function applyAll(){Object.keys(layout).forEach(k=>applySeat(Number(k),layout[k]));applyGlobalElements();applySceneElements();highlight();}
+
+  function readStored(){
+    try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+  }
+  function readGlobalStored(){
+    try{const raw=localStorage.getItem(GLOBAL_STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+  }
+  function readSceneStored(){
+    try{const raw=localStorage.getItem(SCENE_STORAGE_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+  }
+  function saveStored(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(layout));
+      localStorage.setItem(GLOBAL_STORAGE_KEY,JSON.stringify(globalLayout));
+      localStorage.setItem(SCENE_STORAGE_KEY,JSON.stringify(sceneLayout));
+      status('Full layout saved in this browser. Use DOWNLOAD LAYOUT NOTE to send every setting back to me in one file.');dirty=false;return true;
+    }catch(e){status('Layout applied, but browser storage is unavailable.');return false;}
+  }
+  function status(msg){const el=$id('seatTunerStatus');if(el){el.textContent=msg;setTimeout(()=>{if(el.textContent===msg)el.textContent='';},2600)}}
+
+  function updateSeatButtonState(){
+    document.querySelectorAll('.seat-tuner-seat-btn').forEach(b=>{
+      const active=Number(b.dataset.seat)===selectedSeat;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-pressed',active?'true':'false');
+    });
+  }
+
+  function ensureSeatData(n){
+    if(layout[n]) return layout[n];
+    const captured=captureSeat(n);
+    if(captured){
+      layout[n]=captured;
+      if(!baseline[n]) baseline[n]=copyObj(captured);
+      return layout[n];
+    }
+    return null;
+  }
+
+  function writeGlobalFields(){
+    globalFields.forEach(k=>{
+      const el=$id(globalIds[k]); if(!el) return;
+      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') el.value=Math.round((globalLayout[k]??1)*100);
+      else el.value=globalLayout[k]??0;
+    });
+  }
+  function readGlobalFields(){
+    globalFields.forEach(k=>{
+      const el=$id(globalIds[k]); if(!el) return;
+      const v=Number(el.value);
+      if(k==='betScale'||k==='markerScale'||k==='plateBgScaleX'||k==='plateBgScaleY') globalLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
+      else globalLayout[k]=Number.isFinite(v)?v:0;
+    });
+    applyAll();dirty=true;
+  }
+  function writeSceneFields(){
+    sceneFields.forEach(k=>{
+      const el=$id(sceneIds[k]); if(!el) return;
+      if(k==='communityScale') el.value=Math.round((sceneLayout[k]??1)*100);
+      else el.value=sceneLayout[k]??0;
+    });
+  }
+  function readSceneFields(){
+    sceneFields.forEach(k=>{
+      const el=$id(sceneIds[k]); if(!el) return;
+      const v=Number(el.value);
+      if(k==='communityScale') sceneLayout[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
+      else sceneLayout[k]=Number.isFinite(v)?v:0;
+    });
+    sceneLayout.burnVisible=false;
+    applySceneElements();dirty=true;
+  }
+  function writeFields(){
+    updateSeatButtonState();
+    highlight();
+    writeGlobalFields();
+    writeSceneFields();
+    const d=ensureSeatData(selectedSeat);
+    if(!d){
+      status(`Seat ${selectedSeat} is not rendered yet. Start/refresh the table and try again.`);
+      return;
+    }
+    fields.forEach(k=>{
+      const el=$id(ids[k]); if(!el) return;
+      if(k==='chairScale') el.value=Math.round((d[k]??1)*100);
+      else el.value=d[k]??0;
+    });
+  }
+  function readFields(){
+    const d=ensureSeatData(selectedSeat); if(!d) return;
+    fields.forEach(k=>{
+      const el=$id(ids[k]); if(!el) return;
+      const v=Number(el.value);
+      if(k==='chairScale') d[k]=Number.isFinite(v)?Math.max(.01,v/100):1;
+      else d[k]=Number.isFinite(v)?v:0;
+    });
+    applySeat(selectedSeat,d);applyGlobalElements();dirty=true;
+  }
+  function highlight(){
+    document.querySelectorAll('.seat-tuner-highlight').forEach(el=>el.classList.remove('seat-tuner-highlight'));
+    seatEl(selectedSeat)?.classList.add('seat-tuner-highlight');
+    chairEl(selectedSeat)?.classList.add('seat-tuner-highlight');
+  }
+  function selectSeat(n){
+    selectedSeat=Math.max(1,Math.min(8,Number(n)||1));
+    updateSeatButtonState();
+    highlight();
+    if(!initialized){
+      // Do not block selection while waiting for the full table capture.
+      const captured=ensureSeatData(selectedSeat);
+      if(captured && Object.keys(layout).length>0) initialized=true;
+    }
+    writeFields();
+    status(`Seat ${selectedSeat} selected.`);
+  }
+
+  function initButtons(){
+    const wrap=$id('seatTunerSeatButtons'); if(!wrap)return;
+    wrap.innerHTML='';
+    for(let n=1;n<=8;n++){
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='seat-tuner-seat-btn';
+      b.dataset.seat=String(n);
+      b.textContent=String(n);
+      b.setAttribute('aria-label',`Select seat ${n}`);
+      b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',(ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        selectSeat(n);
+      });
+      wrap.appendChild(b);
+    }
+    updateSeatButtonState();
+  }
+
+  function exportLayoutObject(){
+    return {
+      layoutVersion:'Template 3 Pass 48 — Shared Visuals + Navigation',
+      savedAt:new Date().toISOString(),
+      seats:layout,
+      globalNameplateElements:globalLayout,
+      communityAndBurn:{...sceneLayout,burnVisible:false}
+    };
+  }
+  function copyCoordinates(){
+    const text=JSON.stringify(exportLayoutObject(),null,2);
+    const done=()=>status('All coordinates copied. You can paste them back to me if needed.');
+    if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
+    else fallbackCopy(text,done);
+  }
+  function downloadLayoutNote(){
+    readFields(); readGlobalFields(); readSceneFields(); saveStored();
+    const text=JSON.stringify(exportLayoutObject(),null,2);
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+    a.href=url;
+    a.download=`Poker_Dealer_Trainer_Layout_${stamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    status('Layout note downloaded. Upload that .txt file here and I can read every coordinate at once.');
+  }
+  function fallbackCopy(text,done){
+    const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){status('Could not copy automatically.');}ta.remove();
+  }
+
+  function initialize(){
+    const firstInit=!initialized;
+    if(!captureBaseline()) return false;
+    if(firstInit){
+      const stored=readStored();
+      if(stored){
+        for(let n=1;n<=8;n++){
+          if(stored[n]) layout[n]={...(layout[n]||baseline[n]||{}),...stored[n]};
+        }
+      }
+      const storedGlobal=readGlobalStored();
+      if(storedGlobal) globalLayout={...GLOBAL_DEFAULTS,...storedGlobal};
+      const storedScene=readSceneStored();
+      if(storedScene) sceneLayout={...SCENE_DEFAULTS,...storedScene};
+      initialized=true;
+    }
+    applyAll();
+    writeFields();
+    return true;
+  }
+
+  function showPanel(show){
+    const p=$id('seatTunerPanel'); if(!p)return;
+    if(show){p.classList.add('open');p.setAttribute('aria-hidden','false');initialize();writeFields();}
+    else{p.classList.remove('open');p.setAttribute('aria-hidden','true');document.querySelectorAll('.seat-tuner-highlight').forEach(el=>el.classList.remove('seat-tuner-highlight'));}
+  }
+
+  function wire(){
+    initButtons();
+    $id('seatTunerToggle').onclick=()=>showPanel(!$id('seatTunerPanel').classList.contains('open'));
+    $id('seatTunerClose').onclick=()=>showPanel(false);
+    fields.forEach(k=>{const el=$id(ids[k]);if(el){el.addEventListener('input',readFields);el.addEventListener('change',readFields);}});
+    globalFields.forEach(k=>{const el=$id(globalIds[k]);if(el){el.addEventListener('input',readGlobalFields);el.addEventListener('change',readGlobalFields);}});
+    sceneFields.forEach(k=>{const el=$id(sceneIds[k]);if(el){el.addEventListener('input',readSceneFields);el.addEventListener('change',readSceneFields);}});
+    $id('seatTunerSave').onclick=()=>{readFields();readGlobalFields();readSceneFields();saveStored();};
+    $id('seatTunerCopy').onclick=copyCoordinates;
+    $id('seatTunerDownload').onclick=downloadLayoutNote;
+    const bgReset=$id('stPlateBgReset');
+    if(bgReset) bgReset.onclick=()=>{
+      globalLayout.plateBgX=0; globalLayout.plateBgY=0;
+      globalLayout.plateBgScaleX=1; globalLayout.plateBgScaleY=1; globalLayout.plateBgRot=0;
+      applyGlobalElements(); writeGlobalFields(); dirty=true;
+      status('Nameplate inner background reset to the Pass 42 look.');
+    };
+    const appearanceReset=$id('stPlateAppearanceReset');
+    if(appearanceReset) appearanceReset.onclick=()=>{
+      globalLayout.plateEdgeSize=6;
+      globalLayout.plateNameSize=17;
+      globalLayout.plateMoneySize=16;
+      applyGlobalElements(); writeGlobalFields(); dirty=true;
+      status('Nameplate edge, name size, and money size reset.');
+    };
+    $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
+    $id('seatTunerResetAll').onclick=()=>{
+      if(!initialized)return;
+      layout=copyObj(baseline);
+      globalLayout={...GLOBAL_DEFAULTS};
+      sceneLayout={...SCENE_DEFAULTS};
+      applyAll();writeFields();dirty=true;
+      try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(GLOBAL_STORAGE_KEY);localStorage.removeItem(SCENE_STORAGE_KEY)}catch(e){}
+      status('All seats, markers, and board positions reset to their starting positions.');
+    };
+
+    // Click a nameplate to select its seat while tuner is open.
+    document.addEventListener('click',e=>{
+      const s=e.target.closest?.('.visual-seat');
+      if(!s || !$id('seatTunerPanel').classList.contains('open'))return;
+      const m=[...s.classList].find(c=>/^vpos[0-7]$/.test(c));if(m){selectSeat(Number(m.slice(4))+1);}
+    },true);
+
+    // Re-apply layout whenever the app rebuilds visual seat DOM nodes.
+    const seatWrap=$id('visualSeats');
+    if(seatWrap){
+      new MutationObserver(()=>{if(!initialized){initialize();}else{requestAnimationFrame(applyAll);}}).observe(seatWrap,{childList:true,subtree:false});
+    }
+    const boardWrap=$id('boardCards');
+    if(boardWrap)new MutationObserver(()=>requestAnimationFrame(applySceneElements)).observe(boardWrap,{childList:true,subtree:false});
+    const burnWrap=$id('burnCards');
+    if(burnWrap)new MutationObserver(()=>requestAnimationFrame(applySceneElements)).observe(burnWrap,{childList:true,subtree:false});
+    // Initial capture may need a moment because mode/player-count setup can render seats later.
+    let attempts=0;
+    const timer=setInterval(()=>{attempts++;if(initialize()||attempts>40)clearInterval(timer);},150);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
+})();
+</script>
 
 
+<script>
+(function(){
+  const rot=document.getElementById('stChairRot');
+  if(!rot) return;
+  rot.addEventListener('change',()=>{
+    let v=Number(rot.value);
+    if(!Number.isFinite(v)) v=0;
+    v=Math.max(-360,Math.min(360,v));
+    rot.value=v;
+    rot.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+})();
+</script>
 
 
-
+<script id="template3-tuner-cleanup-pass29">
+(function(){
+  function cleanTemplate3Tuner(){
+    const chairField=document.getElementById('stChairX');
+    const chairSection=chairField?.closest('.seat-tuner-section');
+    if(chairSection){
+      chairSection.innerHTML='<h4>Template 3 Chairs</h4><div class="seat-tuner-help">The eight luxury chairs are built into the new Template 3 room image, so they stay perfectly matched to the table. Use the controls below to position each nameplate, hole cards and bet/chip spot around those chairs.</div>';
+    }
+    ['stCircleX','stCircleY','stCircleRot'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el?.closest('.seat-tuner-field')) el.closest('.seat-tuner-field').style.display='none';
+    });
+    const sections=[...document.querySelectorAll('#seatTunerPanel .seat-tuner-section')];
+    const globalSection=sections.find(s=>s.querySelector('#stMoneyX'));
+    if(globalSection){
+      const h=globalSection.querySelector('h4'); if(h) h.textContent='Global Money Position — applies to all seats';
+      const help=globalSection.querySelector('.seat-tuner-help'); if(help) help.textContent='Move the money amount once and the same offset is applied to every player nameplate.';
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',cleanTemplate3Tuner,{once:true});
+  else cleanTemplate3Tuner();
+})();
+</script>
 
 
 <script id="template3-final-visual-lock-pass30">
@@ -9289,15 +9954,37 @@ renderPlayers();
 .v235-app .board-zone{overflow:visible!important}
 .v235-app #boardCards{overflow:visible!important}
 .v235-app #boardCards>.playing-card{margin:0!important}
+#seatTunerPanel{max-height:calc(100vh - 116px)!important}
+#seatTunerPanel .seat-tuner-section h5{color:#dcb85c;margin:8px 0 5px;font-size:10px;text-transform:uppercase}
 </style>
 
 
-
+<script id="pass33-full-rotation-guard">
+(function(){
+  function wire360(){
+    document.querySelectorAll('#seatTunerPanel input[id*="Rot"]').forEach(input=>{
+      input.min='-360'; input.max='360';
+      if(input.dataset.rot360==='1') return;
+      input.dataset.rot360='1';
+      const clamp=()=>{
+        let v=Number(input.value);
+        if(!Number.isFinite(v)) v=0;
+        if(v>360) v=360;
+        if(v<-360) v=-360;
+        input.value=String(v);
+      };
+      input.addEventListener('change',clamp);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire360,{once:true}); else wire360();
+})();
+</script>
 
 
 <style id="pass34-final-tuner-guards">
 /* PASS 34: burn mechanics remain internal, but no BURN label or burn cards are shown. */
 .v235-app .burn-zone,.v235-app .burn-label,.v235-app #burnCards{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#seatTunerDownload{background:#173127!important;border-color:#4b8b68!important;color:#d7f5e4!important}
 </style>
 
 
@@ -9816,6 +10503,7 @@ body.v235-live #v235Rail{
     const board=$('boardCards');
     if(board) new MutationObserver(()=>requestAnimationFrame(positionPotUnderBoard)).observe(board,{childList:true,subtree:false});
     window.addEventListener('resize',()=>requestAnimationFrame(positionPotUnderBoard));
+    document.addEventListener('input',e=>{if(e.target?.closest?.('#seatTunerPanel')) requestAnimationFrame(positionPotUnderBoard);},true);
     $('newHand')?.addEventListener('click',()=>setTimeout(resetPotAnimationState,0),true);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
@@ -9832,11 +10520,14 @@ body.v235-live #v235Rail{
 
 <!-- PASS 48 — shared Template 3 visuals + Settings/Stats navigation -->
 <style id="pass48-shared-mode-navigation-css">
-/* One shared production visual layout is used for Real, Visual and Audition modes. */
+/* The layout/tuner is one shared visual system for Real, Visual and Audition modes. */
 body.v235-live.template3-shared-mode .v235-app .visual-stage{display:block!important;visibility:visible!important;}
 body.v235-live.template3-shared-mode .v235-app #visualSeats{display:block!important;visibility:visible!important;}
 body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
 /* Real Table remains physical-dealing mode: no forced digital hole/board card animation is introduced here. */
+body:not(.v235-live) #seatTunerToggle,
+body:not(.v235-live) #seatTunerPanel{display:none!important;}
+body.v235-live #seatTunerToggle{display:block!important;}
 
 /* Clear navigation inside Settings / Stats / Help overlays. */
 .v235-overlay-head{position:relative!important;}
@@ -9872,8 +10563,13 @@ body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
       el.setAttribute('aria-hidden','true');
     });
   }
+  function hideTuner(){
+    const p=document.getElementById('seatTunerPanel');
+    if(p){p.classList.remove('open');p.setAttribute('aria-hidden','true');}
+  }
   function goHomeFromPanel(){
     closeOverlays();
+    hideTuner();
     /* During a live session, use the trainer's existing HOME routine through backMenu. */
     if(document.body.classList.contains('v235-live')){
       const homeAlias=document.getElementById('backMenu');
@@ -10058,16 +10754,19 @@ body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
     moveMatch(audio,['SOUND EFFECTS']);
     moveMatch(appearance,['ANIMATIONS']);
 
-    table.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>♠ TABLE LAYOUT</h3><p>The production table layout is locked so all players use the approved seat, nameplate, cards, bets, D/SB/BB and board positions.</p></section>`);
+    table.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>♠ TABLE LAYOUT</h3><p>The same saved seat, nameplate, cards, bets, D/SB/BB and board coordinates are shared by Real, Visual and Audition modes.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
     audition.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>◷ AUDITION MODE</h3><p>Uses the same final table visuals and coordinates, while tracking scored dealer practice. Advanced timed audition controls remain separate from the visual layout.</p></section>`);
-    appearance.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>✎ NAMEPLATES & POSITIONS</h3><p>Nameplates, money, seat positions, card positions and board placement are locked to the approved production layout.</p></section>`);
-    account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>● LOCAL PROFILE</h3><p>This standalone trainer stores user preferences locally in this browser. The production table layout is locked by the website version.</p></section>`);
+    appearance.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>✎ NAMEPLATES & POSITIONS</h3><p>Adjust nameplate background, edge thickness, name size, money size, seat positions, card positions and board placement with the shared layout tuner.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
+    account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>● LOCAL PROFILE</h3><p>This standalone HTML stores trainer preferences and layout settings locally in this browser. Website account synchronization is not connected in this standalone build.</p></section>`);
     if(actions) account.appendChild(actions);
 
     general.classList.add('active');
     wireNav('v235SettingsPanel',['general','training','table','audition','audio','appearance','account']);
 
-
+    panel.querySelectorAll('[data-open-layout-tuner]').forEach(btn=>btn.addEventListener('click',()=>{
+      panel.classList.remove('open');panel.setAttribute('aria-hidden','true');
+      setTimeout(()=>document.getElementById('seatTunerToggle')?.click(),30);
+    }));
   }
 
   function statVal(id,fallback='—'){return $(id)?.textContent?.trim()||fallback;}
@@ -10511,50 +11210,9 @@ body.v235-live.real-mode .v235-app .board-zone{display:block!important;}
 </script>
 
 
-<script id="production-layout-runtime-v24">
+<script id="v24-0-1-dev-navigation-hotfix">
 (function(){
-  const LAYOUT={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1,"sbX":51,"sbY":111,"sbRot":0,"sbScale":1,"bbX":55,"bbY":95,"bbRot":0,"bbScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1,"sbX":2,"sbY":109,"sbRot":0,"sbScale":1,"bbX":0,"bbY":110,"bbRot":9,"bbScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1,"sbX":-123,"sbY":47,"sbRot":0,"sbScale":1,"bbX":-135,"bbY":31,"bbRot":0,"bbScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1,"sbX":-112,"sbY":-117,"sbRot":0,"sbScale":1,"bbX":-110,"bbY":-103,"bbRot":0,"bbScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85,"sbX":-52,"sbY":-143,"sbRot":0,"sbScale":1,"bbX":-50,"bbY":-146,"bbRot":0,"bbScale":1},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1,"sbX":33,"sbY":-150,"sbRot":0,"sbScale":0.8,"bbX":33,"bbY":-154,"bbRot":0,"bbScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1,"sbX":158,"sbY":-43,"sbRot":0,"sbScale":1,"bbX":152,"bbY":-44,"bbRot":0,"bbScale":0.85},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1,"sbX":89,"sbY":83,"sbRot":0,"sbScale":1,"bbX":91,"bbY":80,"bbRot":0,"bbScale":1}};
-  const GLOBAL={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13};
-  const SCENE={"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5};
-  const seatEl=n=>document.querySelector(`.visual-seat.vpos${n-1}`);
-  const chairEl=n=>document.querySelector(`.chair-seat${n}`);
-  function applySeat(n,data){
-    if(!data)return;
-    const seat=seatEl(n),chair=chairEl(n);
-    if(seat){
-      seat.style.setProperty('left',`${data.seatX}%`,'important');seat.style.setProperty('top',`${data.seatY}%`,'important');
-      seat.style.setProperty('right','auto','important');seat.style.setProperty('bottom','auto','important');seat.style.setProperty('transform','translate(-50%,-50%)','important');
-      const nameplate=seat.querySelector('.pro-seat-card');
-      if(nameplate){nameplate.style.setProperty('transform',`rotate(${data.nameplateRot||0}deg)`,'important');nameplate.style.setProperty('transform-origin','50% 50%','important');}
-      const hand=seat.querySelector('.seat-hand');
-      if(hand){hand.style.setProperty('left','50%','important');hand.style.setProperty('right','auto','important');hand.style.setProperty('top','50%','important');hand.style.setProperty('bottom','auto','important');hand.style.setProperty('transform',`translate(calc(-50% + ${data.cardsX}px),calc(-50% + ${data.cardsY}px)) rotate(${data.cardsRot||0}deg)`,'important');}
-      const bet=seat.querySelector('.visual-bet');
-      if(bet){bet.style.setProperty('left','50%','important');bet.style.setProperty('right','auto','important');bet.style.setProperty('top','50%','important');bet.style.setProperty('bottom','auto','important');bet.style.setProperty('transform',`translate(calc(-50% + ${data.betX}px),calc(-50% + ${data.betY}px)) rotate(${data.betRot||0}deg) scale(${GLOBAL.betScale||1})`,'important');bet.style.setProperty('transform-origin','50% 50%','important');}
-      [['.seat-marker-d','dX','dY','dRot'],['.seat-marker-sb','sbX','sbY','sbRot'],['.seat-marker-bb','bbX','bbY','bbRot']].forEach(([sel,xk,yk,rk])=>{const marker=seat.querySelector(sel);if(!marker)return;marker.style.setProperty('left','50%','important');marker.style.setProperty('top','50%','important');marker.style.setProperty('right','auto','important');marker.style.setProperty('bottom','auto','important');marker.style.setProperty('transform',`translate(calc(-50% + ${data[xk]||0}px),calc(-50% + ${data[yk]||0}px)) rotate(${data[rk]||0}deg) scale(${GLOBAL.markerScale||1})`,'important');});
-    }
-    if(chair){chair.style.setProperty('left',`${data.chairX}%`,'important');chair.style.setProperty('top',`${data.chairY}%`,'important');chair.style.setProperty('right','auto','important');chair.style.setProperty('bottom','auto','important');chair.style.setProperty('transform',`translate(-50%,-50%) rotate(${data.chairRot||0}deg) scale(${data.chairScale||1})`,'important');}
-  }
-  function applyGlobal(){
-    document.querySelectorAll('.visual-seat .pro-seat-card.poker-chip-nameplate').forEach(el=>{el.style.setProperty('--chip-bg-x',`${GLOBAL.plateBgX||0}px`);el.style.setProperty('--chip-bg-y',`${GLOBAL.plateBgY||0}px`);el.style.setProperty('--chip-bg-scale-x',`${GLOBAL.plateBgScaleX||1}`);el.style.setProperty('--chip-bg-scale-y',`${GLOBAL.plateBgScaleY||1}`);el.style.setProperty('--chip-bg-rot',`${GLOBAL.plateBgRot||0}deg`);el.style.setProperty('--chip-edge-size',`${GLOBAL.plateEdgeSize}px`);el.style.setProperty('--chip-name-size',`${GLOBAL.plateNameSize}px`);el.style.setProperty('--chip-money-size',`${GLOBAL.plateMoneySize}px`);});
-    document.querySelectorAll('.visual-seat .visual-stack').forEach(el=>{el.style.setProperty('transform',`translate(${GLOBAL.moneyX||0}px, ${GLOBAL.moneyY||0}px) rotate(${GLOBAL.moneyRot||0}deg)`,'important');el.style.setProperty('transform-origin','left center','important');});
-    document.querySelectorAll('.visual-seat .pro-seat-number').forEach(el=>{el.style.setProperty('transform',`translate(${GLOBAL.circleX||0}px, calc(-50% + ${GLOBAL.circleY||0}px)) rotate(${GLOBAL.circleRot||0}deg)`,'important');el.style.setProperty('transform-origin','50% 50%','important');});
-  }
-  function applyScene(){
-    const zone=document.querySelector('.v235-app .board-zone'),board=document.getElementById('boardCards');
-    if(zone){zone.style.setProperty('left','50%','important');zone.style.setProperty('top','50%','important');zone.style.setProperty('width','0','important');zone.style.setProperty('height','0','important');zone.style.setProperty('min-width','0','important');zone.style.setProperty('padding','0','important');zone.style.setProperty('transform','none','important');zone.style.setProperty('overflow','visible','important');}
-    if(board){board.style.setProperty('position','absolute','important');board.style.setProperty('left','0','important');board.style.setProperty('top','0','important');board.style.setProperty('width','0','important');board.style.setProperty('height','0','important');board.style.setProperty('display','block','important');board.style.setProperty('overflow','visible','important');const cards=[...board.children];const rad=(SCENE.flopRot||0)*Math.PI/180,c=Math.cos(rad),s=Math.sin(rad);const baseCardWidth=(cards[0]?.offsetWidth||54),gap=(baseCardWidth*(SCENE.communityScale||1))+(SCENE.flopGap??25);cards.forEach((card,i)=>{let x=0,y=0,r=0;if(i<3){const dx=(i-1)*gap;x=(SCENE.flopX||0)+dx*c;y=(SCENE.flopY||0)+dx*s;r=SCENE.flopRot||0;}else if(i===3){x=SCENE.turnX||0;y=SCENE.turnY||0;r=SCENE.turnRot||0;}else{x=SCENE.riverX||0;y=SCENE.riverY||0;r=SCENE.riverRot||0;}card.style.setProperty('position','absolute','important');card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('translate','-50% -50%','important');card.style.setProperty('rotate',`${r}deg`,'important');card.style.setProperty('scale',`${SCENE.communityScale||1}`,'important');card.style.setProperty('transform-origin','50% 50%','important');});}
-    const burn=document.querySelector('.v235-app .burn-zone');if(burn){burn.style.setProperty('display','none','important');burn.setAttribute('aria-hidden','true');}
-  }
-  function applyAll(){Object.keys(LAYOUT).forEach(k=>applySeat(Number(k),LAYOUT[k]));applyGlobal();applyScene();}
-  function wire(){const seats=document.getElementById('visualSeats');if(seats)new MutationObserver(()=>requestAnimationFrame(applyAll)).observe(seats,{childList:true,subtree:false});const board=document.getElementById('boardCards');if(board)new MutationObserver(()=>requestAnimationFrame(applyScene)).observe(board,{childList:true,subtree:false});let tries=0;const timer=setInterval(()=>{tries++;applyAll();if(document.querySelector('.visual-seat')||tries>40)clearInterval(timer);},150);requestAnimationFrame(applyAll);}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
-})();
-</script>
-
-
-<script id="v24-0-1-public-navigation-hotfix">
-(function(){
-  window.PDT_PUBLIC_VERSION='24.0.1';
+  window.PDT_DEV_VERSION='24.0.1-dev';
   function ensureModeButtons(){
     document.querySelectorAll('[data-ref-mode]').forEach(function(btn){
       btn.style.pointerEvents='auto';
