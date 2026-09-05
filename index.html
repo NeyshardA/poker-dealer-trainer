@@ -6039,23 +6039,38 @@ function updateVisualSeatLabels(){
 
 function updateVisualBets(){
   if(!state) return;
+  const buildDrill=state.sidePotBuildDrill;
   state.players.forEach((p,i)=>{
     const bet=$(`vbet${i}`);
     const hand=$(`vhand${i}`);
     const seat=hand?.closest(".visual-seat");
     if(!bet) return;
-    if(p.streetBet>0){
-      bet.textContent=money(p.streetBet);
+
+    const drillAmount=buildDrill?.active
+      ? Math.max(0,Number(buildDrill.remainingByPlayer?.[p.id])||0)
+      : null;
+    const displayAmount=buildDrill?.active ? drillAmount : p.streetBet;
+
+    if(displayAmount>0){
+      bet.textContent=money(displayAmount);
       bet.className=`visual-bet show ${i===state.toAct?"active-bet":""}`;
     }else{
       bet.textContent="";
       bet.className="visual-bet";
     }
+
     if(p.folded){
       if(hand) hand.innerHTML="";
       if(seat) seat.classList.add("seat-folded");
-      bet.textContent="";
-      bet.className="visual-bet";
+      // During the construction drill, dead/folded contributions are still
+      // visually represented because they remain part of the pot amount.
+      if(buildDrill?.active && displayAmount>0){
+        bet.textContent=`DEAD ${money(displayAmount)}`;
+        bet.className="visual-bet show";
+      }else{
+        bet.textContent="";
+        bet.className="visual-bet";
+      }
     }else if(seat){
       seat.classList.remove("seat-folded");
     }
@@ -6954,6 +6969,7 @@ function startHand(){
     sidePotQuizDone:false,
     sidePotFormationSignature:"",
     sidePotFormationStreet:"",
+    sidePotBuildDrill:null,
     roomShowdownSurvivors:[],
     roomShowdownSeen:[],
     roomShowdownMucked:[],
@@ -7175,6 +7191,132 @@ function sidePotStructureSignature(pots){
   }).join('|');
 }
 
+/* V24.1.4 DEV — Progressive physical side-pot construction.
+   The accounting engine is never mutated here. Only the training display is
+   reduced layer-by-layer so the student can build Main Pot, Side Pot 1, etc.
+   without having to keep re-reading the original full contribution amounts. */
+function sidePotLayerContributions(pot,index,pots){
+  const prevCap=index>0 ? (Number(pots[index-1]?.cap)||0) : 0;
+  const cap=Number(pot?.cap)||0;
+  const byPlayer={};
+  state.players.forEach(p=>{
+    byPlayer[p.id]=Math.max(0,Math.min(Number(p.total)||0,cap)-prevCap);
+  });
+  return byPlayer;
+}
+
+function sidePotLayerSnapshots(byPlayer){
+  const out=[];
+  if(!state || !byPlayer) return out;
+  state.players.forEach((p,i)=>{
+    const amount=Math.max(0,Number(byPlayer[p.id])||0);
+    if(amount<=0) return;
+    const el=$(`vbet${i}`);
+    if(!el) return;
+    const r=el.getBoundingClientRect();
+    if(r.width<2 || r.height<2) return;
+    out.push({
+      x:r.left+r.width/2,
+      y:r.top+r.height/2,
+      amount,
+      seat:p.id
+    });
+  });
+  return out;
+}
+
+function renderSidePotBuildProgress(){
+  const drill=state?.sidePotBuildDrill;
+  const panel=$("sidePotPanel"), list=$("sidePotList");
+  if(!panel || !list || !drill?.active) return;
+
+  panel.classList.add("show");
+  const total=drill.pots.length;
+  const builtCount=drill.built.filter(Boolean).length;
+  $("potStructureStatus").textContent=`BUILDING ${Math.min(total,builtCount+1)} OF ${total}`;
+
+  list.innerHTML=drill.built.map((built,i)=>{
+    if(!built) return "";
+    const eligible=built.eligibilityConfirmed
+      ? `Eligible: ${built.eligible.map(id=>`Player ${id}`).join(", ")}`
+      : "Eligible: ?";
+    return `
+      <div class="side-pot-card advanced-spot">
+        <div class="pot-name">${sidePotName(i)} • BUILT</div>
+        <div class="pot-amount">${money(built.amount)}</div>
+        <div class="eligible">${eligible}</div>
+      </div>`;
+  }).join("");
+}
+
+function startSidePotBuildDrill(pots){
+  if(!state) return;
+  state.sidePotBuildDrill={
+    active:true,
+    complete:false,
+    usedLayerAnimation:false,
+    pots:pots.map(p=>({...p,eligible:[...(p.eligible||[])]})),
+    remainingByPlayer:Object.fromEntries(
+      state.players.map(p=>[p.id,Math.max(0,Number(p.total)||0)])
+    ),
+    built:[]
+  };
+  renderSidePotBuildProgress();
+  updateVisualBets();
+}
+
+function applySidePotBuildLayer(pot,index,pots){
+  const drill=state?.sidePotBuildDrill;
+  if(!drill?.active || drill.built[index]) return;
+
+  const byPlayer=sidePotLayerContributions(pot,index,pots);
+  const snaps=sidePotLayerSnapshots(byPlayer);
+
+  // Subtract ONLY from the temporary training display. p.total, p.streetBet,
+  // state.pot, side-pot eligibility and payout accounting remain unchanged.
+  state.players.forEach(p=>{
+    const before=Math.max(0,Number(drill.remainingByPlayer[p.id])||0);
+    const take=Math.max(0,Number(byPlayer[p.id])||0);
+    drill.remainingByPlayer[p.id]=Math.max(0,before-take);
+  });
+
+  drill.built[index]={
+    index,
+    amount:Number(pot.amount)||0,
+    eligible:[...(pot.eligible||[])],
+    eligibilityConfirmed:false
+  };
+  drill.usedLayerAnimation=true;
+
+  try{
+    if(snaps.length && typeof window.__pass46AnimateBetsIntoPot==="function"){
+      window.__pass46AnimateBetsIntoPot(snaps);
+    }
+  }catch(e){}
+
+  updateVisualBets();
+  renderSidePotBuildProgress();
+
+  $("streetReady").classList.add("show");
+  $("streetReady").innerHTML=
+    `<b>${sidePotName(index)} BUILT: ${money(pot.amount)}.</b> `+
+    `Those chips have been removed from each player's remaining displayed contribution.`;
+}
+
+function confirmSidePotBuildEligibility(index){
+  const drill=state?.sidePotBuildDrill;
+  if(!drill?.built?.[index]) return;
+  drill.built[index].eligibilityConfirmed=true;
+  renderSidePotBuildProgress();
+}
+
+function finishSidePotBuildDrill(){
+  const drill=state?.sidePotBuildDrill;
+  if(!drill) return;
+  drill.complete=true;
+  renderSidePotBuildProgress();
+}
+
 /* Live-room drill: build every pot before pulling the completed wagers. */
 function askSidePotFormationBeforePull(onDone,options={}){
   if(!state){ if(typeof onDone==='function') onDone(false); return; }
@@ -7191,33 +7333,43 @@ function askSidePotFormationBeforePull(onDone,options={}){
     return;
   }
   const finalFallback=!!options.finalFallback;
+  startSidePotBuildDrill(pots);
   let idx=0;
   const askNext=()=>{
     if(idx>=pots.length){
       state.sidePotFormationSignature=sig;
       state.sidePotFormationStreet=state.street;
       state.sidePotQuizDone=true;
+      finishSidePotBuildDrill();
       renderSidePots(true);
       if(typeof onDone==='function') onDone(true);
       return;
     }
     const pot=pots[idx];
     const label=sidePotLabel(pot,idx);
-    const lead=finalFallback?'FINAL POT STRUCTURE CHECK':'BUILD THE POTS BEFORE PULLING BETS';
+    const lead=finalFallback?'FINAL POT STRUCTURE CHECK':'BUILD THE POTS ONE LAYER AT A TIME';
     askQuestion(
       `${lead} — ${label}: HOW MUCH?`,
       finalFallback
-        ? 'This pot structure was not yet confirmed. Count the full pot layer before payout.'
-        : 'Do NOT pull the bets in yet. Count the full matched contribution layer for this pot. Folded chips still count in the amount.',
+        ? 'Count this full pot layer. After you acknowledge the answer, the correct chips will be removed from the players and placed into this pot.'
+        : `Count only the chips that belong in ${label}. After you acknowledge the answer, that correct layer will be removed from each player's displayed contribution before you build the next pot.`,
       pot.amount,
       'sidepot',
       ()=>{
+        // Whether the student was right or wrong, once the feedback is
+        // acknowledged we physically build the CORRECT layer so training
+        // continues from the correct chip state.
+        applySidePotBuildLayer(pot,idx,pots);
         askQuestion(
           `${label} — WHO IS ELIGIBLE TO WIN IT?`,
-          'Type the live player numbers separated by commas. Folded chips remain in the pot, but folded hands are never eligible.',
+          'Type the live player numbers separated by commas. Folded/dead chips count in the amount, but folded hands are never eligible.',
           pot.eligible.join(','),
           'eligibility',
-          ()=>{ idx++; askNext(); }
+          ()=>{
+            confirmSidePotBuildEligibility(idx);
+            idx++;
+            askNext();
+          }
         );
       }
     );
@@ -7860,8 +8012,9 @@ function endStreet(){
   }catch(e){}
 
   askSidePotFormationBeforePull((sidePotQuizzed)=>{
+    const progressiveLayerBuild=!!state?.sidePotBuildDrill?.usedLayerAnimation;
     askCompletedStreetSequence(()=>{
-      if(sidePotQuizzed && sidePotBetSnaps.length){
+      if(sidePotQuizzed && !progressiveLayerBuild && sidePotBetSnaps.length){
         try{
           if(typeof window.__pass46AnimateBetsIntoPot==='function') window.__pass46AnimateBetsIntoPot(sidePotBetSnaps);
         }catch(e){}
@@ -7872,6 +8025,10 @@ function endStreet(){
       state.players.forEach(p=>p.streetBet=0);
       state.potLockedVisible=true;
       state.potVisible=false;
+      // Progressive pot building was only a visual training layer. The real
+      // accounting has now been locked into state.pot, so restore normal
+      // street-bet rendering for the next street.
+      state.sidePotBuildDrill=null;
       updateVisualBets();
       renderPotDisplay();
       $("revealNote").textContent=`Locked pot is now ${money(state.pot)}. On the next street, add the new action to this amount.`;
@@ -12103,6 +12260,6 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </script>
 
 
-<!-- V24.1.3 DEV — Side Pot Training + separate locked Desktop/Laptop layout profiles + live-room side-pot procedure. -->
+<!-- V24.1.4 DEV — Progressive Main/Side Pot construction + Side Pot Training + locked Desktop/Laptop profiles. -->
 </body>
 </html>
