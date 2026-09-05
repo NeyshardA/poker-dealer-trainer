@@ -5635,14 +5635,74 @@ function randomSeatAssignment(count,forceNew=false){
     activeSeatNumbers=[1,2,3,4,5,6,7,8];
     return activeSeatNumbers;
   }
+
   const seats=[1,2,3,4,5,6,7,8];
-  for(let i=seats.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [seats[i],seats[j]]=[seats[j],seats[i]];
+
+  // Build every possible seat combination and score it by how evenly the
+  // players are spread around the circular 8-seat table.
+  //
+  // Highest priority:
+  //   1) avoid adjacent occupied seats whenever possible
+  //   2) maximize the smallest clockwise gap
+  //   3) keep the gaps as even as possible
+  //
+  // Examples:
+  //   4-handed -> 1,3,5,7 or 2,4,6,8
+  //   3-handed -> evenly spaced patterns such as 1,4,6 / 2,5,7 etc.
+  function combinations(arr,k,start=0,prefix=[],out=[]){
+    if(prefix.length===k){ out.push([...prefix]); return out; }
+    for(let i=start;i<=arr.length-(k-prefix.length);i++){
+      prefix.push(arr[i]);
+      combinations(arr,k,i+1,prefix,out);
+      prefix.pop();
+    }
+    return out;
   }
-  // Keep the selected seats in clockwise table order. The holes are random;
-  // action still advances correctly around the physical 8-seat table.
-  activeSeatNumbers=seats.slice(0,count).sort((a,b)=>a-b);
+
+  function gapProfile(combo){
+    const sorted=[...combo].sort((a,b)=>a-b);
+    const gaps=[];
+    for(let i=0;i<sorted.length;i++){
+      const cur=sorted[i];
+      const next=(i===sorted.length-1)?sorted[0]+8:sorted[i+1];
+      // Number of empty seats between occupied seats.
+      gaps.push(Math.max(0,next-cur-1));
+    }
+    return gaps;
+  }
+
+  function score(combo){
+    const gaps=gapProfile(combo);
+    const adjacentPairs=gaps.filter(g=>g===0).length;
+    const minGap=Math.min(...gaps);
+    const maxGap=Math.max(...gaps);
+    const spread=maxGap-minGap;
+    const mean=gaps.reduce((a,b)=>a+b,0)/gaps.length;
+    const variance=gaps.reduce((a,g)=>a+Math.pow(g-mean,2),0)/gaps.length;
+
+    // Lexicographic behavior encoded into a numeric score:
+    // fewer adjacent pairs matters most, then larger minimum gaps,
+    // then more even spacing.
+    return (-adjacentPairs*10000) + (minGap*1000) - (spread*100) - variance;
+  }
+
+  const all=combinations(seats,count);
+  let bestScore=-Infinity;
+  let best=[];
+  all.forEach(combo=>{
+    const s=score(combo);
+    if(s>bestScore+1e-9){
+      bestScore=s;
+      best=[combo];
+    }else if(Math.abs(s-bestScore)<=1e-9){
+      best.push(combo);
+    }
+  });
+
+  // Randomize only among the best-spaced layouts so short-handed tables
+  // still feel different without bunching everyone together.
+  const chosen=best[Math.floor(Math.random()*best.length)] || seats.slice(0,count);
+  activeSeatNumbers=[...chosen].sort((a,b)=>a-b);
   return activeSeatNumbers;
 }
 function activeSeatForIndex(index){
@@ -12680,6 +12740,6 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </script>
 
 
-<!-- V24.1.6 DEV — Updated locked Desktop coordinates from 2026-09-05 export + River-only Hand Reading reveal + prior training updates. -->
+<!-- V24.1.7 DEV — Spaced short-handed seating + updated locked Desktop coordinates + River-only Hand Reading reveal + prior training updates. -->
 </body>
 </html>
