@@ -5127,15 +5127,18 @@ body.audition-mode .v235-app .table,
   font-size:var(--chip-money-size,16px)!important;
 }
 </style>
-
-
-<style id="v1-2-public-audition-lock">
-/* V1.2 PUBLIC — Audition remains locked as COMING SOON. */
-#publicAuditionComingSoon{position:absolute!important;z-index:39!important;left:63%!important;top:44.2%!important;width:26.3%!important;height:35.8%!important;border-radius:14px!important;background:rgba(72,76,76,.42)!important;backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;-webkit-backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;border:1px solid rgba(185,185,185,.35)!important;pointer-events:none!important;}
-#publicAuditionComingSoon span{position:absolute!important;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:50% 50%;display:inline-block!important;white-space:nowrap!important;padding:10px 16px!important;border-radius:999px!important;background:rgba(4,7,7,.88)!important;border:1px solid rgba(218,194,126,.65)!important;color:#e9d39a!important;font:900 13px/1 Arial,sans-serif!important;letter-spacing:1.8px!important;text-shadow:0 1px 2px #000!important;}
-#auditionLockTunerSection{border-color:#8d6b31!important;}
-</style>
 <meta name="poker101class-version" content="1.2">
+
+<style id="pdt-v1-2-audition-disabled-only">
+/* V1.2 PUBLIC — Audition is disabled for now; no overlay is shown. */
+[data-ref-mode="audition"],
+.v235-mode-card[data-mode="audition"],
+#auditionMode,
+#v235AuditionMode {
+  pointer-events:none !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -5153,7 +5156,7 @@ body.audition-mode .v235-app .table,
     <button class="ref-hotspot mode-real" type="button" aria-label="Select Real Table Mode" data-ref-mode="real" onclick="chooseTrainingMode('real')"></button>
     <button class="ref-hotspot mode-visual" type="button" aria-label="Select Visual Dealer Mode" data-ref-mode="visual" onclick="chooseTrainingMode('visual')"></button>
     <button class="ref-hotspot mode-audition" type="button" aria-label="Audition Mode — Coming Soon" data-ref-mode="audition" aria-disabled="true" disabled></button>
-    <div id="publicAuditionComingSoon" aria-hidden="true"><span>COMING SOON...</span></div>
+    
 
     <!-- Dynamic game/player panel. This is real HTML so it can change later. -->
     <div class="ref-dynamic-game-panel" id="refDynamicGamePanel">
@@ -12250,7 +12253,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
 })();
 </script>
-<!-- Poker101Class V1.2 LIVE — approved public production build. -->
+<!-- Poker101Class V1.2 LIVE — Audition disabled with no Coming Soon overlay. -->
 
 <script id="v24-1-8-temp-hand-reading-setting">
 (function(){
