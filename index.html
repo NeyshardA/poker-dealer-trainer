@@ -7068,6 +7068,7 @@ function post(p, amount){
 
 function startHand(){
   if(!selectedGame){ $("menuScreen").style.display="flex"; return; }
+  setNextActionNewHandMode(false);
   const sb=+($("sb").value||gameCfg().sb), bb=+($("bb").value||gameCfg().bb), stack=+($("stack").value||gameCfg().stack);
   const pc=playerCount();
   randomSeatAssignment(pc,false);
@@ -7866,8 +7867,7 @@ async function advanceHandReadingStreet(){
     ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`
     : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
-  $("nextAction").textContent="NEXT ACTION / DONE";
-  $("nextAction").disabled=false;
+  setNextActionNewHandMode(true);
   $("streetReady").classList.add("show");
   $("streetReady").innerHTML=`<b>HAND READING REVIEW COMPLETE.</b>${showdownLearningHTML()}`;
   revealVisualHoleCards();
@@ -8325,7 +8325,53 @@ function commitPendingAction(){
   advanceAction();
 }
 
+function setNextActionNewHandMode(on){
+  const base=$("nextAction");
+  const visible=document.getElementById("v235NextAction");
+
+  if(on){
+    if(base){
+      base.textContent="START NEW HAND";
+      base.disabled=false;
+    }
+    if(visible){
+      visible.innerHTML="START NEW HAND &nbsp; →";
+      visible.disabled=false;
+    }
+  }else{
+    if(base){
+      base.textContent="NEXT ACTION / DONE";
+      base.disabled=false;
+    }
+    if(visible){
+      visible.innerHTML="NEXT ACTION &nbsp; →";
+      visible.disabled=false;
+    }
+  }
+}
+
+function startNewHandFromNextAction(){
+  // Use the public bottom-bar NEW HAND control when available so the
+  // existing UI hand counter and cleanup hooks run exactly as they do
+  // when the user clicks NEW HAND manually.
+  const publicNewHand=document.getElementById("v235NewHand");
+  if(publicNewHand && !publicNewHand.disabled){
+    publicNewHand.click();
+    return;
+  }
+
+  const engineNewHand=document.getElementById("newHand");
+  if(engineNewHand && !engineNewHand.disabled) engineNewHand.click();
+}
+
 function act(){
+  // Once showdown/payout is finished, NEXT ACTION becomes the convenient
+  // "start the next hand" shortcut.
+  if(state && (state.winnerPaid || state.showdownComplete)){
+    startNewHandFromNextAction();
+    return;
+  }
+
   if(state?.handReadingOnly){
     if(state.street==="Flop" || state.street==="Turn"){
       advanceHandReadingBoard();
@@ -8547,6 +8593,7 @@ function awardUncontestedWinner(){
     $("actionText").textContent=`UNCONTESTED — PLAYER ${winner.id} WINS`;
     $("instruction").textContent=`All other players folded. Player ${winner.id} has been paid ${money(award)}. Start a new hand when ready.`;
     $("nextUp").textContent="NEXT UP: START NEW HAND";
+    setNextActionNewHandMode(true);
 
     if(newHandBtn) newHandBtn.disabled=false;
     if(topNewHand) topNewHand.disabled=false;
@@ -8986,6 +9033,7 @@ function autoPayVisualShowdown(){
   const allPayoutLines=[...(state.immediatePayoutLog||[]),...payoutLog];
   $("instruction").innerHTML=`Correct eligible winners have been paid in side-pot-first order.<br>${allPayoutLines.join(" • ")}`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
+  setNextActionNewHandMode(true);
   payoutLog.forEach(x=>log(x)); renderPlayers();
 }
 
@@ -9778,7 +9826,7 @@ renderPlayers();
       <button class="v235-show-next" id="v235ShowNext">NEXT HAND &nbsp; →</button>`;
     box.style.display='block';
     rail.classList.add('showdown-result-mode');
-    document.getElementById('v235ShowNext')?.addEventListener('click',()=>{clearFinalShowdown();generalHands++;document.getElementById('newHand').click();syncRail()});
+    document.getElementById('v235ShowNext')?.addEventListener('click',()=>{clearFinalShowdown();startNewHandFromNextAction();syncRail()});
   }
   const originalAutoPayVisualShowdown=autoPayVisualShowdown;
   autoPayVisualShowdown=function(){
@@ -12163,6 +12211,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
     if($v('actionText')) $v('actionText').textContent='ALL POTS PAID — HAND COMPLETE';
     if($v('instruction')) $v('instruction').textContent='All main/side pots have been paid. Match the physical stacks, then start the next hand.';
     if($v('nextUp')) $v('nextUp').textContent='NEXT UP: START NEW HAND';
+    if(typeof setNextActionNewHandMode==='function') setNextActionNewHandMode(true);
     potIntegrity('manual payout complete');
   }
 
@@ -12367,7 +12416,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
 })();
 </script>
-<!-- Poker101Class V1.2 LIVE — full best-five kicker comparison hardened; Audition disabled with no overlay. -->
+<!-- Poker101Class V1.2 LIVE — NEXT ACTION starts next hand after completed showdown + full best-five kicker comparison + Audition disabled. -->
 
 <script id="v24-1-8-temp-hand-reading-setting">
 (function(){
