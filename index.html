@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.0.9 DEV — Final Audition Lock Coordinates</title>
+<title>Poker Dealer Trainer V24.1.3 DEV — Side Pot Training Frequency Engine</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -5324,7 +5324,8 @@ body.audition-mode .v235-app .table,
         <div class="v235-settings-grid">
           <section><h3>🔊 SOUND EFFECTS</h3><p>UI preference for the future website build.</p><label class="v235-toggle"><input id="v235SoundToggle" type="checkbox" checked><span></span> ON</label></section>
           <section><h3>✦ ANIMATIONS</h3><p>Toggle table and UI animations.</p><label class="v235-toggle"><input id="v235AnimationToggle" type="checkbox" checked><span></span> ON</label></section>
-          <section><h3>▥ DIFFICULTY LEVEL</h3><p>Affects scenario complexity.</p><div class="v235-segment" id="v235Difficulty"><button data-value="1">EASY</button><button class="active" data-value="2">MEDIUM</button><button data-value="3">HARD</button><button data-value="4">EXPERT</button></div></section>
+          <section><h3>▥ DIFFICULTY LEVEL</h3><p>Affects general scenario complexity.</p><div class="v235-segment" id="v235Difficulty"><button data-value="1">EASY</button><button class="active" data-value="2">MEDIUM</button><button data-value="3">HARD</button><button data-value="4">EXPERT</button></div></section>
+          <section><h3>◎ SIDE POT TRAINING</h3><p>Independent of Difficulty. Quietly varies stack depths and all-in pressure so side-pot practice emerges naturally.</p><div class="v235-segment compact" id="v235SidePotTraining"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button class="active" data-value="2">PRACTICE</button><button data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
           <section><h3>? QUESTION FREQUENCY</h3><p>How often training questions are asked.</p><div class="v235-segment" id="v235QuestionFrequency"><button data-value="4">LESS OFTEN</button><button class="active" data-value="3">NORMAL</button><button data-value="2">OFTEN</button></div></section>
           <section><h3>◉ STARTING STACK</h3><p>Default chip amount for sessions.</p><select id="v235StartingStack"><option>200</option><option selected>300</option><option>500</option><option>1000</option></select></section>
           <section><h3>♟ DEFAULT PLAYER COUNT</h3><p>Default selection on the player screen.</p><div class="v235-segment compact" id="v235DefaultPlayers"><button>2</button><button>3</button><button>4</button><button class="active">5</button><button>6</button><button>7</button><button>8</button></div></section>
@@ -5411,6 +5412,14 @@ body.audition-mode .v235-app .table,
         <option value="2" selected>Level 2 — Bets / Raises</option>
         <option value="3">Level 3 — Raise Math</option>
         <option value="4">Level 4 — All-ins / Side Pots</option>
+      </select>
+      <label>Side Pot Training</label>
+      <select id="sidePotTraining">
+        <option value="0">Off</option>
+        <option value="1">Level 1 — Introduction</option>
+        <option value="2" selected>Level 2 — Practice</option>
+        <option value="3">Level 3 — Frequent</option>
+        <option value="4">Level 4 — Intensive</option>
       </select>
       <label>Question Frequency</label>
       <select id="qfreq">
@@ -5611,6 +5620,343 @@ let state = null;
 let sessionStacks = null;
 let sessionButton = null;
 let sessionButtonPlayerCount = null;
+
+/* ============================================================
+   V24.1.3 DEV — SIDE POT TRAINING FREQUENCY ENGINE
+   Independent from normal Difficulty.
+   Target frequencies are training targets, not disclosed to the student.
+   ============================================================ */
+const SIDE_POT_TRAINING_CONFIG = Object.freeze({
+  0:{name:"OFF",sidePotPct:0,anyAllInPct:0,maxGap:Infinity,complexity:[1,0,0]},
+  1:{name:"INTRODUCTION",sidePotPct:0.10,anyAllInPct:0.18,maxGap:8,complexity:[0.90,0.10,0.00]},
+  2:{name:"PRACTICE",sidePotPct:0.20,anyAllInPct:0.30,maxGap:5,complexity:[0.75,0.22,0.03]},
+  3:{name:"FREQUENT",sidePotPct:0.35,anyAllInPct:0.45,maxGap:3,complexity:[0.60,0.30,0.10]},
+  4:{name:"INTENSIVE",sidePotPct:0.50,anyAllInPct:0.60,maxGap:2,complexity:[0.45,0.35,0.20]}
+});
+const sidePotTrainingTracker = {
+  hands:0,
+  hasPriorHand:false,
+  previousActualSidePot:false,
+  handsSinceActualSidePot:0,
+  plannedSidePotHands:0,
+  plannedAnyAllInHands:0,
+  actualSidePotHands:0,
+  sidePotCredit:0,
+  anyAllInCredit:0,
+  lastPlan:null
+};
+
+function sidePotTrainingLevel(){
+  const el=document.getElementById("sidePotTraining");
+  return Math.max(0,Math.min(4,Number(el?.value||0)));
+}
+function sidePotTrainingCfg(level=sidePotTrainingLevel()){
+  return SIDE_POT_TRAINING_CONFIG[level]||SIDE_POT_TRAINING_CONFIG[0];
+}
+function resetSidePotTrainingTracker(){
+  Object.assign(sidePotTrainingTracker,{
+    hands:0,hasPriorHand:false,previousActualSidePot:false,handsSinceActualSidePot:0,
+    plannedSidePotHands:0,plannedAnyAllInHands:0,actualSidePotHands:0,
+    sidePotCredit:0,anyAllInCredit:0,lastPlan:null
+  });
+  updateSidePotTrainingDevDebug();
+}
+function pdtShuffle(values){
+  const a=[...values];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function pdtWeightedChoice(weights,maxIndex){
+  const allowed=weights.slice(0,maxIndex+1);
+  const total=allowed.reduce((a,b)=>a+Math.max(0,b),0);
+  if(total<=0) return 0;
+  let r=Math.random()*total;
+  for(let i=0;i<allowed.length;i++){
+    r-=Math.max(0,allowed[i]);
+    if(r<=0) return i;
+  }
+  return allowed.length-1;
+}
+function pdtStreetIndex(street){
+  return ["Preflop","Flop","Turn","River"].indexOf(street);
+}
+function pdtPickTargetStreet(kind){
+  const streets=["Preflop","Flop","Turn","River"];
+  const weights=kind==="sidepot"
+    ? [0.25,0.30,0.28,0.17]
+    : [0.28,0.26,0.24,0.22];
+  return streets[pdtWeightedChoice(weights,3)]||"Preflop";
+}
+function pdtRoundAmount(v,bb){
+  const unit=bb>=5?5:1;
+  return Math.max(bb+1,Math.round(v/unit)*unit);
+}
+function pdtTrainingStackTargets(kind,sidePots,street,baseStack,bb){
+  const profiles={
+    Preflop:{short:[30,55,80],deep:[170,240]},
+    Flop:{short:[65,100,135],deep:[210,275]},
+    Turn:{short:[100,145,190],deep:[250,300]},
+    River:{short:[135,180,220],deep:[275,300]}
+  };
+  const profile=profiles[street]||profiles.Preflop;
+  const scale=Math.max(0.25,baseStack/300);
+  const shortCount=kind==="sidepot"?Math.max(1,sidePots):1;
+  const shortTargets=profile.short.slice(0,shortCount).map((v,i)=>{
+    const jitter=0.92+Math.random()*0.16;
+    return pdtRoundAmount(Math.min(baseStack,v*scale*jitter),bb);
+  }).sort((a,b)=>a-b);
+
+  const gap=Math.max(10,bb*4);
+  let deep1=pdtRoundAmount(Math.min(baseStack,profile.deep[0]*scale*(0.94+Math.random()*0.10)),bb);
+  let deep2=pdtRoundAmount(Math.min(baseStack,profile.deep[1]*scale*(0.96+Math.random()*0.08)),bb);
+  const highShort=shortTargets[shortTargets.length-1]||pdtRoundAmount(baseStack*.35,bb);
+  deep1=Math.min(baseStack,Math.max(deep1,highShort+gap));
+  deep2=Math.min(baseStack,Math.max(deep2,deep1+gap));
+  if(deep2<=deep1 && baseStack>deep1) deep2=baseStack;
+  return [...shortTargets,deep1,deep2];
+}
+function chooseSidePotTrainingPlan(pc,baseStack,bb){
+  const level=sidePotTrainingLevel();
+  const cfg=sidePotTrainingCfg(level);
+
+  if(sidePotTrainingTracker.hasPriorHand){
+    if(sidePotTrainingTracker.previousActualSidePot){
+      sidePotTrainingTracker.handsSinceActualSidePot=0;
+    }else{
+      sidePotTrainingTracker.handsSinceActualSidePot++;
+    }
+  }
+  sidePotTrainingTracker.hasPriorHand=true;
+  sidePotTrainingTracker.previousActualSidePot=false;
+  sidePotTrainingTracker.hands++;
+
+  const plan={
+    level,levelName:cfg.name,kind:"normal",sidePots:0,targetStreet:null,
+    shortIds:[],deepIds:[],participantIds:[],seatIndices:[],stackTargets:[],
+    forcedByGap:false,actualRecorded:false,setupBetMade:false,deepLayerMade:false,
+    shortStarted:false
+  };
+
+  if(level<=0 || selectedGame!=="nlh" || pc<2){
+    sidePotTrainingTracker.lastPlan=plan;
+    updateSidePotTrainingDevDebug();
+    return plan;
+  }
+
+  const canSidePot=pc>=3;
+
+  // Credit-based scheduler keeps the long-run percentages close to the
+  // approved targets while still honoring the max-gap practice guarantee.
+  sidePotTrainingTracker.sidePotCredit+=cfg.sidePotPct;
+  sidePotTrainingTracker.anyAllInCredit+=cfg.anyAllInPct;
+
+  const forcedSide=canSidePot && sidePotTrainingTracker.handsSinceActualSidePot>=cfg.maxGap;
+  const chooseSide=forcedSide || (
+    canSidePot &&
+    sidePotTrainingTracker.sidePotCredit>0 &&
+    Math.random()<Math.min(1,sidePotTrainingTracker.sidePotCredit)
+  );
+
+  if(chooseSide){
+    plan.kind="sidepot";
+    plan.forcedByGap=forcedSide;
+    sidePotTrainingTracker.sidePotCredit-=1;
+    sidePotTrainingTracker.anyAllInCredit-=1;
+    const maxSidePots=Math.max(1,Math.min(3,pc-2));
+    plan.sidePots=1+pdtWeightedChoice(cfg.complexity,maxSidePots-1);
+  }else if(
+    sidePotTrainingTracker.anyAllInCredit>0 &&
+    Math.random()<Math.min(1,sidePotTrainingTracker.anyAllInCredit)
+  ){
+    plan.kind="allin";
+    sidePotTrainingTracker.anyAllInCredit-=1;
+  }
+
+  if(plan.kind!=="normal"){
+    plan.targetStreet=pdtPickTargetStreet(plan.kind);
+    const shortCount=plan.kind==="sidepot"?plan.sidePots:1;
+    const needed=Math.min(pc,shortCount+(plan.kind==="sidepot"?2:1));
+    const seats=pdtShuffle([...Array(pc).keys()]).slice(0,needed);
+    plan.seatIndices=seats;
+    plan.stackTargets=pdtTrainingStackTargets(plan.kind,plan.sidePots,plan.targetStreet,baseStack,bb).slice(0,needed);
+    plan.shortIds=seats.slice(0,shortCount).map(i=>i+1);
+    plan.deepIds=seats.slice(shortCount).map(i=>i+1);
+    plan.participantIds=[...plan.shortIds,...plan.deepIds];
+    sidePotTrainingTracker.plannedAnyAllInHands++;
+    if(plan.kind==="sidepot") sidePotTrainingTracker.plannedSidePotHands++;
+  }
+
+  sidePotTrainingTracker.lastPlan=plan;
+  updateSidePotTrainingDevDebug();
+  return plan;
+}
+function applySidePotTrainingStacks(plan,stacks,baseStack,bb){
+  if(!plan || plan.kind==="normal" || !Array.isArray(stacks)) return;
+  plan.seatIndices.forEach((seat,i)=>{
+    const target=plan.stackTargets[i];
+    if(!Number.isFinite(target)) return;
+    stacks[seat]=Math.max(bb+1,Math.min(baseStack,Math.round(target)));
+  });
+}
+function markSidePotTrainingActual(pots){
+  if(!state || !Array.isArray(pots) || pots.length<=1) return;
+  const plan=state.sidePotTrainingPlan;
+  if(plan && !plan.actualRecorded){
+    plan.actualRecorded=true;
+    sidePotTrainingTracker.previousActualSidePot=true;
+    sidePotTrainingTracker.handsSinceActualSidePot=0;
+    sidePotTrainingTracker.actualSidePotHands++;
+    updateSidePotTrainingDevDebug();
+  }
+}
+function updateSidePotTrainingDevDebug(){
+  const el=document.getElementById("devSidePotTrainingDebug");
+  if(!el) return;
+  const level=sidePotTrainingLevel();
+  const cfg=sidePotTrainingCfg(level);
+  const plan=state?.sidePotTrainingPlan||sidePotTrainingTracker.lastPlan;
+  const planText=!plan||plan.kind==="normal"
+    ? "NORMAL HAND"
+    : plan.kind==="sidepot"
+      ? `SIDE POT PLAN • ${plan.sidePots} SIDE POT${plan.sidePots===1?"":"S"} • ${String(plan.targetStreet||"").toUpperCase()}${plan.forcedByGap?" • MAX-GAP FORCE":""}`
+      : `ALL-IN PLAN • ${String(plan.targetStreet||"").toUpperCase()}`;
+  el.innerHTML=`<b>SIDE POT TRAINING: ${cfg.name}</b><br>${planText}<br>Target side-pot ${Math.round(cfg.sidePotPct*100)}% • Any all-in ${Math.round(cfg.anyAllInPct*100)}% • Max gap ${Number.isFinite(cfg.maxGap)?cfg.maxGap:"—"}<br>DEV counts: ${sidePotTrainingTracker.actualSidePotHands} actual side-pot / ${sidePotTrainingTracker.hands} planned hands`;
+}
+function pdtTrainingCall(p,toCall){
+  const amt=Math.min(Math.max(0,toCall),p.stack);
+  return {
+    type:"call",amount:amt,
+    label:(amt===p.stack && amt<toCall)
+      ? `PLAYER ${p.id} IS ALL-IN — ADD ${money(amt)}`
+      : `PLAYER ${p.id} CALLS — ADD ${money(amt)}`,
+    short:(amt===p.stack && amt<toCall)?`ALL-IN — ADD ${money(amt)}`:`CALLS — ADD ${money(amt)}`,
+    pullAmount:amt,sidePotTraining:true
+  };
+}
+function pdtTrainingAllIn(p){
+  const target=p.streetBet+p.stack;
+  const add=p.stack;
+  return {
+    type:"allin",target,amount:add,pullAmount:add,sidePotTraining:true,
+    label:target<=state.currentBet
+      ? `PLAYER ${p.id} IS ALL-IN FOR ${money(target)} — ADD ${money(add)}`
+      : `PLAYER ${p.id} IS ALL-IN TO ${money(target)} — ADD ${money(add)}`,
+    short:target<=state.currentBet?`ALL-IN CALL • ${money(target)}`:`ALL-IN TO ${money(target)}`
+  };
+}
+function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
+  const plan=state?.sidePotTrainingPlan;
+  if(!plan || plan.kind==="normal" || state?.devScenario) return null;
+
+  const now=pdtStreetIndex(state.street);
+  const target=pdtStreetIndex(plan.targetStreet);
+  const protectedPlayer=plan.participantIds.includes(p.id);
+  const isShort=plan.shortIds.includes(p.id);
+  const isDeep=plan.deepIds.includes(p.id);
+
+  // Before the seeded street, protected players stay in the hand without
+  // announcing that a training spot is coming.
+  if(now<target){
+    if(!protectedPlayer) return null;
+    if(toCall>0) return pdtTrainingCall(p,toCall);
+    return {type:"check",label:`PLAYER ${p.id} CHECKS`,short:"CHECKS",pullAmount:0,sidePotTraining:true};
+  }
+  if(now>target) return null;
+
+  if(plan.kind==="allin"){
+    if(isShort && !p.allin && p.stack>0){
+      plan.shortStarted=true;
+      return pdtTrainingAllIn(p);
+    }
+    if(isDeep){
+      if(toCall>0) return pdtTrainingCall(p,toCall);
+      return {type:"check",label:`PLAYER ${p.id} CHECKS`,short:"CHECKS",pullAmount:0,sidePotTraining:true};
+    }
+    if(plan.shortStarted && toCall>0 && Math.random()<0.80){
+      return {type:"fold",label:`PLAYER ${p.id} FOLDS`,short:"FOLDS",pullAmount:0,sidePotTraining:true};
+    }
+    return null;
+  }
+
+  // Genuine side-pot plan.
+  if(isShort && !p.allin && p.stack>0){
+    plan.shortStarted=true;
+    return pdtTrainingAllIn(p);
+  }
+
+  const allShortsDone=plan.shortIds.every(id=>{
+    const sp=state.players.find(x=>x.id===id);
+    return !sp || sp.allin || sp.folded;
+  });
+
+  if(isDeep){
+    // If a deeper player acts before the short stacks on the target street,
+    // occasionally lead for enough to let a shorter player call all-in.
+    if(!allShortsDone && !plan.setupBetMade && state.currentBet===0 && p.stack>state.bb*6){
+      const shortPlayers=plan.shortIds.map(id=>state.players.find(x=>x.id===id)).filter(Boolean);
+      const shortestRemaining=Math.min(...shortPlayers.map(x=>x.stack).filter(x=>x>0));
+      if(Number.isFinite(shortestRemaining)){
+        const desired=Math.max(state.bb*4,Math.round(shortestRemaining*1.12));
+        const targetBet=Math.min(p.streetBet+p.stack-1,desired);
+        if(targetBet>0 && targetBet<p.streetBet+p.stack){
+          plan.setupBetMade=true;
+          return {
+            type:"bet",target:targetBet,amount:targetBet-p.streetBet,pullAmount:targetBet-p.streetBet,
+            label:`PLAYER ${p.id} BETS ${money(targetBet)}`,
+            short:`BETS ${money(targetBet)}`,sidePotTraining:true
+          };
+        }
+      }
+    }
+
+    if(toCall>0){
+      // After all short stacks are committed, create one deeper matched layer
+      // when legal so the intended side pot exists before showdown.
+      if(allShortsDone && !plan.deepLayerMade && mayRaise && p.stack>toCall+state.lastFullRaise){
+        const raiseTo=Math.min(p.streetBet+p.stack,state.currentBet+state.lastFullRaise);
+        if(raiseTo>state.currentBet){
+          plan.deepLayerMade=true;
+          return {
+            type:"raise",target:raiseTo,amount:raiseTo-p.streetBet,pullAmount:raiseTo-p.streetBet,
+            label:`PLAYER ${p.id} RAISES TO ${money(raiseTo)} — ADD ${money(raiseTo-p.streetBet)}`,
+            short:`RAISES TO ${money(raiseTo)} — ADD ${money(raiseTo-p.streetBet)}`,sidePotTraining:true
+          };
+        }
+      }
+      return pdtTrainingCall(p,toCall);
+    }
+
+    if(allShortsDone && !plan.deepLayerMade && p.stack>state.bb*4){
+      const betTo=Math.min(p.streetBet+p.stack,Math.max(state.bb*4,state.lastFullRaise));
+      if(betTo>p.streetBet){
+        plan.deepLayerMade=true;
+        return {
+          type:"bet",target:betTo,amount:betTo-p.streetBet,pullAmount:betTo-p.streetBet,
+          label:`PLAYER ${p.id} BETS ${money(betTo)}`,
+          short:`BETS ${money(betTo)}`,sidePotTraining:true
+        };
+      }
+    }
+    return {type:"check",label:`PLAYER ${p.id} CHECKS`,short:"CHECKS",pullAmount:0,sidePotTraining:true};
+  }
+
+  // Non-participants are still allowed to behave naturally, but once the
+  // all-in structure appears they usually get out of the way instead of
+  // turning every training hand into a giant scripted multiway shove.
+  if(plan.shortStarted && toCall>0 && Math.random()<0.72){
+    return {type:"fold",label:`PLAYER ${p.id} FOLDS`,short:"FOLDS",pullAmount:0,sidePotTraining:true};
+  }
+  return null;
+}
+
+window.__pdtSidePotTraining={
+  config:SIDE_POT_TRAINING_CONFIG,
+  tracker:sidePotTrainingTracker,
+  reset:resetSidePotTrainingTracker
+};
 let stats = {q:0,c:0};
 let auditionStats = {hands:0,mistakes:0};
 let waitingQuestion = false;
@@ -6001,19 +6347,24 @@ function showdownResult(){
   const winners=evals.filter(e=>compareRank(e.rank,best)===0).map(e=>e.player);
   return {winners,evals,best};
 }
-function revealVisualHoleCards(){
+function renderVisualHoleCardsForRoom(revealIds=null,muckIds=[]){
   if(!isVisualLike()) return;
+  const revealAll=revealIds===null;
+  const revealSet=new Set((revealIds||[]).map(Number));
+  const muckSet=new Set((muckIds||[]).map(Number));
   state.players.forEach((p,i)=>{
     const h=$(`vhand${i}`);
     if(!h) return;
     h.innerHTML="";
-    if(p.folded) return;
-    (state.holeCards[i]||[]).forEach(c=>h.insertAdjacentHTML("beforeend",cardHTML(c,false,false)));
+    if(p.folded || muckSet.has(p.id)) return;
+    const faceUp=revealAll || revealSet.has(p.id);
+    (state.holeCards[i]||[]).forEach(c=>h.insertAdjacentHTML("beforeend",cardHTML(c,!faceUp,false)));
   });
-  // V24.0.6: face-up cards are the SAME table object/anchor as face-down cards.
-  // Reapply the approved Laptop profile immediately after the DOM swap so showdown
-  // cannot introduce its own X/Y/rotation/scale.
   if(typeof window.__v235ReapplySeatLayout==='function') window.__v235ReapplySeatLayout();
+}
+
+function revealVisualHoleCards(){
+  renderVisualHoleCardsForRoom(null,[]);
 }
 
 function gameCfg(){ return selectedGame ? GAME_CONFIG[selectedGame] : GAME_CONFIG.nlh; }
@@ -6537,6 +6888,7 @@ function startHand(){
   if(!selectedGame){ $("menuScreen").style.display="flex"; return; }
   const sb=+($("sb").value||gameCfg().sb), bb=+($("bb").value||gameCfg().bb), stack=+($("stack").value||gameCfg().stack);
   const pc=playerCount();
+  const sidePotTrainingPlan=chooseSidePotTrainingPlan(pc,stack,bb);
   let button;
   if(sessionButtonPlayerCount!==pc || !Number.isInteger(sessionButton) || sessionButton<0 || sessionButton>=pc){
     button=Math.floor(Math.random()*pc);
@@ -6559,7 +6911,7 @@ function startHand(){
     sessionStacks=makeEqualStacks(stack);
     // Level 4 deliberately creates realistic unequal stacks so short all-ins
     // and multiple side pots occur during training.
-    if(+$("difficulty").value>=4 && pc>=3){
+    if(sidePotTrainingLevel()===0 && +$("difficulty").value>=4 && pc>=3){
       const shortChoices=[9,12,15,18,22,27,34,41,48,58,72,88,105,130,160,210];
       const shortCount=Math.min(pc-1, pc>=6?3:2);
       const seats=[...Array(pc).keys()].sort(()=>Math.random()-.5).slice(0,shortCount);
@@ -6570,6 +6922,7 @@ function startHand(){
       });
     }
   }
+  applySidePotTrainingStacks(sidePotTrainingPlan,sessionStacks,stack,bb);
   let players=makePlayers(sessionStacks);
   if(pc===1){
     post(players[sbPos],Math.min(bb,players[sbPos].stack));
@@ -6599,9 +6952,17 @@ function startHand(){
     lastAskedMinRaiseTo:null,
     lastAskedReopenKey:null,
     sidePotQuizDone:false,
+    sidePotFormationSignature:"",
+    sidePotFormationStreet:"",
+    roomShowdownSurvivors:[],
+    roomShowdownSeen:[],
+    roomShowdownMucked:[],
+    roomShowdownCandidates:[],
+    roomPendingPotWinners:[],
     procedureSpotCount:0,
     advancedSpot:"",
     shortAllInActive:false,
+    sidePotTrainingPlan,
     deck:makeDeck(),board:[],burnCards:[],holeCards:[],showdownComplete:false
   };
   waitingQuestion=false;
@@ -6636,6 +6997,7 @@ function startHand(){
     log(`Button: Player ${players[button].id} • SB: Player ${players[sbPos].id} ${money(sb)} • BB: Player ${players[bbPos].id} ${money(bb)}`);
   }
   renderPlayers();
+  updateSidePotTrainingDevDebug();
 
   if(isVisualLike()){
     animateHoleDeal().then(()=>{
@@ -6801,6 +7163,68 @@ function sidePotName(index){
   return index===0 ? "MAIN POT" : `SIDE POT ${index}`;
 }
 
+function sidePotLabel(pot,fallbackIndex=0){
+  const idx=Number.isInteger(pot?.index)?pot.index:fallbackIndex;
+  return sidePotName(idx);
+}
+
+function sidePotStructureSignature(pots){
+  return (pots||[]).map((p,i)=>{
+    const idx=Number.isInteger(p?.index)?p.index:i;
+    return `${idx}:${Number(p?.amount)||0}:${Number(p?.cap)||0}:${(p?.eligible||[]).join(',')}`;
+  }).join('|');
+}
+
+/* Live-room drill: build every pot before pulling the completed wagers. */
+function askSidePotFormationBeforePull(onDone,options={}){
+  if(!state){ if(typeof onDone==='function') onDone(false); return; }
+  const pots=calculateSidePots().map((p,i)=>({...p,index:i}));
+  markSidePotTrainingActual(pots);
+  if(pots.length<=1){
+    if(typeof onDone==='function') onDone(false);
+    return;
+  }
+  const sig=sidePotStructureSignature(pots);
+  if(state.sidePotFormationSignature===sig){
+    renderSidePots(true);
+    if(typeof onDone==='function') onDone(false);
+    return;
+  }
+  const finalFallback=!!options.finalFallback;
+  let idx=0;
+  const askNext=()=>{
+    if(idx>=pots.length){
+      state.sidePotFormationSignature=sig;
+      state.sidePotFormationStreet=state.street;
+      state.sidePotQuizDone=true;
+      renderSidePots(true);
+      if(typeof onDone==='function') onDone(true);
+      return;
+    }
+    const pot=pots[idx];
+    const label=sidePotLabel(pot,idx);
+    const lead=finalFallback?'FINAL POT STRUCTURE CHECK':'BUILD THE POTS BEFORE PULLING BETS';
+    askQuestion(
+      `${lead} — ${label}: HOW MUCH?`,
+      finalFallback
+        ? 'This pot structure was not yet confirmed. Count the full pot layer before payout.'
+        : 'Do NOT pull the bets in yet. Count the full matched contribution layer for this pot. Folded chips still count in the amount.',
+      pot.amount,
+      'sidepot',
+      ()=>{
+        askQuestion(
+          `${label} — WHO IS ELIGIBLE TO WIN IT?`,
+          'Type the live player numbers separated by commas. Folded chips remain in the pot, but folded hands are never eligible.',
+          pot.eligible.join(','),
+          'eligibility',
+          ()=>{ idx++; askNext(); }
+        );
+      }
+    );
+  };
+  askNext();
+}
+
 function renderSidePots(force=false){
   const panel=$("sidePotPanel"), list=$("sidePotList");
   if(!panel || !list || !state){ if(panel) panel.classList.remove("show"); return; }
@@ -6895,46 +7319,9 @@ function maybeAdvancedProcedureQuestion(onDone){
 }
 
 function askSidePotSequence(onDone){
-  if(!state || state.sidePotQuizDone){ if(typeof onDone==="function") onDone(); return; }
-  returnUncalledTotalExcess();
-  const pots=calculateSidePots();
-  if(pots.length<=1){
-    state.sidePotQuizDone=true;
-    renderSidePots(false);
-    if(typeof onDone==="function") onDone();
-    return;
-  }
-
-  state.sidePotQuizDone=true;
-  let idx=0;
-  const askNext=()=>{
-    if(idx>=pots.length){
-      renderSidePots(true);
-      if(typeof onDone==="function") onDone();
-      return;
-    }
-    const pot=pots[idx];
-    const potIndex=idx;
-    askQuestion(
-      `${sidePotName(potIndex)} — HOW MUCH IS IN THIS POT?`,
-      "Use each player's total committed chips. Folded players' chips stay in the pot but folded players are not eligible to win it.",
-      pot.amount,
-      "sidepot",
-      ()=>{
-        askQuestion(
-          `${sidePotName(potIndex)} — WHICH PLAYERS ARE ELIGIBLE?`,
-          `Type the player numbers separated by commas. Example: 2,4,6`,
-          pot.eligible.join(","),
-          "eligibility",
-          ()=>{
-            idx++;
-            askNext();
-          }
-        );
-      }
-    );
-  };
-  askNext();
+  askSidePotFormationBeforePull(()=>{
+    if(typeof onDone==='function') onDone();
+  },{finalFallback:true});
 }
 
 function sidePotAwardsBeforeDrop(){
@@ -7055,6 +7442,9 @@ function buildActionForPlayer(p){
   const difficulty4=difficulty>=4;
   const mayRaise=canPlayerRaise(p);
   const minTo=state.currentBet+state.lastFullRaise;
+
+  const sidePotTrainingAction=buildSidePotTrainingAction(p,toCall,mayRaise,minTo);
+  if(sidePotTrainingAction) return sidePotTrainingAction;
 
   // V23 short-all-in engine. If the player's entire stack lands between
   // the call amount and a full legal raise, it is an incomplete all-in raise.
@@ -7437,11 +7827,9 @@ function bettingClosedByAllIns(){
 async function runAllInBoardToRiver(){
   if(!state) return;
   $("actionText").textContent="ALL-IN ACTION COMPLETE — RUN THE BOARD";
-  $("instruction").textContent="No further betting is possible. All live hands should be tabled and the remaining board is run out.";
+  $("instruction").textContent="No further betting is possible. Run the remaining board. At showdown, settle the last-created side pot first and work back toward the main pot.";
   $("dealerAlert").textContent="ALL-IN • NO MORE BETTING";
   $("dealerAlert").classList.add("dealer-alert-hot");
-
-  if(isVisualLike()) revealVisualHoleCards();
 
   const streets=["Preflop","Flop","Turn","River"];
   let idx=streets.indexOf(state.street);
@@ -7461,73 +7849,71 @@ async function runAllInBoardToRiver(){
 
 function endStreet(){
   const currentStreet=state.street;
-
-  // Before pot accounting, return any unique unmatched excess wager.
   returnUncalledStreetExcess();
 
-  // Betting is complete, but keep chips represented in the gross pot for the quiz.
   $("streetReady").classList.add("show");
-  $("streetReady").innerHTML=`<b>${currentStreet.toUpperCase()} COMPLETE.</b> Add this street's action to the locked pot and enter the NEW TOTAL POT.`;
+  $("streetReady").innerHTML=`<b>${currentStreet.toUpperCase()} COMPLETE.</b> Leave all wagers in front until the pot questions are complete.`;
 
-  askCompletedStreetSequence(()=>{
-    const gross=actualPot();
+  let sidePotBetSnaps=[];
+  try{
+    if(typeof window.__pass46BetSnapshots==='function') sidePotBetSnaps=window.__pass46BetSnapshots();
+  }catch(e){}
 
-    // Pull all outstanding street bets into the internal pot.
-    const pulled=state.players.reduce((a,p)=>a+p.streetBet,0);
-    state.pot+=pulled;
-    state.players.forEach(p=>p.streetBet=0);
-    state.potLockedVisible=true;
-    state.potVisible=false;
-    updateVisualBets();
-    renderPotDisplay();
-    $("revealNote").textContent=`Locked pot is now ${money(state.pot)}. On the next street, add the new action to this amount.`;
-
-    // Track accumulated house drop only once, at final hand payout.
-    // During intermediate streets these questions are training checks only.
-    state.currentBet=0;
-
-    const streets=["Preflop","Flop","Turn","River"];
-    const idx=streets.indexOf(currentStreet);
-
-    if(idx>=3){
-      $("streetReady").classList.remove("show");
-      finishHand(true);
-      return;
-    }
-
-    if(bettingClosedByAllIns()){
-      $("streetReady").classList.remove("show");
-      runAllInBoardToRiver();
-      return;
-    }
-
-    state.street=streets[idx+1];
-    state.lastFullRaise=(gameCfg().mode==="LIMIT"
-      ? ((state.street==="Turn"||state.street==="River")?gameCfg().bigBet:gameCfg().smallBet)
-      : state.bb);
-    state.actions=0;
-    resetStreetActionRights();
-
-    let i=state.button;
-    for(let c=0;c<playerCount();c++){
-      i=(i+1)%playerCount();
-      if(!state.players[i].folded && !state.players[i].allin){
-        state.toAct=i;
-        break;
+  askSidePotFormationBeforePull((sidePotQuizzed)=>{
+    askCompletedStreetSequence(()=>{
+      if(sidePotQuizzed && sidePotBetSnaps.length){
+        try{
+          if(typeof window.__pass46AnimateBetsIntoPot==='function') window.__pass46AnimateBetsIntoPot(sidePotBetSnaps);
+        }catch(e){}
       }
-    }
 
-    $("streetReady").classList.remove("show");
-    $("actionText").textContent=`${state.street.toUpperCase()} — betting round begins`;
-    $("instruction").textContent=`Put out the ${state.street.toLowerCase()} cards. Player ${state.players[state.toAct].id} is first to act.`;
-    log(`${state.street} begins`);
-    renderPlayers();
+      const pulled=state.players.reduce((a,p)=>a+p.streetBet,0);
+      state.pot+=pulled;
+      state.players.forEach(p=>p.streetBet=0);
+      state.potLockedVisible=true;
+      state.potVisible=false;
+      updateVisualBets();
+      renderPotDisplay();
+      $("revealNote").textContent=`Locked pot is now ${money(state.pot)}. On the next street, add the new action to this amount.`;
+      state.currentBet=0;
 
-    if(isVisualLike()){
-      animateBoardForStreet(state.street).then(()=>maybeAskActionOrderQuestion(()=>prepareCurrentAction()));
-    }else{
-      maybeAskActionOrderQuestion(()=>prepareCurrentAction());
-    }
+      const streets=["Preflop","Flop","Turn","River"];
+      const idx=streets.indexOf(currentStreet);
+      if(idx>=3){
+        $("streetReady").classList.remove("show");
+        finishHand(true);
+        return;
+      }
+      if(bettingClosedByAllIns()){
+        $("streetReady").classList.remove("show");
+        runAllInBoardToRiver();
+        return;
+      }
+
+      state.street=streets[idx+1];
+      state.lastFullRaise=(gameCfg().mode==="LIMIT"
+        ? ((state.street==="Turn"||state.street==="River")?gameCfg().bigBet:gameCfg().smallBet)
+        : state.bb);
+      state.actions=0;
+      resetStreetActionRights();
+
+      let i=state.button;
+      for(let c=0;c<playerCount();c++){
+        i=(i+1)%playerCount();
+        if(!state.players[i].folded && !state.players[i].allin){ state.toAct=i; break; }
+      }
+
+      $("streetReady").classList.remove("show");
+      $("actionText").textContent=`${state.street.toUpperCase()} — betting round begins`;
+      $("instruction").textContent=`Put out the ${state.street.toLowerCase()} cards. Player ${state.players[state.toAct].id} is first to act.`;
+      log(`${state.street} begins`);
+      renderPlayers();
+      if(isVisualLike()){
+        animateBoardForStreet(state.street).then(()=>maybeAskActionOrderQuestion(()=>prepareCurrentAction()));
+      }else{
+        maybeAskActionOrderQuestion(()=>prepareCurrentAction());
+      }
+    },{skipPotQuestion:sidePotQuizzed});
   });
 }
 
@@ -7731,52 +8117,38 @@ function closeQuestionAndContinue(){
   if(typeof cont==="function") cont();
 }
 
-function askCompletedStreetSequence(onComplete){
+function askCompletedStreetSequence(onComplete,options={}){
   const cfg=gameCfg();
   const streetAdded=state.players.reduce((a,p)=>a+p.streetBet,0);
   const newTotal=state.pot + streetAdded;
+  const skipPotQuestion=!!options.skipPotQuestion;
 
-  // PLO / Big O: time-rake games. Keep pot-counting practice only.
   if(cfg.drop==="TIME"){
+    if(skipPotQuestion){ if(typeof onComplete==="function") onComplete(); return; }
     askQuestion(
       "BETTING ROUND COMPLETE — HOW MUCH IS THE POT NOW?",
-      state.pot>0
-        ? "Add this completed betting round to the locked pot already shown."
-        : "Count the full completed pot.",
-      newTotal,
-      "newtotalpot",
-      onComplete
+      state.pot>0 ? "Add this completed betting round to the locked pot already shown." : "Count the full completed pot.",
+      newTotal,"newtotalpot",onComplete
     );
     return;
   }
 
   const bucket=dropBucketForPot(newTotal);
   const bucketChanged=state.dropProgress.lastAskedDropBucket!==bucket;
-
   const askDropForBucket=()=>{
-    if(!bucketChanged){
-      if(typeof onComplete==="function") onComplete();
-      return;
-    }
-
+    if(!bucketChanged){ if(typeof onComplete==="function") onComplete(); return; }
     const drop=dropAmountsForBucket(bucket);
-
     askQuestion(
       "BETTING ROUND COMPLETE — HOW MUCH RAKE SHOULD YOU HAVE?",
       "Use the pot amount you have tracked. Enter the rake you should have at this point.",
-      drop.rake,
-      "rake",
-      ()=>{
+      drop.rake,"rake",()=>{
         state.dropProgress.knownRake=drop.rake;
         if(bucket>=5) state.dropProgress.rakeMaxed=true;
         updateDropDisplay(false);
-
         askQuestion(
           "BETTING ROUND COMPLETE — HOW MUCH JACKPOT SHOULD YOU HAVE?",
           "Use the pot amount you have tracked. Enter the jackpot amount you should have at this point.",
-          drop.jackpot,
-          "jackpot",
-          ()=>{
+          drop.jackpot,"jackpot",()=>{
             state.dropProgress.knownJackpot=drop.jackpot;
             if(bucket>=2) state.dropProgress.jackpotMaxed=true;
             if(bucket>=5) state.dropProgress.over50FinalCheckDone=true;
@@ -7789,24 +8161,15 @@ function askCompletedStreetSequence(onComplete){
     );
   };
 
-  // Always ask the total pot at a completed betting round until the $50+ bucket
-  // has already been completed once. After that, stop all pot/drop questions.
-  if(state.dropProgress.over50FinalCheckDone){
-    if(typeof onComplete==="function") onComplete();
-    return;
-  }
+  if(state.dropProgress.over50FinalCheckDone){ if(typeof onComplete==="function") onComplete(); return; }
+  if(skipPotQuestion){ askDropForBucket(); return; }
 
   askQuestion(
     "BETTING ROUND COMPLETE — HOW MUCH IS THE POT NOW?",
-    state.pot>0
-      ? "Add this betting round to the locked pot already shown and enter the new total."
-      : "Count the full pot after this completed betting round.",
-    newTotal,
-    "newtotalpot",
-    askDropForBucket
+    state.pot>0 ? "Add this betting round to the locked pot already shown and enter the new total." : "Count the full pot after this completed betting round.",
+    newTotal,"newtotalpot",askDropForBucket
   );
 }
-
 
 
 function askDropIfNeeded(onComplete){
@@ -7831,38 +8194,52 @@ function askFinalDropSequence(onComplete){
 }
 
 
-function showVisualShowdown(onComplete){
-  if(!isVisualLike() || state.board.length<5){
-    if(typeof onComplete==="function") onComplete();
-    return;
-  }
+function roomShowdownCandidatesForPot(pot){
+  const eligible=[...new Set((pot?.eligible||[]).map(Number))];
+  const seen=new Set((state.roomShowdownSeen||[]).map(Number));
+  const survivors=(state.roomShowdownSurvivors||[]).map(Number).filter(id=>eligible.includes(id));
+  if(!seen.size) return eligible;
+  const newEntrants=eligible.filter(id=>!seen.has(id));
+  return [...new Set([...survivors,...newEntrants])];
+}
 
-  revealVisualHoleCards();
+function renderRoomShowdownCards(ids){
+  const cardsWrap=$("showdownCards");
+  if(!cardsWrap) return;
+  cardsWrap.innerHTML="";
+  (ids||[]).forEach(id=>{
+    const p=state.players.find(x=>x.id===id);
+    if(!p || p.folded) return;
+    const i=state.players.indexOf(p);
+    const box=document.createElement("div");
+    box.className="showdown-player";
+    box.innerHTML=`<b>PLAYER ${p.id}</b><div class="seat-hand">${(state.holeCards[i]||[]).map(c=>cardHTML(c,false,false)).join("")}</div>`;
+    cardsWrap.appendChild(box);
+  });
+}
+
+function showVisualShowdown(onComplete){
+  if(!isVisualLike() || state.board.length<5){ if(typeof onComplete==="function") onComplete(); return; }
   const result=showdownResult();
   state.visualShowdownResult=result;
   state.pendingShowdownContinue=onComplete;
-
-  const cardsWrap=$("showdownCards");
-  cardsWrap.innerHTML="";
-  state.players.forEach((p,i)=>{
-    const box=document.createElement("div");
-    box.className=`showdown-player ${p.folded?"folded":""}`;
-    box.innerHTML=`<b>PLAYER ${p.id}</b><div class="seat-hand">${(state.holeCards[i]||[]).map(c=>cardHTML(c,false,false)).join("")}</div>${p.folded?'<div class="tiny">FOLDED</div>':''}`;
-    cardsWrap.appendChild(box);
-  });
-
   const pots=sidePotAwardsBeforeDrop();
   state.sidePotShowdownMode=pots.length>1;
-  state.sidePotShowdownPots=pots;
+  state.sidePotShowdownPots=state.sidePotShowdownMode ? [...pots].sort((a,b)=>(b.index??0)-(a.index??0)) : pots;
   state.sidePotShowdownIndex=0;
-
+  state.roomShowdownSurvivors=[];
+  state.roomShowdownSeen=[];
+  state.roomShowdownMucked=[];
+  state.roomShowdownCandidates=[];
+  state.roomPendingPotWinners=[];
   $("showdownFeedback").className="showdown-feedback";
   $("showdownDoneWrap").classList.remove("show");
   $("showdownPanel").classList.add("show");
-
   if(state.sidePotShowdownMode){
     renderSidePotShowdownQuestion();
   }else{
+    revealVisualHoleCards();
+    renderRoomShowdownCards(state.players.filter(p=>!p.folded).map(p=>p.id));
     renderNormalShowdownQuestion();
   }
 }
@@ -7871,18 +8248,9 @@ function renderNormalShowdownQuestion(){
   const choices=$("showdownChoices");
   choices.innerHTML="";
   state.players.filter(p=>!p.folded).forEach(p=>{
-    const b=document.createElement("button");
-    b.className="winner-choice";
-    b.textContent=`PLAYER ${p.id}`;
-    b.onclick=()=>answerShowdown([p.id]);
-    choices.appendChild(b);
+    const b=document.createElement("button"); b.className="winner-choice"; b.textContent=`PLAYER ${p.id}`; b.onclick=()=>answerShowdown([p.id]); choices.appendChild(b);
   });
-  const chop=document.createElement("button");
-  chop.className="winner-choice";
-  chop.textContent="CHOP";
-  chop.onclick=()=>answerShowdown(["CHOP"]);
-  choices.appendChild(chop);
-
+  const chop=document.createElement("button"); chop.className="winner-choice"; chop.textContent="CHOP"; chop.onclick=()=>answerShowdown(["CHOP"]); choices.appendChild(chop);
   $("actionText").textContent="SHOWDOWN — READ THE HANDS";
   $("instruction").textContent="Choose the winning player, or CHOP if the best hand is tied.";
 }
@@ -7904,60 +8272,52 @@ function renderSidePotShowdownQuestion(){
   choices.innerHTML="";
   $("showdownFeedback").className="showdown-feedback";
   $("showdownDoneWrap").classList.remove("show");
+  if(!pot){ autoPayVisualShowdown(); return; }
 
-  if(!pot){
-    autoPayVisualShowdown();
-    return;
-  }
-
-  pot.eligible.forEach(id=>{
-    const b=document.createElement("button");
-    b.className="winner-choice";
-    b.textContent=`PLAYER ${id}`;
-    b.onclick=()=>answerShowdown([id]);
-    choices.appendChild(b);
+  const candidates=roomShowdownCandidatesForPot(pot);
+  state.roomShowdownCandidates=candidates;
+  renderVisualHoleCardsForRoom(candidates,state.roomShowdownMucked||[]);
+  renderRoomShowdownCards(candidates);
+  candidates.forEach(id=>{
+    const b=document.createElement("button"); b.className="winner-choice"; b.textContent=`PLAYER ${id}`; b.onclick=()=>answerShowdown([id]); choices.appendChild(b);
   });
-  const chop=document.createElement("button");
-  chop.className="winner-choice";
-  chop.textContent="CHOP";
-  chop.onclick=()=>answerShowdown(["CHOP"]);
-  choices.appendChild(chop);
-
-  $("actionText").textContent=`SHOWDOWN — ${sidePotName(idx)} ${money(pot.net)}`;
-  $("instruction").textContent=`Eligible for this pot: ${pot.eligible.map(id=>`Player ${id}`).join(", ")}. Choose the winner or CHOP.`;
+  if(candidates.length>1){
+    const chop=document.createElement("button"); chop.className="winner-choice"; chop.textContent="CHOP"; chop.onclick=()=>answerShowdown(["CHOP"]); choices.appendChild(chop);
+  }
+  const label=sidePotLabel(pot,idx);
+  $("actionText").textContent=`SHOWDOWN — ${label} ${money(pot.net)}`;
+  $("instruction").textContent=`ROOM SIDE-POT PROCEDURE • ${label} is settled now. Show only: ${candidates.map(id=>`Player ${id}`).join(", ")}. After this pot is decided, the next eligible hand will be opened for the next pot.`;
+  if(candidates.length===1){
+    const id=candidates[0];
+    state.roomPendingPotWinners=[id];
+    $("showdownFeedback").className="showdown-feedback good";
+    $("showdownFeedback").innerHTML=`<b>${label} is uncontested at this stage.</b> Player ${id} is the only remaining eligible hand.`;
+    $("showdownDoneWrap").classList.add("show");
+  }
 }
 
 function answerShowdown(choice){
   const r=state.visualShowdownResult;
   if(!r) return;
-
   let actual,bestEval,potLabel="";
   if(state.sidePotShowdownMode){
     const idx=state.sidePotShowdownIndex||0;
     const pot=state.sidePotShowdownPots[idx];
-    const result=eligibleWinnersForPot(pot);
-    actual=result.winners;
-    bestEval=result.bestEval;
-    potLabel=`${sidePotName(idx)}: `;
+    const candidates=(state.roomShowdownCandidates||[]).length?state.roomShowdownCandidates:pot.eligible;
+    const result=eligibleWinnersForPot({...pot,eligible:candidates});
+    actual=result.winners; bestEval=result.bestEval; state.roomPendingPotWinners=[...actual]; potLabel=`${sidePotLabel(pot,idx)}: `;
   }else{
-    actual=r.winners;
-    bestEval=r.evals.find(e=>actual.includes(e.player));
+    actual=r.winners; bestEval=r.evals.find(e=>actual.includes(e.player));
   }
-
   const choseChop=choice[0]==="CHOP";
   const correct=(choseChop && actual.length>1) || (!choseChop && actual.length===1 && actual[0]===choice[0]);
-
   const f=$("showdownFeedback");
-  const detail=bestEval
-    ? `${handName(bestEval.rank)} — ${bestEval.cards.map(cardText).join(" ")}`
-    : "";
-
+  const detail=bestEval ? `${handName(bestEval.rank)} — ${bestEval.cards.map(cardText).join(" ")}` : "";
   f.className=`showdown-feedback ${correct?"good":"bad"}`;
   f.innerHTML=(correct
     ? `<b>Correct.</b> ${potLabel}${actual.length>1?`Players ${actual.join(" & ")} chop.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`
     : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`)
     + (state.sidePotShowdownMode?"":showdownLearningHTML());
-
   $("showdownDoneWrap").classList.add("show");
 }
 
@@ -7966,92 +8326,63 @@ function autoPayVisualShowdown(){
   const allPots=sidePotAwardsBeforeDrop();
   const evalMap=new Map(state.visualShowdownResult.evals.map(e=>[e.player,e]));
   const payoutLog=[];
-
   if(allPots.length<=1){
     const winners=state.visualShowdownResult.winners || [];
     const award=state.finalNetPot ?? state.finalGrossPot ?? state.pot;
-    if(winners.length===1){
-      const p=state.players.find(x=>x.id===winners[0]);
-      if(p) p.stack+=award;
-    }else if(winners.length>1){
-      const base=Math.floor(award/winners.length);
-      let remainder=award-(base*winners.length);
-      winners.forEach((id,idx)=>{
-        const p=state.players.find(x=>x.id===id);
-        if(p) p.stack+=base+(idx===0?remainder:0);
-      });
+    if(winners.length===1){ const p=state.players.find(x=>x.id===winners[0]); if(p) p.stack+=award; }
+    else if(winners.length>1){
+      const base=Math.floor(award/winners.length); let remainder=award-(base*winners.length);
+      const ordered=[]; let seat=state.button;
+      for(let c=0;c<playerCount();c++){ seat=(seat+1)%playerCount(); const id=state.players[seat].id; if(winners.includes(id)) ordered.push(id); }
+      const payOrder=ordered.length?ordered:winners;
+      payOrder.forEach((id,idx)=>{ const p=state.players.find(x=>x.id===id); if(p) p.stack+=base+(idx===0?remainder:0); });
     }
     payoutLog.push(winners.length===1?`Player ${winners[0]} wins ${money(award)}`:`Pot chopped`);
   }else{
-    allPots.forEach((pot,potIndex)=>{
+    [...allPots].sort((a,b)=>(b.index??0)-(a.index??0)).forEach((pot,displayIndex)=>{
       const eligibleEvals=pot.eligible.map(id=>evalMap.get(id)).filter(Boolean);
       if(!eligibleEvals.length || pot.net<=0) return;
-      let best=eligibleEvals[0].rank;
-      eligibleEvals.forEach(e=>{if(compareRank(e.rank,best)>0) best=e.rank;});
+      let best=eligibleEvals[0].rank; eligibleEvals.forEach(e=>{if(compareRank(e.rank,best)>0) best=e.rank;});
       const winners=eligibleEvals.filter(e=>compareRank(e.rank,best)===0).map(e=>e.player);
-      const base=Math.floor(pot.net/winners.length);
-      let remainder=pot.net-base*winners.length;
-
-      // Odd chip in a board game goes to first eligible winning seat left of button.
-      const ordered=[];
-      let seat=state.button;
-      for(let c=0;c<playerCount();c++){
-        seat=(seat+1)%playerCount();
-        const id=state.players[seat].id;
-        if(winners.includes(id)) ordered.push(id);
-      }
+      const base=Math.floor(pot.net/winners.length); let remainder=pot.net-base*winners.length;
+      const ordered=[]; let seat=state.button;
+      for(let c=0;c<playerCount();c++){ seat=(seat+1)%playerCount(); const id=state.players[seat].id; if(winners.includes(id)) ordered.push(id); }
       const payOrder=ordered.length?ordered:winners;
-
-      payOrder.forEach((id,idx)=>{
-        const p=state.players.find(x=>x.id===id);
-        if(p) p.stack+=base+(idx===0?remainder:0);
-      });
-      payoutLog.push(`${sidePotName(potIndex)} ${money(pot.net)} → ${winners.length>1?`Players ${winners.join(" & ")} (chop)`:`Player ${winners[0]}`}`);
+      payOrder.forEach((id,idx)=>{ const p=state.players.find(x=>x.id===id); if(p) p.stack+=base+(idx===0?remainder:0); });
+      const label=sidePotLabel(pot,displayIndex);
+      payoutLog.push(`${label} ${money(pot.net)} → ${winners.length>1?`Players ${winners.join(" & ")} (chop)`:`Player ${winners[0]}`}`);
     });
   }
-
   state.winnerPaid=true;
   sessionStacks=state.players.map(x=>x.stack);
-  if(trainingMode==="audition"){
-    auditionStats.hands++;
-    updateAuditionDisplay();
-  }
-  updateVisualStacks();
-  renderSidePots(true);
-
-  $("winnerPanel").classList.remove("show");
-  $("payoutResult").classList.remove("show");
+  if(trainingMode==="audition"){ auditionStats.hands++; updateAuditionDisplay(); }
+  updateVisualStacks(); renderSidePots(true);
+  $("winnerPanel").classList.remove("show"); $("payoutResult").classList.remove("show");
   $("actionText").textContent="SHOWDOWN COMPLETE — POT(S) PAID";
-  $("instruction").innerHTML=`Correct eligible winners have been paid for each pot.<br>${payoutLog.join(" • ")}`;
+  $("instruction").innerHTML=`Correct eligible winners have been paid in side-pot-first order.<br>${payoutLog.join(" • ")}`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
-  payoutLog.forEach(x=>log(x));
-  renderPlayers();
+  payoutLog.forEach(x=>log(x)); renderPlayers();
 }
 
 function closeVisualShowdown(){
   if(isVisualLike() && state?.sidePotShowdownMode){
-    const next=(state.sidePotShowdownIndex||0)+1;
-    if(next<state.sidePotShowdownPots.length){
-      state.sidePotShowdownIndex=next;
-      renderSidePotShowdownQuestion();
-      return;
-    }
-    $("showdownPanel").classList.remove("show");
-    autoPayVisualShowdown();
-    state.pendingShowdownContinue=null;
-    return;
+    const idx=state.sidePotShowdownIndex||0;
+    const pot=state.sidePotShowdownPots[idx];
+    const candidates=[...(state.roomShowdownCandidates||[])];
+    let winners=[...(state.roomPendingPotWinners||[])];
+    if(!winners.length && pot) winners=eligibleWinnersForPot({...pot,eligible:candidates.length?candidates:pot.eligible}).winners;
+    const losers=candidates.filter(id=>!winners.includes(id));
+    state.roomShowdownSurvivors=[...winners];
+    state.roomShowdownSeen=[...new Set([...(state.roomShowdownSeen||[]),...((pot?.eligible)||[])])];
+    state.roomShowdownMucked=[...new Set([...(state.roomShowdownMucked||[]),...losers])];
+    state.roomPendingPotWinners=[];
+    const next=idx+1;
+    if(next<state.sidePotShowdownPots.length){ state.sidePotShowdownIndex=next; renderSidePotShowdownQuestion(); return; }
+    $("showdownPanel").classList.remove("show"); autoPayVisualShowdown(); state.pendingShowdownContinue=null; return;
   }
-
   $("showdownPanel").classList.remove("show");
-  if(isVisualLike()){
-    // No second winner-selection screen. The trainer already knows the correct showdown result.
-    autoPayVisualShowdown();
-    if(state) state.pendingShowdownContinue=null;
-    return;
-  }
-  const cb=state?.pendingShowdownContinue;
-  if(state) state.pendingShowdownContinue=null;
-  if(typeof cb==="function") cb();
+  if(isVisualLike()){ autoPayVisualShowdown(); if(state) state.pendingShowdownContinue=null; return; }
+  const cb=state?.pendingShowdownContinue; if(state) state.pendingShowdownContinue=null; if(typeof cb==="function") cb();
 }
 
 function showWinnerSelection(){
@@ -8427,7 +8758,7 @@ function resetSession(showMenu=false){
   renderPlayers();
   if(showMenu) $("menuScreen").style.display="flex";
 }
-$("resetAll").onclick=()=>{ sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; resetSession(false); };
+$("resetAll").onclick=()=>{ sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; resetSidePotTrainingTracker(); resetSession(false); };
 $("backMenu").onclick=()=>{
   sessionStacks=null;
   sessionButton=null;
@@ -8638,21 +8969,41 @@ renderPlayers();
     if(metricBoxes[3]) metricBoxes[3].innerHTML=`<small>AVG TIME / HAND</small><b>${avgText}</b>`;
   }
 
-  // Settings: connect only to real V23 controls or harmless UI preferences.
+  // Settings: connect only to real engine controls or harmless UI preferences.
+  try{
+    const savedSidePotLevel=window.localStorage?.getItem('pdtSidePotTrainingLevelV1');
+    if(savedSidePotLevel!==null && document.getElementById('sidePotTraining')){
+      document.getElementById('sidePotTraining').value=String(Math.max(0,Math.min(4,Number(savedSidePotLevel))));
+    }
+  }catch(e){}
   function markSegment(root,value){document.querySelectorAll(`#${root} button`).forEach(b=>b.classList.toggle('active',String(b.dataset.value||b.textContent.trim())===String(value)))}
   function syncSettingsFromEngine(){
     markSegment('v235Difficulty',document.getElementById('difficulty').value);
+    markSegment('v235SidePotTraining',document.getElementById('sidePotTraining')?.value||'2');
     markSegment('v235QuestionFrequency',document.getElementById('qfreq').value);
     const ss=document.getElementById('v235StartingStack'); if(ss)ss.value=String(document.getElementById('stack').value);
     document.querySelectorAll('#v235DefaultPlayers button').forEach(b=>b.classList.toggle('active',Number(b.textContent.trim())===selectedCount));
   }
   document.querySelectorAll('#v235Difficulty button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('difficulty').value=b.dataset.value;markSegment('v235Difficulty',b.dataset.value)}));
+  document.querySelectorAll('#v235SidePotTraining button').forEach(b=>b.addEventListener('click',()=>{
+    const v=String(Math.max(0,Math.min(4,Number(b.dataset.value||0))));
+    const engine=document.getElementById('sidePotTraining'); if(engine) engine.value=v;
+    try{window.localStorage?.setItem('pdtSidePotTrainingLevelV1',v);}catch(e){}
+    markSegment('v235SidePotTraining',v);
+    resetSidePotTrainingTracker();
+  }));
+  document.getElementById('sidePotTraining')?.addEventListener('change',e=>{
+    const v=String(Math.max(0,Math.min(4,Number(e.target.value||0))));
+    try{window.localStorage?.setItem('pdtSidePotTrainingLevelV1',v);}catch(err){}
+    markSegment('v235SidePotTraining',v);
+    resetSidePotTrainingTracker();
+  });
   document.querySelectorAll('#v235QuestionFrequency button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('qfreq').value=b.dataset.value;markSegment('v235QuestionFrequency',b.dataset.value)}));
   document.getElementById('v235StartingStack')?.addEventListener('change',e=>{document.getElementById('stack').value=e.target.value});
   document.querySelectorAll('#v235DefaultPlayers button').forEach(b=>b.addEventListener('click',()=>{selectedCount=Number(b.textContent.trim());selectedPlayerCount=selectedCount;try{ window.localStorage?.setItem('v235DefaultPlayers',selectedCount); }catch(e){} syncSettingsFromEngine()}));
   document.getElementById('v235AnimationToggle')?.addEventListener('change',e=>document.body.classList.toggle('v235-no-motion',!e.target.checked));
   document.getElementById('v235ResetStats')?.addEventListener('click',()=>{stats={q:0,c:0};auditionStats={hands:0,mistakes:0};currentStreak=0;bestStreak=0;generalHands=0;accuracyHistory.length=0;Object.values(categoryStats).forEach(s=>{s.q=0;s.c=0});sessionStartedAt=Date.now();document.getElementById('qs').textContent='0';document.getElementById('correct').textContent='0';document.getElementById('accuracy').textContent='—';refreshStats();syncRail()});
-  document.getElementById('v235ResetSession')?.addEventListener('click',()=>{sessionStacks=null;sessionButton=null;sessionButtonPlayerCount=null;resetSession(false);generalHands=0;syncRail()});
+  document.getElementById('v235ResetSession')?.addEventListener('click',()=>{sessionStacks=null;sessionButton=null;sessionButtonPlayerCount=null;resetSidePotTrainingTracker();resetSession(false);generalHands=0;syncRail()});
 
   // Help content — functional inline navigation.
   const helpCopy={
@@ -10490,12 +10841,13 @@ body.v235-live #v235Rail{
     const plan=[];
     try{
       if(typeof sidePotAwardsBeforeDrop==='function' && typeof eligibleWinnersForPot==='function'){
-        const pots=sidePotAwardsBeforeDrop();
+        const pots=[...sidePotAwardsBeforeDrop()].sort((a,b)=>(b.index??0)-(a.index??0));
         if(Array.isArray(pots) && pots.length){
           pots.forEach((p,idx)=>{
             if(!(Number(p.net)>0)) return;
             const winners=eligibleWinnersForPot(p)?.winners||[];
-            if(winners.length) plan.push({winners,amount:Number(p.net)||0,label:(typeof sidePotName==='function'?sidePotName(idx):`POT ${idx+1}`)});
+            const originalIndex=Number.isInteger(p.index)?p.index:idx;
+            if(winners.length) plan.push({winners,amount:Number(p.net)||0,label:(typeof sidePotName==='function'?sidePotName(originalIndex):`POT ${originalIndex+1}`)});
           });
         }
       }
@@ -10850,7 +11202,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
       main.appendChild(sec);return sec;
     };
     const general=make('general','GENERAL SETTINGS','Core session defaults.');
-    const training=make('training','TRAINING SETTINGS','Control scenario difficulty, question frequency and hints.');
+    const training=make('training','TRAINING SETTINGS','Control general difficulty, side-pot frequency, question frequency and hints.');
     const table=make('table','TABLE SETTINGS','Your shared Template 3 table layout and chip configuration.');
     const audition=make('audition','AUDITION SETTINGS','Controls and information specific to audition practice.');
     const audio=make('audio','AUDIO SETTINGS','Sound preferences for the trainer.');
@@ -10862,7 +11214,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
       sections.filter(s=>words.some(w=>(s.querySelector('h3')?.textContent||'').toUpperCase().includes(w))).forEach(s=>dest.appendChild(s));
     }
     moveMatch(general,['STARTING STACK','DEFAULT PLAYER COUNT']);
-    moveMatch(training,['DIFFICULTY','QUESTION FREQUENCY','HINTS']);
+    moveMatch(training,['DIFFICULTY','SIDE POT TRAINING','QUESTION FREQUENCY','HINTS']);
     moveMatch(table,['CHIP SET']);
     moveMatch(audition,['AUDITION TIMER']);
     moveMatch(audio,['SOUND EFFECTS']);
@@ -10936,7 +11288,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
     visual:{title:'VISUAL DEALER MODE',body:`<p>Visual Dealer Mode shows the table state on-screen: player stacks, bets, hole cards, community cards, folds, pot collection and showdown.</p><div class="callout"><b>Use it for:</b> hand reading, board awareness, action order, pot tracking and seeing how dealer procedures flow street by street.</div>`},
     audition:{title:'AUDITION MODE',body:`<p>Audition Mode uses the same finalized table layout but focuses on scored dealer practice.</p><div class="callout"><b>Goal:</b> combine speed, accuracy, procedure, pot math, raise math and hand reading under pressure.</div><p>The advanced timer/history system is still separate from the current visual-layout work.</p>`},
     tda:{title:'TDA RULE REMINDERS',body:`<div class="v235-subpanel-grid"><div class="v235-subpanel-card"><h3>MINIMUM RAISE</h3><p>A full raise must be at least the size of the previous full raise increment. Example: $1/$2, raise to $8 = $6 increment; next minimum raise is to $14.</p></div><div class="v235-subpanel-card"><h3>SHORT ALL-IN</h3><p>A short all-in can increase the wager without necessarily reopening betting to a player who has already acted.</p></div><div class="v235-subpanel-card"><h3>ACTION ORDER</h3><p>Protect the action and know exactly whose turn it is before accepting chips or verbal action.</p></div><div class="v235-subpanel-card"><h3>IRREGULAR ACTION</h3><p>When a situation requires a ruling, stop significant action and call the floor rather than improvising a ruling.</p></div></div>`},
-    procedure:{title:'DEALER PROCEDURES',body:`<ol><li>Verify button, small blind and big blind.</li><li>Deal in correct order and protect the stub.</li><li>Announce and track action accurately.</li><li>Keep wagers in front of players until the betting round is complete.</li><li>After the pot question is resolved, collect the completed bets into the center pot.</li><li>Run the next street correctly.</li><li>At showdown, identify the winning five-card hand and push the pot.</li><li>Advance the button for the next hand.</li></ol>`},
+    procedure:{title:'DEALER PROCEDURES',body:`<ol><li>Verify button, small blind and big blind.</li><li>Deal in correct order and protect the stub.</li><li>Announce and track action accurately.</li><li>Keep wagers in front of players until the betting round is complete.</li><li>If an all-in creates side pots, leave the wagers in front and build/verify the main pot and every side pot before pulling chips.</li><li>After the pot questions are resolved, collect the completed wagers into their tracked pot structure.</li><li>Run the next street correctly.</li><li>For this cash-room training profile, settle the last-created side pot first at showdown and work backward to the main pot, opening only the next eligible hand as needed.</li><li>Advance the button for the next hand.</li></ol>`},
     drop:{title:'RAKE & JACKPOT',body:`<table class="v235-rule-table"><thead><tr><th>Pot</th><th>Rake</th><th>Jackpot</th></tr></thead><tbody><tr><td>&lt;$10</td><td>$1</td><td>$0</td></tr><tr><td>$10–19</td><td>$2</td><td>$2</td></tr><tr><td>$20–29</td><td>$3</td><td>$3</td></tr><tr><td>$30–39</td><td>$4</td><td>$3</td></tr><tr><td>$40–49</td><td>$5</td><td>$3</td></tr><tr><td>$50+</td><td>$6 max</td><td>$3 max</td></tr></tbody></table>`},
     faq:{title:'FREQUENTLY ASKED QUESTIONS',body:`<div class="v235-subpanel-grid"><div class="v235-subpanel-card"><h3>Why is the pot amount hidden?</h3><p>So you must track the pot yourself instead of reading the answer from the table.</p></div><div class="v235-subpanel-card"><h3>Why do bets stay in front of players?</h3><p>They remain there until the betting round is complete, matching live-table procedure before the dealer pulls them into the pot.</p></div><div class="v235-subpanel-card"><h3>Do the three modes share my layout?</h3><p>Yes. Real, Visual and Audition modes use the same saved Template 3 visual coordinates.</p></div><div class="v235-subpanel-card"><h3>What happens if everyone folds?</h3><p>The uncontested winner is paid before New Hand becomes available, and the dealer button advances for the next hand.</p></div></div>`},
     glossary:{title:'GLOSSARY',body:`<div class="v235-subpanel-grid"><div class="v235-subpanel-card"><h3>LOCKED POT</h3><p>Money from completed previous betting rounds already collected into the center.</p></div><div class="v235-subpanel-card"><h3>FULL RAISE</h3><p>A raise large enough to satisfy the minimum raise increment and, when applicable, reopen betting.</p></div><div class="v235-subpanel-card"><h3>SHORT ALL-IN</h3><p>An all-in raise smaller than a full raise increment.</p></div><div class="v235-subpanel-card"><h3>SIGNIFICANT ACTION</h3><p>A TDA concept used when determining how certain irregular actions are handled after subsequent action occurs.</p></div><div class="v235-subpanel-card"><h3>STUB</h3><p>The undealt remainder of the deck after cards have been delivered.</p></div><div class="v235-subpanel-card"><h3>PUSH THE POT</h3><p>Award the collected pot to the winning player or split it correctly among tied winners.</p></div></div>`},
@@ -11136,20 +11488,25 @@ body.v235-live #seatTunerToggle{display:block!important;}
   renderSidePotShowdownQuestion=function(){
     const idx=state?.sidePotShowdownIndex||0;
     const pot=state?.sidePotShowdownPots?.[idx];
-    if(!pot || (pot.eligible||[]).length!==1) return v24BaseRenderSidePotShowdown();
-    const id=pot.eligible[0];
+    const candidates=typeof roomShowdownCandidatesForPot==='function'&&pot?roomShowdownCandidatesForPot(pot):(pot?.eligible||[]);
+    if(!pot || candidates.length!==1) return v24BaseRenderSidePotShowdown();
+    const id=candidates[0];
+    state.roomShowdownCandidates=[id];
+    state.roomPendingPotWinners=[id];
+    if(typeof renderVisualHoleCardsForRoom==='function') renderVisualHoleCardsForRoom([id],state.roomShowdownMucked||[]);
+    if(typeof renderRoomShowdownCards==='function') renderRoomShowdownCards([id]);
     const choices=$v('showdownChoices');
     if(choices) choices.innerHTML='';
     const feedback=$v('showdownFeedback');
     if(feedback){
       feedback.className='showdown-feedback good';
-      feedback.innerHTML=`<b>${sidePotName(idx)} is uncontested.</b> Player ${id} is the only live player eligible for this pot, so no hand comparison is required.`;
+      feedback.innerHTML=`<b>${sidePotLabel(pot,idx)} is uncontested at this stage.</b> Player ${id} is the only remaining eligible hand, so no comparison is required.`;
     }
     const doneWrap=$v('showdownDoneWrap');
     if(doneWrap) doneWrap.classList.add('show');
     const done=$v('showdownDone');
     if(done) done.textContent=(idx<(state.sidePotShowdownPots.length-1))?'DONE — NEXT POT':'DONE — CONTINUE TO PAYOUT';
-    $v('actionText').textContent=`${sidePotName(idx)} — PLAYER ${id} ONLY ELIGIBLE`;
+    $v('actionText').textContent=`${sidePotLabel(pot,idx)} — PLAYER ${id} ONLY ELIGIBLE`;
     $v('instruction').textContent=`This pot is automatically awarded to Player ${id}. Continue when ready.`;
   };
 
@@ -11203,45 +11560,35 @@ body.v235-live #seatTunerToggle{display:block!important;}
     const pot=pots[ctx.index];
     const wrap=$v('winnerButtons');
     if(!wrap) return;
-    wrap.innerHTML='';
-    ctx.splitMode=false;ctx.selected=[];
-
+    wrap.innerHTML=''; ctx.splitMode=false; ctx.selected=[];
+    const eligible=[...new Set((pot.eligible||[]).map(Number))];
+    const seen=new Set((ctx.seen||[]).map(Number));
+    const survivors=(ctx.survivors||[]).map(Number).filter(id=>eligible.includes(id));
+    const candidates=seen.size ? [...new Set([...survivors,...eligible.filter(id=>!seen.has(id))])] : eligible;
+    ctx.candidates=candidates;
+    const label=sidePotLabel(pot,ctx.index);
     const header=document.createElement('div');
     header.className='v24-payout-note';
-    header.innerHTML=`<b>${sidePotName(ctx.index)} • ${money(pot.net)}</b><br>Eligible: ${pot.eligible.map(id=>`Player ${id}`).join(', ')}`;
+    header.innerHTML=`<b>${label} • ${money(pot.net)}</b><br><b>SHOW THESE HANDS NOW:</b> ${candidates.map(id=>`Player ${id}`).join(', ')}<br><span class="tiny">Room procedure: settle the last-created side pot first, then open only the next newly eligible hand as you work back toward the main pot.</span>`;
     wrap.appendChild(header);
-
-    if(pot.eligible.length===1){
-      const id=pot.eligible[0];
-      header.innerHTML+=`<br><b>Automatic:</b> Player ${id} is the only eligible live hand.`;
-      const auto=document.createElement('button');
-      auto.className='winner-btn';auto.textContent=`PUSH TO PLAYER ${id}`;
-      auto.onclick=()=>payManualPot([id]);
-      wrap.appendChild(auto);
-      return;
+    if(candidates.length===1){
+      const id=candidates[0]; header.innerHTML+=`<br><b>Automatic:</b> Player ${id} is the only remaining eligible hand.`;
+      const auto=document.createElement('button'); auto.className='winner-btn'; auto.textContent=`PUSH ${label} TO PLAYER ${id}`; auto.onclick=()=>payManualPot([id]); wrap.appendChild(auto); return;
     }
-
-    pot.eligible.forEach(id=>{
-      const b=document.createElement('button');
-      b.className='winner-btn';b.textContent=`PLAYER ${id}`;
-      b.onclick=()=>payManualPot([id]);
-      wrap.appendChild(b);
-    });
-    const chop=document.createElement('button');
-    chop.className='winner-btn';chop.textContent='CHOP / SPLIT POT';
-    chop.onclick=()=>renderManualSplitSelector();
-    wrap.appendChild(chop);
+    candidates.forEach(id=>{ const b=document.createElement('button'); b.className='winner-btn'; b.textContent=`PLAYER ${id}`; b.onclick=()=>payManualPot([id]); wrap.appendChild(b); });
+    const chop=document.createElement('button'); chop.className='winner-btn'; chop.textContent='CHOP / SPLIT POT'; chop.onclick=()=>renderManualSplitSelector(); wrap.appendChild(chop);
   }
 
   function renderManualSplitSelector(){
     const ctx=state?.v24ManualPayout;if(!ctx) return;
     const pot=ctx.pots[ctx.index];if(!pot) return;
+    const candidates=(ctx.candidates||pot.eligible||[]).map(Number);
     ctx.splitMode=true;ctx.selected=[];
     const wrap=$v('winnerButtons');wrap.innerHTML='';
     const header=document.createElement('div');header.className='v24-payout-note';
-    header.innerHTML=`<b>${sidePotName(ctx.index)} — SELECT TIED WINNERS</b><br>Select two or more eligible players. Any odd chip goes to the first winning seat left of the Dealer Button.`;
+    header.innerHTML=`<b>${sidePotLabel(pot,ctx.index)} — SELECT TIED WINNERS</b><br>Select two or more of the hands currently being compared. Any odd chip goes to the first winning seat left of the Dealer Button.`;
     wrap.appendChild(header);
-    pot.eligible.forEach(id=>{
+    candidates.forEach(id=>{
       const b=document.createElement('button');b.className='winner-btn';b.textContent=`PLAYER ${id}`;b.dataset.player=id;
       b.onclick=()=>{
         const pos=ctx.selected.indexOf(id);
@@ -11265,16 +11612,19 @@ body.v235-live #seatTunerToggle{display:block!important;}
   function payManualPot(winners){
     const ctx=state?.v24ManualPayout;if(!ctx||ctx.busy) return;
     const pot=ctx.pots[ctx.index];if(!pot) return;
-    winners=[...new Set((winners||[]).map(Number))].filter(id=>pot.eligible.includes(id));
+    const candidates=(ctx.candidates||pot.eligible||[]).map(Number);
+    winners=[...new Set((winners||[]).map(Number))].filter(id=>candidates.includes(id));
     if(!winners.length) return;
     ctx.busy=true;
-    const label=sidePotName(ctx.index);
+    const label=sidePotLabel(pot,ctx.index);
     if($v('actionText')) $v('actionText').textContent=`PUSHING ${label} — ${winners.length>1?'CHOP':`PLAYER ${winners[0]}`}`;
     if($v('instruction')) $v('instruction').textContent=winners.length>1?`Split ${label} between Players ${winners.join(' & ')}.`:`Push ${label} to Player ${winners[0]}.`;
     const more=ctx.index<ctx.pots.length-1;
     animateManualPush(winners,()=>{
       const shares=creditShares(pot,winners);
       shares.forEach(s=>typeof log==='function'&&log(`${label}: Player ${s.id} paid ${money(s.amount)}`));
+      ctx.survivors=[...winners];
+      ctx.seen=[...new Set([...(ctx.seen||[]),...(pot.eligible||[])])];
       if(typeof updateVisualStacks==='function') updateVisualStacks();
       if(typeof renderPlayers==='function') renderPlayers();
       const result=$v('payoutResult');
@@ -11291,8 +11641,10 @@ body.v235-live #seatTunerToggle{display:block!important;}
     if(!pots.length){
       const eligible=state.players.filter(p=>!p.folded).map(p=>p.id);
       pots=[{amount:n(state.finalGrossPot??state.pot),net:n(state.finalNetPot??state.pot),eligible,cap:0,index:0}];
+    }else{
+      pots=[...pots].sort((a,b)=>(b.index??0)-(a.index??0));
     }
-    state.v24ManualPayout={pots,index:0,busy:false,splitMode:false,selected:[]};
+    state.v24ManualPayout={pots,index:0,busy:false,splitMode:false,selected:[],survivors:[],seen:[],candidates:[]};
     $v('payoutResult')?.classList.remove('show');
     $v('winnerPanel')?.classList.add('show');
     renderManualStep();
@@ -11326,7 +11678,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
 
 <script id="v24-0-1-dev-navigation-hotfix">
 (function(){
-  window.PDT_DEV_VERSION='24.0.7-dev';
+  window.PDT_DEV_VERSION='24.1.2-dev';
   function ensureModeButtons(){
     document.querySelectorAll('[data-ref-mode]').forEach(function(btn){
       btn.style.pointerEvents='auto';
@@ -11367,7 +11719,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
 }
 </style>
 
-<div id="devBuildMarker" data-build="V24.0.6-LAPTOP" hidden></div>
+<div id="devBuildMarker" data-build="V24.1.2-ROOM-SIDEPOT" hidden></div>
 
 <script id="v24-0-8-audition-lock-live-preview">
 (function(){
@@ -11448,6 +11800,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
   </div>
   <label id="devScenarioRepeatRow"><input id="devScenarioRepeat" type="checkbox"> Repeat the selected scenario on every NEW HAND until cancelled</label>
   <div id="devScenarioStatus">NORMAL HAND GENERATOR ACTIVE.</div>
+  <div id="devSidePotTrainingDebug" style="margin-top:7px;padding:8px;border:1px solid #54462c;border-radius:7px;background:#0b120f;color:#d8cfb6;font-size:9px;line-height:1.45">SIDE POT TRAINING DEBUG WILL APPEAR HERE.</div>
 </div>
 <div id="devScenarioBanner" aria-live="polite"></div>
 
@@ -11455,7 +11808,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 (function(){
   if(window.__pdtDevScenarioLabLoaded) return;
   window.__pdtDevScenarioLabLoaded=true;
-  window.PDT_DEV_VERSION='24.1.1-dev';
+  window.PDT_DEV_VERSION='24.1.2-dev';
 
   const defs={
     side3:{label:'3-WAY ALL-IN • 1 SIDE POT',need:3,stacks:[35,70,120]},
@@ -11619,6 +11972,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
   }
 
   function wire(){
+    updateSidePotTrainingDevDebug();
     $d('devScenarioToggle')?.addEventListener('click',()=>showPanel(!$d('devScenarioPanel')?.classList.contains('open')));
     $d('devScenarioClose')?.addEventListener('click',()=>showPanel(false));
     document.querySelectorAll('[data-dev-scenario]').forEach(btn=>btn.addEventListener('click',()=>arm(btn.dataset.devScenario)));
@@ -11629,5 +11983,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 })();
 </script>
 
+
+<!-- V24.1.3 DEV — Side Pot Training frequency engine + live-room side-pot construction before pull + reverse showdown settlement. -->
 </body>
 </html>
