@@ -5326,7 +5326,7 @@ body.audition-mode .v235-app .table,
           <section><h3>✦ ANIMATIONS</h3><p>Toggle table and UI animations.</p><label class="v235-toggle"><input id="v235AnimationToggle" type="checkbox" checked><span></span> ON</label></section>
           <section><h3>▥ DIFFICULTY LEVEL</h3><p>Affects general scenario complexity.</p><div class="v235-segment" id="v235Difficulty"><button data-value="1">EASY</button><button class="active" data-value="2">MEDIUM</button><button data-value="3">HARD</button><button data-value="4">EXPERT</button></div></section>
           <section><h3>◎ SIDE POT TRAINING</h3><p>Independent of Difficulty. Quietly varies stack depths and all-in pressure so side-pot practice emerges naturally.</p><div class="v235-segment compact" id="v235SidePotTraining"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button class="active" data-value="2">PRACTICE</button><button data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
-          <section id="v235HandReadingSection"><h3>🂡 HAND READING ONLY</h3><p id="v235HandReadingNote">Visual Dealer and Audition only. Deals Flop → Turn → River with no betting and quizzes the best hand on every street.</p><div class="v235-segment" id="v235HandReadingMode"><button class="active" data-value="0">OFF</button><button data-value="1">ON</button></div></section>
+          <section id="v235HandReadingSection"><h3>🂡 HAND READING ONLY</h3><p id="v235HandReadingNote">Visual Dealer and Audition only. No betting. Study the Flop and Turn with every hole card hidden; all active hole cards reveal only after the River is dealt.</p><div class="v235-segment" id="v235HandReadingMode"><button class="active" data-value="0">OFF</button><button data-value="1">ON</button></div></section>
           <section><h3>? QUESTION FREQUENCY</h3><p>How often training questions are asked.</p><div class="v235-segment" id="v235QuestionFrequency"><button data-value="4">LESS OFTEN</button><button class="active" data-value="3">NORMAL</button><button data-value="2">OFTEN</button></div></section>
           <section><h3>◉ STARTING STACK</h3><p>Default chip amount for sessions.</p><select id="v235StartingStack"><option>200</option><option selected>300</option><option>500</option><option>1000</option></select></section>
           <section><h3>♟ DEFAULT PLAYER COUNT</h3><p>Default selection on the player screen.</p><div class="v235-segment compact" id="v235DefaultPlayers"><button>2</button><button>3</button><button>4</button><button class="active">5</button><button>6</button><button>7</button><button>8</button></div></section>
@@ -7674,7 +7674,7 @@ function recordHandReadingAnswer(ok){
 }
 
 function showHandReadingStreetQuestion(){
-  if(!state?.handReadingOnly || state.board.length<3) return;
+  if(!state?.handReadingOnly || state.street!=="River" || state.board.length<5) return;
   revealVisualHoleCards();
   const result=currentHandReadingResult();
   state.handReadingResult=result;
@@ -7703,9 +7703,9 @@ function showHandReadingStreetQuestion(){
   $("showdownDoneWrap").classList.remove("show");
   $("showdownDone").textContent="DONE — CONTINUE";
   $("showdownPanel").classList.add("show");
-  $("actionText").textContent=`HAND READING — ${state.street.toUpperCase()}`;
-  $("instruction").textContent=`No betting. Read every visible hand using the ${state.street.toLowerCase()} board and choose who is ahead right now.`;
-  $("nextUp").textContent=`NEXT UP: READ THE ${state.street.toUpperCase()}`;
+  $("actionText").textContent="HAND READING — RIVER";
+  $("instruction").textContent="The full board is complete and the hole cards are now visible. Choose the final winning hand, or CHOP if tied.";
+  $("nextUp").textContent="NEXT UP: CHOOSE THE WINNER";
 }
 
 function answerHandReadingStreet(choice){
@@ -7741,22 +7741,10 @@ async function advanceHandReadingStreet(){
   $("showdownPanel").classList.remove("show");
   $("showdownDoneWrap").classList.remove("show");
 
-  if(state.street==="Flop"){
-    state.street="Turn";
-    renderPlayers();
-    await animateBoardForStreet("Turn");
-    revealVisualHoleCards();
-    showHandReadingStreetQuestion();
-    return;
-  }
-  if(state.street==="Turn"){
-    state.street="River";
-    renderPlayers();
-    await animateBoardForStreet("River");
-    revealVisualHoleCards();
-    showHandReadingStreetQuestion();
-    return;
-  }
+  // Flop and Turn progression is handled by advanceHandReadingBoard(),
+  // with every hole card face-down. This function completes the drill
+  // only after the River winner question.
+  if(state.street!=="River") return;
 
   state.handActive=false;
   state.showdownComplete=true;
@@ -7767,6 +7755,8 @@ async function advanceHandReadingStreet(){
     ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`
     : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
+  $("nextAction").textContent="NEXT ACTION / DONE";
+  $("nextAction").disabled=false;
   $("streetReady").classList.add("show");
   $("streetReady").innerHTML=`<b>HAND READING REVIEW COMPLETE.</b>${showdownLearningHTML()}`;
   revealVisualHoleCards();
@@ -7787,15 +7777,59 @@ async function runHandReadingOnlyMode(){
     p.lastAction="HAND READING";
     p.pendingAction="";
   });
+
   $("sidePotPanel").classList.remove("show");
   $("dropTrainerNote").textContent="Hand Reading Only — no betting, pot, rake, jackpot, or side-pot workflow.";
   updateDropDisplay(false);
-  revealVisualHoleCards();
+
+  // Hole cards remain face-down through the Flop and Turn.
+  renderVisualHoleCardsForRoom([],[]);
   state.street="Flop";
   renderPlayers();
   await animateBoardForStreet("Flop");
-  revealVisualHoleCards();
-  showHandReadingStreetQuestion();
+  renderVisualHoleCardsForRoom([],[]);
+
+  $("actionText").textContent="HAND READING — FLOP";
+  $("instruction").textContent="Study the Flop and think about the hands and draws this board can create. Every player's hole cards stay hidden until the River is out.";
+  $("nextUp").textContent="NEXT UP: DEAL THE TURN";
+  $("nextAction").textContent="DEAL TURN";
+  $("nextAction").disabled=false;
+}
+
+async function advanceHandReadingBoard(){
+  if(!state?.handReadingOnly || !isVisualLike()) return;
+
+  if(state.street==="Flop"){
+    $("nextAction").disabled=true;
+    state.street="Turn";
+    renderPlayers();
+    await animateBoardForStreet("Turn");
+    renderVisualHoleCardsForRoom([],[]);
+    $("actionText").textContent="HAND READING — TURN";
+    $("instruction").textContent="Study the Turn. Keep reading the board texture and possible made hands/draws. Hole cards are still hidden.";
+    $("nextUp").textContent="NEXT UP: DEAL THE RIVER";
+    $("nextAction").textContent="DEAL RIVER";
+    $("nextAction").disabled=false;
+    return;
+  }
+
+  if(state.street==="Turn"){
+    $("nextAction").disabled=true;
+    state.street="River";
+    renderPlayers();
+    await animateBoardForStreet("River");
+
+    // The River must be fully on the table before any player's cards turn up.
+    await wait(180);
+    revealVisualHoleCards();
+
+    $("nextAction").textContent="NEXT ACTION / DONE";
+    $("actionText").textContent="RIVER COMPLETE — READ THE HANDS";
+    $("instruction").textContent="The River is out. Now all active hole cards are revealed. Read each player's best five-card hand and choose the winner.";
+    $("nextUp").textContent="NEXT UP: CHOOSE THE WINNER";
+    showHandReadingStreetQuestion();
+    return;
+  }
 }
 
 async function runSoloVisualMechanics(){
@@ -8181,7 +8215,12 @@ function commitPendingAction(){
 }
 
 function act(){
-  if(state?.handReadingOnly) return;
+  if(state?.handReadingOnly){
+    if(state.street==="Flop" || state.street==="Turn"){
+      advanceHandReadingBoard();
+    }
+    return;
+  }
   commitPendingAction();
 }
 
@@ -9494,7 +9533,7 @@ renderPlayers();
     section?.classList.toggle("disabled",!allowed);
     document.querySelectorAll("#v235HandReadingMode button").forEach(b=>b.disabled=!allowed);
     if(note) note.textContent=allowed
-      ? "No betting. Read the best hand after the Flop, Turn, and River."
+      ? "No betting. Study the Flop and Turn board first; hole cards reveal only after the River."
       : "Available only after entering Visual Dealer Mode or Audition Mode.";
   }
   function syncSettingsFromEngine(){
@@ -10264,7 +10303,7 @@ renderPlayers();
   window.__v235SeatTunerLoaded=true;
 
   const PROFILE_LAYOUT_DEFAULTS={
-    desktop:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1}},
+    desktop:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":-74,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1}},
     laptop:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}}
   };
   const PROFILE_GLOBAL_DEFAULTS={
@@ -10711,7 +10750,7 @@ renderPlayers();
       exportedSeats[seatNo]=dealerOnly;
     });
     return {
-      layoutVersion:'V24.1.3 DEV — Dual Locked Desktop/Laptop Profiles + Side Pot Training',
+      layoutVersion:'V24.1.6 DEV — Updated Locked Desktop Profile + Laptop Profile + Current Training Features',
       deviceProfile:activeProfile,
       savedAt:new Date().toISOString(),
       seats:exportedSeats,
@@ -12641,6 +12680,6 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </script>
 
 
-<!-- V24.1.5 DEV — Sparse seating + immediate per-pot payouts + Real Table progressive pot building + correct-answer auto-continue + Visual/Audition Hand Reading Only. -->
+<!-- V24.1.6 DEV — Updated locked Desktop coordinates from 2026-09-05 export + River-only Hand Reading reveal + prior training updates. -->
 </body>
 </html>
