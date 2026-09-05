@@ -6284,6 +6284,107 @@ function describeRank(rank){
   return `${rankName(rank[1])}-high`;
 }
 
+/* V1.2 LIVE — FULL BEST-FIVE / KICKER COMPARISON
+   compareRank() compares the entire rank vector from left to right.
+   Therefore players only chop when every best-five comparison value ties. */
+function describeRankDetailed(rank){
+  if(!Array.isArray(rank)||!rank.length) return "No hand";
+  const cat=rank[0];
+  const names=(rank.slice(1).map(rankName));
+  if(cat===8) return `Straight Flush, ${rankName(rank[1])}-high`;
+  if(cat===7) return `Four of a Kind, ${pluralRank(rank[1])} — ${rankName(rank[2])} kicker`;
+  if(cat===6) return `Full House, ${pluralRank(rank[1])} full of ${pluralRank(rank[2])}`;
+  if(cat===5) return `Flush — ${names.join(", ")}`;
+  if(cat===4) return `Straight, ${rankName(rank[1])}-high`;
+  if(cat===3) return `Three of a Kind, ${pluralRank(rank[1])} — kickers ${rankName(rank[2])}, ${rankName(rank[3])}`;
+  if(cat===2) return `Two Pair, ${pluralRank(rank[1])} and ${pluralRank(rank[2])} — ${rankName(rank[3])} kicker`;
+  if(cat===1) return `One Pair, ${pluralRank(rank[1])} — kickers ${rankName(rank[2])}, ${rankName(rank[3])}, ${rankName(rank[4])}`;
+  return `High Card — ${names.join(", ")}`;
+}
+
+function handComparisonReason(winnerRank,otherRank){
+  if(!Array.isArray(winnerRank)||!Array.isArray(otherRank)) return "";
+  if(compareRank(winnerRank,otherRank)===0){
+    return "The complete best five-card hands are identical, so the pot is chopped.";
+  }
+
+  const wc=winnerRank[0], oc=otherRank[0];
+  if(wc!==oc){
+    return `${handName(winnerRank)} beats ${handName(otherRank)}.`;
+  }
+
+  const firstDiff=(()=>{
+    const n=Math.max(winnerRank.length,otherRank.length);
+    for(let i=1;i<n;i++){
+      const a=winnerRank[i]||0,b=otherRank[i]||0;
+      if(a!==b) return i;
+    }
+    return -1;
+  })();
+  if(firstDiff<0) return "The complete best five-card hands are identical, so the pot is chopped.";
+
+  const win=winnerRank[firstDiff]||0;
+  const lose=otherRank[firstDiff]||0;
+
+  if(wc===1){
+    if(firstDiff===1) return `Both hands are one pair; ${pluralRank(win)} beat ${pluralRank(lose)}.`;
+    return `Both players have a pair of ${pluralRank(winnerRank[1])}. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===2){
+    if(firstDiff===1) return `Both hands are two pair; the higher pair, ${pluralRank(win)}, beats ${pluralRank(lose)}.`;
+    if(firstDiff===2) return `The top pair ties, so the second pair decides it: ${pluralRank(win)} beats ${pluralRank(lose)}.`;
+    return `Both two-pair ranks are identical. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===3){
+    if(firstDiff===1) return `Both hands are trips; ${pluralRank(win)} beat ${pluralRank(lose)}.`;
+    return `Both players have three of a kind, ${pluralRank(winnerRank[1])}. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===5){
+    return `Both players have a flush. Compare the flush cards from highest downward: ${rankName(win)} beats ${rankName(lose)} at the first difference.`;
+  }
+  if(wc===7){
+    if(firstDiff===1) return `${pluralRank(win)} beat ${pluralRank(lose)} for four of a kind.`;
+    return `Both players have the same four of a kind. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===0){
+    return `Both players have high-card hands. At the first difference, ${rankName(win)} beats ${rankName(lose)}.`;
+  }
+  if(wc===6){
+    if(firstDiff===1) return `Both hands are full houses; ${pluralRank(win)} full wins over ${pluralRank(lose)} full.`;
+    return `The three-of-a-kind portion ties; ${pluralRank(win)} beat ${pluralRank(lose)} for the pair portion of the full house.`;
+  }
+  if(wc===4 || wc===8){
+    return `${rankName(win)}-high beats ${rankName(lose)}-high.`;
+  }
+  return `${describeRankDetailed(winnerRank)} beats ${describeRankDetailed(otherRank)}.`;
+}
+
+function kickerRuleRegressionChecks(){
+  const checks=[
+    ["Pair of Jacks: Queen kicker beats Seven kicker",
+      compareRank([1,11,12,9,5],[1,11,7,9,5])>0],
+    ["Pair of Jacks: first kicker ties, Nine beats Eight",
+      compareRank([1,11,12,9,5],[1,11,12,8,5])>0],
+    ["Two Pair: kicker decides",
+      compareRank([2,11,9,14],[2,11,9,13])>0],
+    ["Trips: kicker decides",
+      compareRank([3,11,14,9],[3,11,13,9])>0],
+    ["Flush: compare all five ranks",
+      compareRank([5,14,12,9,7,4],[5,14,11,10,7,4])>0],
+    ["Exact same best five is a chop",
+      compareRank([1,11,12,9,5],[1,11,12,9,5])===0]
+  ];
+  const failed=checks.filter(([,ok])=>!ok).map(([name])=>name);
+  if(failed.length){
+    console.error("Poker101Class kicker regression failure:",failed);
+    window.PDT_KICKER_RULES_OK=false;
+  }else{
+    window.PDT_KICKER_RULES_OK=true;
+  }
+  return failed.length===0;
+}
+
+
 function theoreticalNutHand(){
   if(!state || !state.board || state.board.length<3) return null;
 
@@ -7666,7 +7767,7 @@ function handReadingExplanation(result){
     const p=state.players.find(x=>x.id===e.player);
     const i=state.players.indexOf(p);
     const hole=(state.holeCards[i]||[]).map(cardText).join(" ");
-    return `<li><b>Player ${e.player}</b> (${hole}): ${describeRank(e.rank)}</li>`;
+    return `<li><b>Player ${e.player}</b> (${hole}): ${describeRankDetailed(e.rank)}</li>`;
   }).join("");
   const texture=commonBoardHands().slice(0,3).map(x=>`<li>${x}</li>`).join("");
   return `<div style="margin-top:8px"><b>Hand-by-hand check:</b><ol class="detail-steps">${rows}</ol>`+
@@ -7731,8 +7832,8 @@ function answerHandReadingStreet(choice){
   f.className=`showdown-feedback ${correct?"good":"bad"}`;
   const winnerText=actual.length>1?`Players ${actual.join(" & ")} are tied`:`Player ${actual[0]} is ahead`;
   f.innerHTML=(correct
-    ? `<b>Correct.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`
-    : `<b>Incorrect.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`)
+    ? `<b>Correct.</b> ${winnerText} with <b>${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}</b>.`
+    : `<b>Incorrect.</b> ${winnerText} with <b>${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}</b>.`)
     + handReadingExplanation(result);
 
   if(correct){
@@ -7762,8 +7863,8 @@ async function advanceHandReadingStreet(){
   const bestEval=finalResult.evals.find(e=>finalResult.winners.includes(e.player));
   $("actionText").textContent="HAND READING COMPLETE";
   $("instruction").textContent=finalResult.winners.length>1
-    ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`
-    : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`;
+    ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`
+    : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
   $("nextAction").textContent="NEXT ACTION / DONE";
   $("nextAction").disabled=false;
@@ -8757,11 +8858,24 @@ function answerShowdown(choice){
   const choseChop=choice[0]==="CHOP";
   const correct=(choseChop && actual.length>1) || (!choseChop && actual.length===1 && actual[0]===choice[0]);
   const f=$("showdownFeedback");
-  const detail=bestEval ? `${handName(bestEval.rank)} — ${bestEval.cards.map(cardText).join(" ")}` : "";
+  const detail=bestEval ? `${describeRankDetailed(bestEval.rank)} — ${bestEval.cards.map(cardText).join(" ")}` : "";
+  let comparisonHTML="";
+  if(!correct && actual.length===1 && bestEval){
+    const chosenId=Number(choice[0]);
+    const chosenEval=r.evals.find(e=>e.player===chosenId);
+    if(chosenEval){
+      comparisonHTML=`<br><b>Why:</b> ${handComparisonReason(bestEval.rank,chosenEval.rank)}`;
+    }else if(choseChop){
+      const other=r.evals.find(e=>e.player!==actual[0] && (!state.sidePotShowdownMode || (state.roomShowdownCandidates||[]).includes(e.player)));
+      if(other) comparisonHTML=`<br><b>Why this is not a chop:</b> ${handComparisonReason(bestEval.rank,other.rank)}`;
+    }
+  }else if(!correct && actual.length>1){
+    comparisonHTML=`<br><b>Why:</b> The complete best five-card hands are exactly tied, so neither player's unused hole-card kicker can break the tie.`;
+  }
   f.className=`showdown-feedback ${correct?"good":"bad"}`;
   f.innerHTML=(correct
     ? `<b>Correct.</b> ${potLabel}${actual.length>1?`Players ${actual.join(" & ")} chop.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`
-    : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`)
+    : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}${comparisonHTML}`)
     + (state.sidePotShowdownMode?"":showdownLearningHTML());
   if(correct){
     $("showdownDoneWrap").classList.remove("show");
@@ -9637,7 +9751,7 @@ renderPlayers();
       return `<div class="v235-show-player ${winners.has(p.id)?'winner':''}">
         <b>${visualPlayerName(state.players.indexOf(p))}</b>${winners.has(p.id)?'<div class="winflag">WINS</div>':''}
         <div class="seat-hand">${hole.map(c=>cardHTML(c,false,false)).join('')}</div>
-        <div class="hand-name">${describeRank(ev.rank)}</div>
+        <div class="hand-name">${describeRankDetailed(ev.rank)}</div>
       </div>`;
     }).join('');
     const primaryWinner=r.winners?.[0];
@@ -9655,7 +9769,7 @@ renderPlayers();
       <div class="v235-showdown-grid">${playerCards}</div>
       <div class="v235-show-summary"><h4>HAND SUMMARY</h4><dl>
         <dt>WINNER</dt><dd>${r.winners.length>1?`Players ${r.winners.join(' & ')}`:`Player ${primaryWinner}`}</dd>
-        <dt>WINNING HAND</dt><dd>${primaryEval?describeRank(primaryEval.rank):'—'}</dd>
+        <dt>WINNING HAND</dt><dd>${primaryEval?describeRankDetailed(primaryEval.rank):'—'}</dd>
         <dt>NUT HAND</dt><dd>${nuts?describeRank(nuts.rank):'—'}</dd>
         <dt>COMMON MADE HANDS</dt><dd>${common.slice(0,2).join(' • ')||'—'}</dd>
       </dl></div>
@@ -12160,7 +12274,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
 
   /* Keep the version visible in existing status/help text without moving UI elements. */
   function stampVersion(){
-    document.title='Poker Dealer Trainer V24.0 — Live Dealer Logic';
+    document.title='Poker101Class | Poker Dealer Trainer';
     const rules=document.querySelector('#v23RulesPanel .v23-title');
     if(rules) rules.textContent='V24 LIVE DEALER LOGIC';
     const info=$v('structureInfo');
@@ -12253,7 +12367,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
 })();
 </script>
-<!-- Poker101Class V1.2 LIVE — Audition disabled with no Coming Soon overlay. -->
+<!-- Poker101Class V1.2 LIVE — full best-five kicker comparison hardened; Audition disabled with no overlay. -->
 
 <script id="v24-1-8-temp-hand-reading-setting">
 (function(){
@@ -12291,6 +12405,7 @@ account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<se
 (function(){
   try{localStorage.removeItem("pdtDevLayoutProfileOverrideV1");}catch(_){}
   window.PDT_PUBLIC_VERSION="1.2";
+  if(typeof kickerRuleRegressionChecks==="function") kickerRuleRegressionChecks();
 })();
 </script>
 
