@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.1.3 DEV — Side Pot Training Frequency Engine</title>
+<title>Poker Dealer Trainer V24.1.5 DEV — Sparse Seating + Immediate Pot Payouts + Hand Reading</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -5326,6 +5326,7 @@ body.audition-mode .v235-app .table,
           <section><h3>✦ ANIMATIONS</h3><p>Toggle table and UI animations.</p><label class="v235-toggle"><input id="v235AnimationToggle" type="checkbox" checked><span></span> ON</label></section>
           <section><h3>▥ DIFFICULTY LEVEL</h3><p>Affects general scenario complexity.</p><div class="v235-segment" id="v235Difficulty"><button data-value="1">EASY</button><button class="active" data-value="2">MEDIUM</button><button data-value="3">HARD</button><button data-value="4">EXPERT</button></div></section>
           <section><h3>◎ SIDE POT TRAINING</h3><p>Independent of Difficulty. Quietly varies stack depths and all-in pressure so side-pot practice emerges naturally.</p><div class="v235-segment compact" id="v235SidePotTraining"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button class="active" data-value="2">PRACTICE</button><button data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
+          <section id="v235HandReadingSection"><h3>🂡 HAND READING ONLY</h3><p id="v235HandReadingNote">Visual Dealer and Audition only. Deals Flop → Turn → River with no betting and quizzes the best hand on every street.</p><div class="v235-segment" id="v235HandReadingMode"><button class="active" data-value="0">OFF</button><button data-value="1">ON</button></div></section>
           <section><h3>? QUESTION FREQUENCY</h3><p>How often training questions are asked.</p><div class="v235-segment" id="v235QuestionFrequency"><button data-value="4">LESS OFTEN</button><button class="active" data-value="3">NORMAL</button><button data-value="2">OFTEN</button></div></section>
           <section><h3>◉ STARTING STACK</h3><p>Default chip amount for sessions.</p><select id="v235StartingStack"><option>200</option><option selected>300</option><option>500</option><option>1000</option></select></section>
           <section><h3>♟ DEFAULT PLAYER COUNT</h3><p>Default selection on the player screen.</p><div class="v235-segment compact" id="v235DefaultPlayers"><button>2</button><button>3</button><button>4</button><button class="active">5</button><button>6</button><button>7</button><button>8</button></div></section>
@@ -5420,6 +5421,11 @@ body.audition-mode .v235-app .table,
         <option value="2" selected>Level 2 — Practice</option>
         <option value="3">Level 3 — Frequent</option>
         <option value="4">Level 4 — Intensive</option>
+      </select>
+      <label>Hand Reading Only</label>
+      <select id="handReadingMode">
+        <option value="0" selected>Off — Normal Gameplay</option>
+        <option value="1">On — Visual/Audition Street-by-Street Reading</option>
       </select>
       <label>Question Frequency</label>
       <select id="qfreq">
@@ -5620,6 +5626,38 @@ let state = null;
 let sessionStacks = null;
 let sessionButton = null;
 let sessionButtonPlayerCount = null;
+let activeSeatNumbers = [];
+
+function randomSeatAssignment(count,forceNew=false){
+  count=Math.max(1,Math.min(8,Number(count)||5));
+  if(!forceNew && activeSeatNumbers.length===count) return activeSeatNumbers;
+  if(count===8){
+    activeSeatNumbers=[1,2,3,4,5,6,7,8];
+    return activeSeatNumbers;
+  }
+  const seats=[1,2,3,4,5,6,7,8];
+  for(let i=seats.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [seats[i],seats[j]]=[seats[j],seats[i]];
+  }
+  // Keep the selected seats in clockwise table order. The holes are random;
+  // action still advances correctly around the physical 8-seat table.
+  activeSeatNumbers=seats.slice(0,count).sort((a,b)=>a-b);
+  return activeSeatNumbers;
+}
+function activeSeatForIndex(index){
+  return randomSeatAssignment(playerCount(),false)[index] ?? (index+1);
+}
+function playerArrayIndexById(playerId){
+  if(!state?.players) return -1;
+  return state.players.findIndex(p=>p.id===Number(playerId));
+}
+function handReadingRequested(){
+  return String(document.getElementById("handReadingMode")?.value||"0")==="1";
+}
+function handReadingOnlyEnabled(){
+  return handReadingRequested() && (trainingMode==="visual" || trainingMode==="audition");
+}
 
 /* ============================================================
    V24.1.3 DEV — SIDE POT TRAINING FREQUENCY ENGINE
@@ -5782,8 +5820,9 @@ function chooseSidePotTrainingPlan(pc,baseStack,bb){
     const seats=pdtShuffle([...Array(pc).keys()]).slice(0,needed);
     plan.seatIndices=seats;
     plan.stackTargets=pdtTrainingStackTargets(plan.kind,plan.sidePots,plan.targetStreet,baseStack,bb).slice(0,needed);
-    plan.shortIds=seats.slice(0,shortCount).map(i=>i+1);
-    plan.deepIds=seats.slice(shortCount).map(i=>i+1);
+    const tableSeats=randomSeatAssignment(pc,false);
+    plan.shortIds=seats.slice(0,shortCount).map(i=>tableSeats[i] ?? (i+1));
+    plan.deepIds=seats.slice(shortCount).map(i=>tableSeats[i] ?? (i+1));
     plan.participantIds=[...plan.shortIds,...plan.deepIds];
     sidePotTrainingTracker.plannedAnyAllInHands++;
     if(plan.kind==="sidepot") sidePotTrainingTracker.plannedSidePotHands++;
@@ -6353,7 +6392,7 @@ function showdownLearningHTML(){
 function showdownResult(){
   const live=state.players.filter(p=>!p.folded);
   const evals=live.map(p=>{
-    const hole=state.holeCards[p.id-1]||[];
+    const hole=state.holeCards[state.players.indexOf(p)]||[];
     const ev=(selectedGame==="plo"||selectedGame==="bigo")?bestOmaha(hole,state.board):bestHoldem(hole,state.board);
     return {player:p.id,...ev};
   });
@@ -6435,9 +6474,13 @@ function renderVisualSeats(){
   const wrap=$("visualSeats");
   if(!wrap) return;
   wrap.innerHTML="";
+  const tableSeats=randomSeatAssignment(playerCount(),false);
   for(let i=0;i<playerCount();i++){
+    const tableSeat=tableSeats[i] ?? (i+1);
     const seat=document.createElement("div");
-    seat.className=`visual-seat dynamic-seat vpos${i}`;
+    seat.className=`visual-seat dynamic-seat vpos${tableSeat-1}`;
+    seat.dataset.tableSeat=String(tableSeat);
+    seat.dataset.playerIndex=String(i);
     seat.innerHTML=`
       <div class="pro-seat-card poker-chip-nameplate">
         <span class="chip-plate-spade chip-plate-spade-left" aria-hidden="true">♠</span>
@@ -6550,6 +6593,7 @@ function chooseTrainingMode(mode){
 function backToTrainingMode(){
   selectedGame=null;
   trainingMode=null;
+  activeSeatNumbers=[];
   document.body.classList.remove("visual-mode");
   document.body.classList.remove("audition-mode");
   document.body.classList.remove("real-mode");
@@ -6564,7 +6608,11 @@ function backToTrainingMode(){
 
 function choosePlayerCount(count){
   const minPlayers = 2;
+  const priorCount=Number(selectedPlayerCount)||0;
   selectedPlayerCount=Math.max(minPlayers,Math.min(8,Number(count)||5));
+  if(priorCount!==selectedPlayerCount || activeSeatNumbers.length!==selectedPlayerCount){
+    randomSeatAssignment(selectedPlayerCount,true);
+  }
   sessionStacks=null;
   sessionButton=null;
   sessionButtonPlayerCount=null;
@@ -6574,6 +6622,7 @@ function choosePlayerCount(count){
 }
 
 function backFromPlayerCount(){
+  activeSeatNumbers=[];
   $("playerCountScreen").style.display="none";
   $("modeScreen").classList.remove("v235-screen-hidden");
   $("modeScreen").style.display="flex";
@@ -6812,10 +6861,12 @@ function startingChipRack(stack){
 }
 
 function makePlayers(stackOrStacks){
+  const tableSeats=randomSeatAssignment(playerCount(),false);
   return Array.from({length:playerCount()},(_,i)=>{
     const st=Array.isArray(stackOrStacks)?stackOrStacks[i]:stackOrStacks;
     return {
-      id:i+1, stack:st, streetBet:0,total:0,folded:false,allin:false,
+      id:tableSeats[i] ?? (i+1), tableSeat:tableSeats[i] ?? (i+1),
+      stack:st, streetBet:0,total:0,folded:false,allin:false,
       lastAction:"",pendingAction:"",
       actedStreet:false,lastActedBet:0,lastActionKind:"",
       chips:startingChipRack(st)
@@ -6826,8 +6877,10 @@ function makePlayers(stackOrStacks){
 function renderPlayers(){
   const wrap=$("players"); wrap.innerHTML="";
   if(!state){
-    for(let i=1;i<=playerCount();i++){
-      wrap.innerHTML += `<div class="player"><div class="pname">PLAYER ${i}</div><div class="stats">
+    const tableSeats=randomSeatAssignment(playerCount(),false);
+    for(let i=0;i<playerCount();i++){
+      const seatNo=tableSeats[i] ?? (i+1);
+      wrap.innerHTML += `<div class="player"><div class="pname">PLAYER ${seatNo}</div><div class="stats">
         <div class="stat"><span>Stack</span><b>—</b></div>
         <div class="stat"><span>Current bet</span><b>—</b></div>
         <div class="stat"><span>Status</span><b>READY</b></div></div><div class="last-action">No action yet</div></div>`;
@@ -6845,8 +6898,11 @@ function renderPlayers(){
       <div class="marker">${marks.map(m=>`<span class="chipmark">${m}</span>`).join("")}</div>
       <div class="stats">
         <div class="stat"><span>Stack</span><b>${money(p.stack)}</b></div>
-        <div class="stat"><span>Current bet</span><b>${money(p.streetBet)}</b></div>
-        <div class="stat"><span>Total in hand</span><b>${money(p.total)}</b></div>
+        ${state.sidePotBuildDrill?.active
+          ? `<div class="stat"><span>Remaining to build</span><b>${money(Math.max(0,Number(state.sidePotBuildDrill.remainingByPlayer?.[p.id])||0))}</b></div>
+             <div class="stat"><span>Already allocated</span><b>${money(Math.max(0,p.total-(Number(state.sidePotBuildDrill.remainingByPlayer?.[p.id])||0)))}</b></div>`
+          : `<div class="stat"><span>Current bet</span><b>${money(p.streetBet)}</b></div>
+             <div class="stat"><span>Total in hand</span><b>${money(p.total)}</b></div>`}
         <div class="stat"><span>Status</span><b>${p.folded?'FOLDED':p.allin?'ALL-IN':'ACTIVE'}</b></div>
       </div>
       <div class="last-action ${(p.lastAction||p.pendingAction)?'hot':''}">
@@ -6903,7 +6959,11 @@ function startHand(){
   if(!selectedGame){ $("menuScreen").style.display="flex"; return; }
   const sb=+($("sb").value||gameCfg().sb), bb=+($("bb").value||gameCfg().bb), stack=+($("stack").value||gameCfg().stack);
   const pc=playerCount();
-  const sidePotTrainingPlan=chooseSidePotTrainingPlan(pc,stack,bb);
+  randomSeatAssignment(pc,false);
+  const readingOnly=handReadingOnlyEnabled();
+  const sidePotTrainingPlan=readingOnly
+    ? {level:0,levelName:"OFF",kind:"normal",sidePots:0,targetStreet:null,shortIds:[],deepIds:[],participantIds:[],seatIndices:[],stackTargets:[],forcedByGap:false,actualRecorded:false}
+    : chooseSidePotTrainingPlan(pc,stack,bb);
   let button;
   if(sessionButtonPlayerCount!==pc || !Number.isInteger(sessionButton) || sessionButton<0 || sessionButton>=pc){
     button=Math.floor(Math.random()*pc);
@@ -6939,22 +6999,29 @@ function startHand(){
   }
   applySidePotTrainingStacks(sidePotTrainingPlan,sessionStacks,stack,bb);
   let players=makePlayers(sessionStacks);
-  if(pc===1){
-    post(players[sbPos],Math.min(bb,players[sbPos].stack));
-  }else{
-    post(players[sbPos],sb);
-    post(players[bbPos],bb);
-  }
-  if(pc===1){
-    players[button].lastAction=`SOLO DEALER MECHANICS • POSTS ${money(Math.min(bb,stack))}`;
-  }else{
-    players[sbPos].lastAction=`POSTS SB ${money(sb)}`;
-    players[bbPos].lastAction=`POSTS BB ${money(bb)}`;
+  if(!readingOnly){
+    if(pc===1){
+      post(players[sbPos],Math.min(bb,players[sbPos].stack));
+    }else{
+      post(players[sbPos],sb);
+      post(players[bbPos],bb);
+    }
+    if(pc===1){
+      players[button].lastAction=`SOLO DEALER MECHANICS • POSTS ${money(Math.min(bb,stack))}`;
+    }else{
+      players[sbPos].lastAction=`POSTS SB ${money(sb)}`;
+      players[bbPos].lastAction=`POSTS BB ${money(bb)}`;
+    }
   }
   state={
     sb,bb,players,button,sbPos,bbPos,
-    street:"Preflop",pot:0,currentBet:bb,lastFullRaise:(gameCfg().mode==="LIMIT"?gameCfg().smallBet:bb),
+    street:"Preflop",pot:0,currentBet:(readingOnly?0:bb),lastFullRaise:(gameCfg().mode==="LIMIT"?gameCfg().smallBet:bb),
     toAct:(pc===2 ? button : (bbPos+1)%pc), actions:0, handActive:true,
+    handReadingOnly:readingOnly,
+    handReadingWrongPending:false,
+    handReadingResult:null,
+    immediatePaidPotIndices:[],
+    immediatePayoutLog:[],
     potRevealsLeft:2,potVisible:false,potLockedVisible:false,
     dropProgress:{
       rakeMaxed:false,
@@ -7001,14 +7068,20 @@ function startHand(){
   $("dealerAlert").textContent="—";
   $("dealerAlert").classList.remove("dealer-alert-hot");
   updateDropDisplay(false);
-  $("actionText").textContent="Preparing first action...";
-  $("instruction").textContent=pc===1
-    ? "Solo mechanics mode: practice pitching, burns, board procedure and hand reading."
-    : `Blinds posted: Player ${players[sbPos].id} ${money(sb)} • Player ${players[bbPos].id} ${money(bb)}`;
-  $("revealNote").textContent="Pot stays hidden. You have 2 reveal checks for this hand.";
+  $("actionText").textContent=readingOnly?"HAND READING ONLY — DEALING":"Preparing first action...";
+  $("instruction").textContent=readingOnly
+    ? "No betting in this hand. You will read the best hand after the Flop, Turn, and River."
+    : pc===1
+      ? "Solo mechanics mode: practice pitching, burns, board procedure and hand reading."
+      : `Blinds posted: Player ${players[sbPos].id} ${money(sb)} • Player ${players[bbPos].id} ${money(bb)}`;
+  $("revealNote").textContent=readingOnly
+    ? "Hand Reading Only: betting, pot, rake, and side-pot questions are bypassed."
+    : "Pot stays hidden. You have 2 reveal checks for this hand.";
   hideChipPull();
-  if(pc===1){
-    log(`Solo mechanics hand • Player 1 has the button`);
+  if(readingOnly){
+    log(`Hand Reading Only • Active seats: ${players.map(p=>p.id).join(", ")}`);
+  }else if(pc===1){
+    log(`Solo mechanics hand • Player ${players[0].id} has the button`);
   }else{
     log(`Button: Player ${players[button].id} • SB: Player ${players[sbPos].id} ${money(sb)} • BB: Player ${players[bbPos].id} ${money(bb)}`);
   }
@@ -7017,7 +7090,9 @@ function startHand(){
 
   if(isVisualLike()){
     animateHoleDeal().then(()=>{
-      if(playerCount()===1){
+      if(readingOnly){
+        runHandReadingOnlyMode();
+      }else if(playerCount()===1){
         runSoloVisualMechanics();
       }else{
         maybeAskActionOrderQuestion(()=>prepareCurrentAction());
@@ -7295,6 +7370,7 @@ function applySidePotBuildLayer(pot,index,pots){
   }catch(e){}
 
   updateVisualBets();
+  renderPlayers();
   renderSidePotBuildProgress();
 
   $("streetReady").classList.add("show");
@@ -7560,6 +7636,167 @@ function askQuestion(title,meta,correct,type,onDone=null){
   $("answer").focus();
 }
 
+
+function currentHandReadingResult(){
+  if(!state || !state.board || state.board.length<3) return {winners:[],evals:[]};
+  const evals=state.players.map((p,i)=>{
+    const hole=state.holeCards[i]||[];
+    const ev=bestHoldem(hole,state.board);
+    return {player:p.id,...ev};
+  }).filter(e=>Array.isArray(e.rank));
+  if(!evals.length) return {winners:[],evals:[]};
+  let best=evals[0].rank;
+  evals.forEach(e=>{if(compareRank(e.rank,best)>0) best=e.rank;});
+  return {winners:evals.filter(e=>compareRank(e.rank,best)===0).map(e=>e.player),evals,best};
+}
+
+function handReadingExplanation(result){
+  const winnerSet=new Set(result.winners||[]);
+  const rows=(result.evals||[]).map(e=>{
+    const p=state.players.find(x=>x.id===e.player);
+    const i=state.players.indexOf(p);
+    const hole=(state.holeCards[i]||[]).map(cardText).join(" ");
+    return `<li><b>Player ${e.player}</b> (${hole}): ${describeRank(e.rank)}</li>`;
+  }).join("");
+  const texture=commonBoardHands().slice(0,3).map(x=>`<li>${x}</li>`).join("");
+  return `<div style="margin-top:8px"><b>Hand-by-hand check:</b><ol class="detail-steps">${rows}</ol>`+
+    `<b>Board texture:</b><ul class="detail-steps">${texture}</ul></div>`;
+}
+
+function recordHandReadingAnswer(ok){
+  stats.q++;
+  if(ok) stats.c++;
+  if(trainingMode==="audition" && !ok) auditionStats.mistakes++;
+  $("qs").textContent=stats.q;
+  $("correct").textContent=stats.c;
+  $("accuracy").textContent=stats.q?Math.round(stats.c/stats.q*100)+"%":"—";
+  updateAuditionDisplay();
+}
+
+function showHandReadingStreetQuestion(){
+  if(!state?.handReadingOnly || state.board.length<3) return;
+  revealVisualHoleCards();
+  const result=currentHandReadingResult();
+  state.handReadingResult=result;
+  state.handReadingWrongPending=false;
+
+  const choices=$("showdownChoices");
+  choices.innerHTML="";
+  state.players.forEach(p=>{
+    const b=document.createElement("button");
+    b.className="winner-choice";
+    b.textContent=`PLAYER ${p.id}`;
+    b.onclick=()=>answerHandReadingStreet([p.id]);
+    choices.appendChild(b);
+  });
+  if(state.players.length>1){
+    const chop=document.createElement("button");
+    chop.className="winner-choice";
+    chop.textContent="CHOP";
+    chop.onclick=()=>answerHandReadingStreet(["CHOP"]);
+    choices.appendChild(chop);
+  }
+
+  renderRoomShowdownCards(state.players.map(p=>p.id));
+  $("showdownFeedback").className="showdown-feedback";
+  $("showdownFeedback").innerHTML="";
+  $("showdownDoneWrap").classList.remove("show");
+  $("showdownDone").textContent="DONE — CONTINUE";
+  $("showdownPanel").classList.add("show");
+  $("actionText").textContent=`HAND READING — ${state.street.toUpperCase()}`;
+  $("instruction").textContent=`No betting. Read every visible hand using the ${state.street.toLowerCase()} board and choose who is ahead right now.`;
+  $("nextUp").textContent=`NEXT UP: READ THE ${state.street.toUpperCase()}`;
+}
+
+function answerHandReadingStreet(choice){
+  const result=state?.handReadingResult;
+  if(!result) return;
+  const actual=result.winners||[];
+  const choseChop=choice[0]==="CHOP";
+  const correct=(choseChop && actual.length>1) || (!choseChop && actual.length===1 && Number(choice[0])===actual[0]);
+  recordHandReadingAnswer(correct);
+
+  const bestEval=result.evals.find(e=>actual.includes(e.player));
+  const f=$("showdownFeedback");
+  f.className=`showdown-feedback ${correct?"good":"bad"}`;
+  const winnerText=actual.length>1?`Players ${actual.join(" & ")} are tied`:`Player ${actual[0]} is ahead`;
+  f.innerHTML=(correct
+    ? `<b>Correct.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`
+    : `<b>Incorrect.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`)
+    + handReadingExplanation(result);
+
+  if(correct){
+    $("showdownDoneWrap").classList.remove("show");
+    state.handReadingWrongPending=false;
+    setTimeout(()=>advanceHandReadingStreet(),650);
+  }else{
+    state.handReadingWrongPending=true;
+    $("showdownDoneWrap").classList.add("show");
+  }
+}
+
+async function advanceHandReadingStreet(){
+  if(!state?.handReadingOnly) return;
+  state.handReadingWrongPending=false;
+  $("showdownPanel").classList.remove("show");
+  $("showdownDoneWrap").classList.remove("show");
+
+  if(state.street==="Flop"){
+    state.street="Turn";
+    renderPlayers();
+    await animateBoardForStreet("Turn");
+    revealVisualHoleCards();
+    showHandReadingStreetQuestion();
+    return;
+  }
+  if(state.street==="Turn"){
+    state.street="River";
+    renderPlayers();
+    await animateBoardForStreet("River");
+    revealVisualHoleCards();
+    showHandReadingStreetQuestion();
+    return;
+  }
+
+  state.handActive=false;
+  state.showdownComplete=true;
+  const finalResult=currentHandReadingResult();
+  const bestEval=finalResult.evals.find(e=>finalResult.winners.includes(e.player));
+  $("actionText").textContent="HAND READING COMPLETE";
+  $("instruction").textContent=finalResult.winners.length>1
+    ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`
+    : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`;
+  $("nextUp").textContent="NEXT UP: START NEW HAND";
+  $("streetReady").classList.add("show");
+  $("streetReady").innerHTML=`<b>HAND READING REVIEW COMPLETE.</b>${showdownLearningHTML()}`;
+  revealVisualHoleCards();
+  renderPlayers();
+  sessionStacks=state.players.map(p=>p.stack);
+  if(trainingMode==="audition"){ auditionStats.hands++; updateAuditionDisplay(); }
+}
+
+async function runHandReadingOnlyMode(){
+  if(!state || !state.handReadingOnly || !isVisualLike()) return;
+  state.currentBet=0;
+  state.pot=0;
+  state.players.forEach(p=>{
+    p.streetBet=0;
+    p.total=0;
+    p.folded=false;
+    p.allin=false;
+    p.lastAction="HAND READING";
+    p.pendingAction="";
+  });
+  $("sidePotPanel").classList.remove("show");
+  $("dropTrainerNote").textContent="Hand Reading Only — no betting, pot, rake, jackpot, or side-pot workflow.";
+  updateDropDisplay(false);
+  revealVisualHoleCards();
+  state.street="Flop";
+  renderPlayers();
+  await animateBoardForStreet("Flop");
+  revealVisualHoleCards();
+  showHandReadingStreetQuestion();
+}
 
 async function runSoloVisualMechanics(){
   if(!state || !isVisualLike()) return;
@@ -7944,6 +8181,7 @@ function commitPendingAction(){
 }
 
 function act(){
+  if(state?.handReadingOnly) return;
   commitPendingAction();
 }
 
@@ -8448,8 +8686,9 @@ function renderSidePotShowdownQuestion(){
     const id=candidates[0];
     state.roomPendingPotWinners=[id];
     $("showdownFeedback").className="showdown-feedback good";
-    $("showdownFeedback").innerHTML=`<b>${label} is uncontested at this stage.</b> Player ${id} is the only remaining eligible hand.`;
-    $("showdownDoneWrap").classList.add("show");
+    $("showdownFeedback").innerHTML=`<b>${label} is uncontested at this stage.</b> Player ${id} is the only remaining eligible hand. Paying it now.`;
+    $("showdownDoneWrap").classList.remove("show");
+    setTimeout(()=>closeVisualShowdown(),520);
   }
 }
 
@@ -8475,7 +8714,70 @@ function answerShowdown(choice){
     ? `<b>Correct.</b> ${potLabel}${actual.length>1?`Players ${actual.join(" & ")} chop.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`
     : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`)
     + (state.sidePotShowdownMode?"":showdownLearningHTML());
-  $("showdownDoneWrap").classList.add("show");
+  if(correct){
+    $("showdownDoneWrap").classList.remove("show");
+    setTimeout(()=>closeVisualShowdown(),520);
+  }else{
+    $("showdownDoneWrap").classList.add("show");
+  }
+}
+
+function oddChipPayOrder(winners){
+  winners=(winners||[]).map(Number);
+  const ordered=[];
+  if(!state || !winners.length) return winners;
+  let seat=state.button;
+  for(let c=0;c<playerCount();c++){
+    seat=(seat+1)%playerCount();
+    const id=state.players[seat]?.id;
+    if(winners.includes(id)) ordered.push(id);
+  }
+  return ordered.length?ordered:winners;
+}
+
+function creditOnePotImmediately(pot,winners){
+  if(!state || !pot || !winners?.length || !(Number(pot.net)>0)) return;
+  const key=Number.isInteger(pot.index)?pot.index:(pot.index??0);
+  state.immediatePaidPotIndices=state.immediatePaidPotIndices||[];
+  if(state.immediatePaidPotIndices.includes(key)) return;
+
+  const amount=Number(pot.net)||0;
+  const base=Math.floor(amount/winners.length);
+  let remainder=amount-base*winners.length;
+  const payOrder=oddChipPayOrder(winners);
+  payOrder.forEach((id,idx)=>{
+    const p=state.players.find(x=>x.id===id);
+    if(p) p.stack+=base+(idx===0?remainder:0);
+  });
+
+  state.immediatePaidPotIndices.push(key);
+  const label=sidePotName(key);
+  const line=`${label} ${money(amount)} → ${winners.length>1?`Players ${winners.join(" & ")} (CHOP)`:`Player ${winners[0]}`}`;
+  state.immediatePayoutLog=state.immediatePayoutLog||[];
+  state.immediatePayoutLog.push(line);
+  log(`${line} • PAID IMMEDIATELY`);
+  sessionStacks=state.players.map(p=>p.stack);
+  updateVisualStacks();
+  renderPlayers();
+}
+
+function payVisualPotImmediately(pot,winners,onDone){
+  if(!pot || !winners?.length){onDone?.();return;}
+  const finish=()=>{
+    creditOnePotImmediately(pot,winners);
+    onDone?.();
+  };
+  try{
+    if(typeof window.__pass46AnimatePotToPlayers==="function"){
+      $("actionText").textContent=`PUSHING ${sidePotName(pot.index??0)} TO ${winners.length>1?"WINNERS":`PLAYER ${winners[0]}`}`;
+      $("instruction").textContent=winners.length>1
+        ? `${sidePotName(pot.index??0)} is being split and paid now to Players ${winners.join(" & ")}.`
+        : `${sidePotName(pot.index??0)} is being paid now to Player ${winners[0]}.`;
+      window.__pass46AnimatePotToPlayers(winners,finish);
+      return;
+    }
+  }catch(e){}
+  finish();
 }
 
 function autoPayVisualShowdown(){
@@ -8496,7 +8798,9 @@ function autoPayVisualShowdown(){
     }
     payoutLog.push(winners.length===1?`Player ${winners[0]} wins ${money(award)}`:`Pot chopped`);
   }else{
+    const paidNow=new Set((state.immediatePaidPotIndices||[]).map(Number));
     [...allPots].sort((a,b)=>(b.index??0)-(a.index??0)).forEach((pot,displayIndex)=>{
+      if(paidNow.has(Number(pot.index??displayIndex))) return;
       const eligibleEvals=pot.eligible.map(id=>evalMap.get(id)).filter(Boolean);
       if(!eligibleEvals.length || pot.net<=0) return;
       let best=eligibleEvals[0].rank; eligibleEvals.forEach(e=>{if(compareRank(e.rank,best)>0) best=e.rank;});
@@ -8516,12 +8820,21 @@ function autoPayVisualShowdown(){
   updateVisualStacks(); renderSidePots(true);
   $("winnerPanel").classList.remove("show"); $("payoutResult").classList.remove("show");
   $("actionText").textContent="SHOWDOWN COMPLETE — POT(S) PAID";
-  $("instruction").innerHTML=`Correct eligible winners have been paid in side-pot-first order.<br>${payoutLog.join(" • ")}`;
+  const allPayoutLines=[...(state.immediatePayoutLog||[]),...payoutLog];
+  $("instruction").innerHTML=`Correct eligible winners have been paid in side-pot-first order.<br>${allPayoutLines.join(" • ")}`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
   payoutLog.forEach(x=>log(x)); renderPlayers();
 }
 
 function closeVisualShowdown(){
+  if(state?.handReadingOnly){
+    if(state.handReadingWrongPending){
+      state.handReadingWrongPending=false;
+      advanceHandReadingStreet();
+    }
+    return;
+  }
+
   if(isVisualLike() && state?.sidePotShowdownMode){
     const idx=state.sidePotShowdownIndex||0;
     const pot=state.sidePotShowdownPots[idx];
@@ -8533,10 +8846,24 @@ function closeVisualShowdown(){
     state.roomShowdownSeen=[...new Set([...(state.roomShowdownSeen||[]),...((pot?.eligible)||[])])];
     state.roomShowdownMucked=[...new Set([...(state.roomShowdownMucked||[]),...losers])];
     state.roomPendingPotWinners=[];
-    const next=idx+1;
-    if(next<state.sidePotShowdownPots.length){ state.sidePotShowdownIndex=next; renderSidePotShowdownQuestion(); return; }
-    $("showdownPanel").classList.remove("show"); autoPayVisualShowdown(); state.pendingShowdownContinue=null; return;
+
+    const continueAfterPay=()=>{
+      const next=idx+1;
+      if(next<state.sidePotShowdownPots.length){
+        state.sidePotShowdownIndex=next;
+        const center=document.getElementById("centerPotWrap");
+        if(center) center.classList.remove("pot-paid");
+        renderSidePotShowdownQuestion();
+        return;
+      }
+      $("showdownPanel").classList.remove("show");
+      autoPayVisualShowdown();
+      state.pendingShowdownContinue=null;
+    };
+    payVisualPotImmediately(pot,winners,continueAfterPay);
+    return;
   }
+
   $("showdownPanel").classList.remove("show");
   if(isVisualLike()){ autoPayVisualShowdown(); if(state) state.pendingShowdownContinue=null; return; }
   const cb=state?.pendingShowdownContinue; if(state) state.pendingShowdownContinue=null; if(typeof cb==="function") cb();
@@ -8559,6 +8886,7 @@ function showWinnerSelection(){
     state.manualPotIndex=null;
   }else{
     state.manualPotIndex=0;
+    state.manualPotSequence=[...pots].sort((a,b)=>(b.index??0)-(a.index??0));
     renderManualSidePotWinnerChoices();
   }
 
@@ -8568,7 +8896,7 @@ function showWinnerSelection(){
 
 function renderManualSidePotWinnerChoices(){
   const wrap=$("winnerButtons");
-  const pots=sidePotAwardsBeforeDrop();
+  const pots=state.manualPotSequence || [...sidePotAwardsBeforeDrop()].sort((a,b)=>(b.index??0)-(a.index??0));
   const idx=state.manualPotIndex||0;
   if(idx>=pots.length){
     state.winnerPaid=true;
@@ -8582,7 +8910,8 @@ function renderManualSidePotWinnerChoices(){
   }
 
   const pot=pots[idx];
-  wrap.innerHTML=`<div style="width:100%;margin-bottom:8px"><b>${sidePotName(idx)} • ${money(pot.net)}</b><div class="tiny">Choose the winner eligible for this pot.</div></div>`;
+  const potOriginalIndex=Number.isInteger(pot.index)?pot.index:idx;
+  wrap.innerHTML=`<div style="width:100%;margin-bottom:8px"><b>${sidePotName(potOriginalIndex)} • ${money(pot.net)}</b><div class="tiny">Choose the winner. This pot is paid immediately before moving to the next pot.</div></div>`;
   pot.eligible.forEach(id=>{
     const b=document.createElement("button");
     b.className="winner-btn";
@@ -8593,16 +8922,21 @@ function renderManualSidePotWinnerChoices(){
 }
 
 function awardManualSidePot(playerId){
-  const pots=sidePotAwardsBeforeDrop();
+  const pots=state.manualPotSequence || [...sidePotAwardsBeforeDrop()].sort((a,b)=>(b.index??0)-(a.index??0));
   const idx=state.manualPotIndex||0;
   const pot=pots[idx];
   if(!pot || !pot.eligible.includes(playerId)) return;
   const p=state.players.find(x=>x.id===playerId);
   if(!p) return;
   p.stack+=pot.net;
-  log(`${sidePotName(idx)} paid to Player ${playerId}`);
+  sessionStacks=state.players.map(x=>x.stack);
+  const originalIndex=Number.isInteger(pot.index)?pot.index:idx;
+  log(`${sidePotName(originalIndex)} ${money(pot.net)} paid immediately to Player ${playerId}`);
+  $("payoutResult").classList.add("show");
+  $("payoutResult").innerHTML=`<b>${sidePotName(originalIndex)} PAID NOW.</b><br>Player ${playerId} receives <b>${money(pot.net)}</b>.<br>New stack: <b>${money(p.stack)}</b>.`;
   state.manualPotIndex=idx+1;
   updateVisualStacks();
+  renderPlayers();
   renderManualSidePotWinnerChoices();
 }
 
@@ -8817,7 +9151,20 @@ function submit(){
   }
 
   awaitingFeedbackDone=true;
-  $("feedbackActions").classList.add("show");
+  if(ok){
+    // Correct answers never require an extra DONE click. Keep a short visual
+    // confirmation, then invoke the same continuation path automatically.
+    $("feedbackActions").classList.remove("show");
+    setTimeout(()=>{
+      if(awaitingFeedbackDone && waitingQuestion){
+        if(typeof window.closeQuestionAndContinue==="function") window.closeQuestionAndContinue();
+        else closeQuestionAndContinue();
+      }
+    },380);
+  }else{
+    // Wrong answers stop the drill so the detailed explanation can be read.
+    $("feedbackActions").classList.add("show");
+  }
 }
 
 $("newHand").onclick=startHand;
@@ -8915,7 +9262,7 @@ function resetSession(showMenu=false){
   renderPlayers();
   if(showMenu) $("menuScreen").style.display="flex";
 }
-$("resetAll").onclick=()=>{ sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; resetSidePotTrainingTracker(); resetSession(false); };
+$("resetAll").onclick=()=>{ sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; activeSeatNumbers=[]; resetSidePotTrainingTracker(); resetSession(false); };
 $("backMenu").onclick=()=>{
   sessionStacks=null;
   sessionButton=null;
@@ -9040,7 +9387,9 @@ renderPlayers();
     };
     for(const [id,v] of Object.entries(vals)){const el=document.getElementById(id);if(el)el.textContent=v}
     document.querySelectorAll('.visual-seat.dynamic-seat').forEach((seat,idx)=>{
-      const label=seat.querySelector('.seat-label'); if(label) label.dataset.seat=String(idx+1);
+      const label=seat.querySelector('.seat-label');
+      const seatNo=Number(seat.dataset.tableSeat)||Number((seat.className.match(/vpos(\d+)/)||[])[1])+1||idx+1;
+      if(label) label.dataset.seat=String(seatNo);
     });
   }
   const observer=new MutationObserver(syncRail);
@@ -9055,7 +9404,7 @@ renderPlayers();
   document.getElementById('v235Hint')?.addEventListener('click',()=>{const ac=document.getElementById('askCorner');if(ac){ac.classList.add('show');ac.scrollIntoView({behavior:'smooth',block:'nearest'})}});
 
   function goHome(){
-    sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; resetSession(false); selectedGame=null; trainingMode=null; document.body.classList.remove('visual-mode','audition-mode','real-mode','template3-shared-mode','v235-live');
+    sessionStacks=null; sessionButton=null; sessionButtonPlayerCount=null; activeSeatNumbers=[]; resetSession(false); selectedGame=null; trainingMode=null; document.body.classList.remove('visual-mode','audition-mode','real-mode','template3-shared-mode','v235-live');
     document.getElementById('playerCountScreen').style.display='none'; document.getElementById('menuScreen').style.display='none'; document.getElementById('modeScreen').classList.remove('v235-screen-hidden'); document.getElementById('modeScreen').style.display='flex'; closePanels();
   }
   document.getElementById('backMenu').onclick=goHome;
@@ -9132,11 +9481,27 @@ renderPlayers();
     if(savedSidePotLevel!==null && document.getElementById('sidePotTraining')){
       document.getElementById('sidePotTraining').value=String(Math.max(0,Math.min(4,Number(savedSidePotLevel))));
     }
+    const savedHandReading=window.localStorage?.getItem('pdtHandReadingOnlyV1');
+    if(savedHandReading!==null && document.getElementById('handReadingMode')){
+      document.getElementById('handReadingMode').value=String(Number(savedHandReading)?1:0);
+    }
   }catch(e){}
   function markSegment(root,value){document.querySelectorAll(`#${root} button`).forEach(b=>b.classList.toggle('active',String(b.dataset.value||b.textContent.trim())===String(value)))}
+  function syncHandReadingAvailability(){
+    const allowed=trainingMode==="visual" || trainingMode==="audition";
+    const section=document.getElementById("v235HandReadingSection");
+    const note=document.getElementById("v235HandReadingNote");
+    section?.classList.toggle("disabled",!allowed);
+    document.querySelectorAll("#v235HandReadingMode button").forEach(b=>b.disabled=!allowed);
+    if(note) note.textContent=allowed
+      ? "No betting. Read the best hand after the Flop, Turn, and River."
+      : "Available only after entering Visual Dealer Mode or Audition Mode.";
+  }
   function syncSettingsFromEngine(){
     markSegment('v235Difficulty',document.getElementById('difficulty').value);
     markSegment('v235SidePotTraining',document.getElementById('sidePotTraining')?.value||'2');
+    markSegment('v235HandReadingMode',document.getElementById('handReadingMode')?.value||'0');
+    syncHandReadingAvailability();
     markSegment('v235QuestionFrequency',document.getElementById('qfreq').value);
     const ss=document.getElementById('v235StartingStack'); if(ss)ss.value=String(document.getElementById('stack').value);
     document.querySelectorAll('#v235DefaultPlayers button').forEach(b=>b.classList.toggle('active',Number(b.textContent.trim())===selectedCount));
@@ -9154,6 +9519,19 @@ renderPlayers();
     try{window.localStorage?.setItem('pdtSidePotTrainingLevelV1',v);}catch(err){}
     markSegment('v235SidePotTraining',v);
     resetSidePotTrainingTracker();
+  });
+  document.querySelectorAll('#v235HandReadingMode button').forEach(b=>b.addEventListener('click',()=>{
+    if(!(trainingMode==="visual"||trainingMode==="audition")) return;
+    const v=String(Number(b.dataset.value||0)?1:0);
+    const engine=document.getElementById("handReadingMode");
+    if(engine) engine.value=v;
+    try{window.localStorage?.setItem("pdtHandReadingOnlyV1",v);}catch(e){}
+    markSegment("v235HandReadingMode",v);
+  }));
+  document.getElementById("handReadingMode")?.addEventListener("change",e=>{
+    const v=String(Number(e.target.value||0)?1:0);
+    try{window.localStorage?.setItem("pdtHandReadingOnlyV1",v);}catch(err){}
+    markSegment("v235HandReadingMode",v);
   });
   document.querySelectorAll('#v235QuestionFrequency button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('qfreq').value=b.dataset.value;markSegment('v235QuestionFrequency',b.dataset.value)}));
   document.getElementById('v235StartingStack')?.addEventListener('change',e=>{document.getElementById('stack').value=e.target.value});
@@ -9206,9 +9584,9 @@ renderPlayers();
     const live=state.players.filter(p=>!p.folded && evalMap.has(p.id));
     const playerCards=live.map(p=>{
       const ev=evalMap.get(p.id);
-      const hole=state.holeCards[p.id-1]||[];
+      const hole=state.holeCards[state.players.indexOf(p)]||[];
       return `<div class="v235-show-player ${winners.has(p.id)?'winner':''}">
-        <b>${visualPlayerName(p.id-1)}</b>${winners.has(p.id)?'<div class="winflag">WINS</div>':''}
+        <b>${visualPlayerName(state.players.indexOf(p))}</b>${winners.has(p.id)?'<div class="winflag">WINS</div>':''}
         <div class="seat-hand">${hole.map(c=>cardHTML(c,false,false)).join('')}</div>
         <div class="hand-name">${describeRank(ev.rank)}</div>
       </div>`;
@@ -11107,8 +11485,9 @@ body.v235-live #v235Rail{
   }
 
   function winnerTarget(playerId){
-    const idx=Number(playerId)-1;
-    const target=$(`vlabel${idx}`)?.closest('.pro-seat-card') || document.querySelector(`#visualSeats .vpos${idx}`);
+    const idx=state?.players?.findIndex(p=>p.id===Number(playerId)) ?? -1;
+    const tableSeat=idx>=0 ? (state.players[idx].tableSeat||state.players[idx].id) : Number(playerId);
+    const target=(idx>=0?$(`vlabel${idx}`)?.closest('.pro-seat-card'):null) || document.querySelector(`#visualSeats .vpos${Math.max(0,Number(tableSeat)-1)}`);
     const r=target?.getBoundingClientRect();
     return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
   }
@@ -11207,7 +11586,9 @@ body.v235-live #v235Rail{
   if(typeof originalAutoPay==='function'){
     window.autoPayVisualShowdown=function(){
       if(payoutBusy||state?.winnerPaid) return;
-      const args=arguments,ctx=this,plan=payoutPlan();
+      const args=arguments,ctx=this;
+      if(state?.sidePotShowdownMode) return originalAutoPay.apply(ctx,args);
+      const plan=payoutPlan();
       if(!plan.length) return originalAutoPay.apply(ctx,args);
       payoutBusy=true;
       animatePayoutPlan(plan,()=>{
@@ -11478,7 +11859,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
       main.appendChild(sec);return sec;
     };
     const general=make('general','GENERAL SETTINGS','Core session defaults.');
-    const training=make('training','TRAINING SETTINGS','Control general difficulty, side-pot frequency, question frequency and hints.');
+    const training=make('training','TRAINING SETTINGS','Control difficulty, side-pot frequency, hand-reading focus, question frequency and hints.');
     const table=make('table','TABLE SETTINGS','Your shared Template 3 table layout and chip configuration.');
     const audition=make('audition','AUDITION SETTINGS','Controls and information specific to audition practice.');
     const audio=make('audio','AUDIO SETTINGS','Sound preferences for the trainer.');
@@ -11490,7 +11871,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
       sections.filter(s=>words.some(w=>(s.querySelector('h3')?.textContent||'').toUpperCase().includes(w))).forEach(s=>dest.appendChild(s));
     }
     moveMatch(general,['STARTING STACK','DEFAULT PLAYER COUNT']);
-    moveMatch(training,['DIFFICULTY','SIDE POT TRAINING','QUESTION FREQUENCY','HINTS']);
+    moveMatch(training,['DIFFICULTY','SIDE POT TRAINING','HAND READING ONLY','QUESTION FREQUENCY','HINTS']);
     moveMatch(table,['CHIP SET']);
     moveMatch(audition,['AUDITION TIMER']);
     moveMatch(audio,['SOUND EFFECTS']);
@@ -12177,7 +12558,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 
       const normalStack=Number($d('stack')?.value)||300;
       sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
-      ctl.run={active:true,key:requested,label:def.label,participants:Array.from({length:def.need},(_,i)=>i+1),stacks:[...def.stacks]};
+      ctl.run={active:true,key:requested,label:def.label,participants:randomSeatAssignment(pc,false).slice(0,def.need),stacks:[...def.stacks]};
       ctl.lastWasScenario=true;
       banner(`DEV TEST • ${def.label}`);
       status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. Complete the hand and verify pot amounts, eligibility and payouts.`);
@@ -12222,7 +12603,7 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 
     const normalStack=Number($d('stack')?.value)||300;
     sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
-    ctl.run={active:true,key:requested,label:def.label,participants:Array.from({length:def.need},(_,i)=>i+1),stacks:[...def.stacks]};
+    ctl.run={active:true,key:requested,label:def.label,participants:randomSeatAssignment(pc,false).slice(0,def.need),stacks:[...def.stacks]};
     ctl.lastWasScenario=true;
     banner(`DEV TEST • ${def.label}`);
     status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. This hand is forced immediately.`);
@@ -12260,6 +12641,6 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </script>
 
 
-<!-- V24.1.4 DEV — Progressive Main/Side Pot construction + Side Pot Training + locked Desktop/Laptop profiles. -->
+<!-- V24.1.5 DEV — Sparse seating + immediate per-pot payouts + Real Table progressive pot building + correct-answer auto-continue + Visual/Audition Hand Reading Only. -->
 </body>
 </html>
