@@ -9565,7 +9565,16 @@ renderPlayers();
 <div id="seatTunerPanel" aria-hidden="true">
   <div class="seat-tuner-head">
     <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER — LAPTOP PROFILE</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
-    <div class="seat-tuner-help">Editing the LAPTOP profile. X: smaller = left, larger = right. Y: smaller = up, larger = down. Position/rotation controls are per seat. All resize controls are global.</div>
+    <div class="seat-tuner-help">Desktop and Laptop use separate locked profiles.</div>
+    <div style="display:flex;gap:7px;align-items:center;margin:8px 0 3px;flex-wrap:wrap">
+      <span style="font-size:9px;color:#b6c0ba;font-weight:800;letter-spacing:.6px">DEV PROFILE</span>
+      <select id="devLayoutProfileSelect" style="width:auto;min-width:170px;padding:6px 8px;font-size:10px">
+        <option value="auto">AUTO — SCREEN SIZE</option>
+        <option value="desktop">FORCE DESKTOP</option>
+        <option value="laptop">FORCE LAPTOP</option>
+      </select>
+      <span id="devLayoutProfileStatus" style="font-size:9px;color:#e4c77e"></span>
+    </div>
     <div class="seat-tuner-seats" id="seatTunerSeatButtons"></div>
   </div>
   <div class="seat-tuner-body">
@@ -9719,20 +9728,86 @@ renderPlayers();
   if(window.__v235SeatTunerLoaded) return;
   window.__v235SeatTunerLoaded=true;
 
-  const STORAGE_KEY='v235-seat-layout-laptop-v24-0-8';
-  const GLOBAL_STORAGE_KEY='v235-seat-layout-global-laptop-v24-0-8';
-  const SCENE_STORAGE_KEY='v235-scene-layout-laptop-v24-0-8';
+  const PROFILE_LAYOUT_DEFAULTS={
+    desktop:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":60,"cardsRot":0,"betX":0,"betY":105,"betRot":0,"dX":54,"dY":95,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-78,"cardsY":50,"cardsRot":17,"betX":-41.6,"betY":93,"betRot":17,"dX":-95,"dY":82,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-150,"cardsY":-17,"cardsRot":76,"betX":-157,"betY":-4,"betRot":0,"dX":-125,"dY":45,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-98,"cardsY":-105,"cardsRot":-23,"betX":-69.7,"betY":-140,"betRot":-23,"dX":-109,"dY":-114,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-116,"cardsRot":0,"betX":0.3,"betY":-155,"betRot":0,"dX":-45,"dY":-142,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":10,"cardsY":-109,"cardsRot":23,"betX":76,"betY":-145,"betRot":23,"dX":35,"dY":-150,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":58,"cardsY":-22,"cardsRot":105,"betX":164.6,"betY":-10,"betRot":0,"dX":152,"dY":-54,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-21,"cardsY":51,"cardsRot":-16,"betX":43.3,"betY":93,"betRot":-16,"dX":0,"dY":109,"dRot":-42,"dScale":1}},
+    laptop:{"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}}
+  };
+  const PROFILE_GLOBAL_DEFAULTS={
+    desktop:{"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.75,"markerScale":0.7,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":1,"plateEdgeSize":4,"plateNameSize":13,"plateMoneySize":13,"holeCardScale":1},
+    laptop:{"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.55,"markerScale":0.49,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":0.6}
+  };
+  const PROFILE_SCENE_DEFAULTS={
+    desktop:{"flopX":-44,"flopY":-58,"flopRot":0,"turnX":42,"turnY":-58,"turnRot":0,"riverX":85,"riverY":-58,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.71,"burnVisible":false,"flopGap":5,"centerPotX":0,"centerPotY":0,"centerPotScale":1,"blindsBoxX":0,"blindsBoxY":0,"blindsBoxScale":0.9,"auditionLockX":64.7,"auditionLockY":44.2,"auditionLockW":26.3,"auditionLockH":35.8,"auditionLockOpacity":42,"auditionBadgeX":50,"auditionBadgeY":50,"auditionBadgeScale":1},
+    laptop:{"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73,"auditionLockX":64.7,"auditionLockY":44.2,"auditionLockW":26.3,"auditionLockH":35.8,"auditionLockOpacity":42,"auditionBadgeX":50,"auditionBadgeY":50,"auditionBadgeScale":1}
+  };
+  const PROFILE_STORAGE_VERSION='v24-1-3-dual-locked-v1';
+  let activeProfile=null;
+  let STORAGE_KEY='',GLOBAL_STORAGE_KEY='',SCENE_STORAGE_KEY='';
   let selectedSeat=1;
   let baseline={};
-  const USER_LAYOUT_DEFAULTS={"1":{"seatX":49.5,"seatY":24,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-45,"cardsY":32,"cardsRot":0,"betX":2,"betY":61,"betRot":0,"dX":30,"dY":64,"dRot":0,"dScale":1},"2":{"seatX":72,"seatY":27,"nameplateRot":15,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-70,"cardsY":26,"cardsRot":17,"betX":-32,"betY":52,"betRot":19,"dX":0,"dY":62,"dRot":0,"dScale":1},"3":{"seatX":85.5,"seatY":47.5,"nameplateRot":74,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-110,"cardsY":-16,"cardsRot":76,"betX":-100,"betY":-13,"betRot":0,"dX":-77,"dY":22,"dRot":0,"dScale":1},"4":{"seatX":76.5,"seatY":71.5,"nameplateRot":-21,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-69,"cardsY":-73,"cardsRot":-29,"betX":-35,"betY":-95,"betRot":-29,"dX":-61,"dY":-76,"dRot":0,"dScale":1},"5":{"seatX":50,"seatY":75.5,"nameplateRot":0,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-48,"cardsY":-76,"cardsRot":0,"betX":0,"betY":-101,"betRot":0,"dX":-30,"dY":-91,"dRot":0,"dScale":0.85},"6":{"seatX":23,"seatY":72,"nameplateRot":24,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-17,"cardsY":-72,"cardsRot":25,"betX":45,"betY":-94,"betRot":26,"dX":16,"dY":-94,"dRot":0,"dScale":1},"7":{"seatX":14,"seatY":48,"nameplateRot":-71,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":14,"cardsY":-23,"cardsRot":107,"betX":101,"betY":-14,"betRot":0,"dX":94,"dY":-33,"dRot":0,"dScale":1},"8":{"seatX":28,"seatY":27,"nameplateRot":-17,"chairX":0,"chairY":0,"chairScale":1,"chairRot":0,"cardsX":-26,"cardsY":25,"cardsRot":-16,"betX":30,"betY":54,"betRot":-16,"dX":56,"dY":42,"dRot":-42,"dScale":1}};
-  let layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
+  let USER_LAYOUT_DEFAULTS={};
+  let GLOBAL_DEFAULTS={};
+  let SCENE_DEFAULTS={};
+  let layout={};
   let initialized=false;
   let dirty=false;
-  const GLOBAL_DEFAULTS={"moneyX":0,"moneyY":2,"moneyRot":0,"circleX":0,"circleY":0,"circleRot":0,"betScale":0.55,"markerScale":0.49,"plateBgX":0,"plateBgY":0,"plateBgScaleX":1,"plateBgScaleY":1,"plateBgRot":0,"plateScale":0.62,"plateEdgeSize":5,"plateNameSize":14,"plateMoneySize":13,"holeCardScale":0.6};
-  let globalLayout={...GLOBAL_DEFAULTS};
-  const SCENE_DEFAULTS={"flopX":-44,"flopY":-40,"flopRot":0,"turnX":16,"turnY":-40,"turnRot":0,"riverX":46,"riverY":-40,"riverRot":0,"burnX":104,"burnY":5,"burnRot":0,"communityScale":0.46,"burnVisible":false,"flopGap":5,"centerPotX":-9,"centerPotY":0,"centerPotScale":0.71,"blindsBoxX":39,"blindsBoxY":71,"blindsBoxScale":0.73,"auditionLockX":64.7,"auditionLockY":44.2,"auditionLockW":26.3,"auditionLockH":35.8,"auditionLockOpacity":42,"auditionBadgeX":50,"auditionBadgeY":50,"auditionBadgeScale":1};
-  let sceneLayout={...SCENE_DEFAULTS};
+  let globalLayout={};
+  let sceneLayout={};
+
+  function automaticLayoutProfile(){
+    const w=Math.max(0,window.innerWidth||document.documentElement.clientWidth||0);
+    const h=Math.max(0,window.innerHeight||document.documentElement.clientHeight||0);
+    // Desktop profile is the approved large-screen layout. Laptop is the
+    // approved compact layout. Mobile still has no proper profile.
+    return (w>=1500 && h>=820)?'desktop':'laptop';
+  }
+  function selectedLayoutProfile(){
+    try{
+      const forced=localStorage.getItem('pdtDevLayoutProfileOverrideV1');
+      if(forced==='desktop'||forced==='laptop') return forced;
+    }catch(e){}
+    return automaticLayoutProfile();
+  }
+  function profileStorageKeys(profile){
+    return {
+      seat:`v235-seat-layout-${profile}-${PROFILE_STORAGE_VERSION}`,
+      global:`v235-seat-layout-global-${profile}-${PROFILE_STORAGE_VERSION}`,
+      scene:`v235-scene-layout-${profile}-${PROFILE_STORAGE_VERSION}`
+    };
+  }
+  function updateProfileLabels(){
+    const name=activeProfile==='desktop'?'DESKTOP':'LAPTOP';
+    const title=document.querySelector('.seat-tuner-title strong');
+    if(title) title.textContent=`SEAT LAYOUT TUNER — ${name} PROFILE`;
+    const help=document.querySelector('.seat-tuner-head .seat-tuner-help');
+    if(help) help.textContent=`Editing the ${name} profile only. Desktop and Laptop coordinates are stored separately.`;
+    const resizeTitle=document.querySelector('#globalResizeSection h4');
+    if(resizeTitle) resizeTitle.textContent=`GLOBAL RESIZE CONTROLS — ${name} PROFILE`;
+    const reset=document.getElementById('stGlobalResizeReset');
+    if(reset) reset.textContent=`RESET GLOBAL SIZES TO ${name} DEFAULTS`;
+    document.body.dataset.pdtLayoutProfile=activeProfile||'';
+  }
+  function loadProfile(profile,applyNow=true){
+    if(profile!=='desktop'&&profile!=='laptop') profile='desktop';
+    activeProfile=profile;
+    const keys=profileStorageKeys(profile);
+    STORAGE_KEY=keys.seat; GLOBAL_STORAGE_KEY=keys.global; SCENE_STORAGE_KEY=keys.scene;
+    USER_LAYOUT_DEFAULTS=JSON.parse(JSON.stringify(PROFILE_LAYOUT_DEFAULTS[profile]));
+    GLOBAL_DEFAULTS={...PROFILE_GLOBAL_DEFAULTS[profile]};
+    SCENE_DEFAULTS={...PROFILE_SCENE_DEFAULTS[profile]};
+    layout=JSON.parse(JSON.stringify(USER_LAYOUT_DEFAULTS));
+    globalLayout={...GLOBAL_DEFAULTS};
+    sceneLayout={...SCENE_DEFAULTS};
+    baseline={};
+    initialized=false;
+    updateProfileLabels();
+    if(applyNow) initialize();
+  }
+  window.__pdtGetActiveSceneLayout=()=>sceneLayout;
+  // Backward-compatible alias used elsewhere in this DEV file.
   window.__pdtGetLaptopSceneLayout=()=>sceneLayout;
+  window.__pdtGetLayoutProfile=()=>activeProfile;
+
 
   const $id=id=>document.getElementById(id);
   const fields=['seatX','seatY','nameplateRot','chairX','chairY','chairScale','chairRot','cardsX','cardsY','cardsRot','betX','betY','betRot','dX','dY','dRot'];
@@ -10101,8 +10176,8 @@ renderPlayers();
       exportedSeats[seatNo]=dealerOnly;
     });
     return {
-      layoutVersion:'V24.0.9 DEV — Final Audition Lock Coordinates',
-      deviceProfile:'laptop',
+      layoutVersion:'V24.1.3 DEV — Dual Locked Desktop/Laptop Profiles + Side Pot Training',
+      deviceProfile:activeProfile,
       savedAt:new Date().toISOString(),
       seats:exportedSeats,
       globalNameplateElements:globalLayout,
@@ -10166,7 +10241,33 @@ renderPlayers();
   }
 
   function wire(){
+    if(!activeProfile) loadProfile(selectedLayoutProfile(),false);
+    updateProfileLabels();
     initButtons();
+    const profileSelect=$id('devLayoutProfileSelect');
+    if(profileSelect){
+      let forced=null;
+      try{forced=localStorage.getItem('pdtDevLayoutProfileOverrideV1');}catch(e){}
+      profileSelect.value=(forced==='desktop'||forced==='laptop')?forced:'auto';
+      const paintProfileStatus=()=>{
+        const s=$id('devLayoutProfileStatus');
+        if(s) s.textContent=`ACTIVE: ${(activeProfile||selectedLayoutProfile()).toUpperCase()}`;
+      };
+      paintProfileStatus();
+      profileSelect.addEventListener('change',()=>{
+        const v=profileSelect.value;
+        try{
+          if(v==='desktop'||v==='laptop') localStorage.setItem('pdtDevLayoutProfileOverrideV1',v);
+          else localStorage.removeItem('pdtDevLayoutProfileOverrideV1');
+        }catch(e){}
+        const next=(v==='desktop'||v==='laptop')?v:automaticLayoutProfile();
+        if(next!==activeProfile) loadProfile(next,true);
+        else applyAll();
+        paintProfileStatus();
+      });
+      window.addEventListener('resize',paintProfileStatus);
+    }
+
     $id('seatTunerToggle').onclick=()=>showPanel(!$id('seatTunerPanel').classList.contains('open'));
     $id('seatTunerClose').onclick=()=>showPanel(false);
     fields.forEach(k=>{const el=$id(ids[k]);if(el){el.addEventListener('input',readFields);el.addEventListener('change',readFields);}});
@@ -10209,12 +10310,13 @@ renderPlayers();
       sceneLayout.centerPotY=SCENE_DEFAULTS.centerPotY||0;
       sceneLayout.centerPotScale=SCENE_DEFAULTS.centerPotScale||1;
       applyAll(); writeGlobalFields(); writeSceneFields(); dirty=true;
-      status('Global visual sizes reset to the current Laptop profile defaults.');
+      status(`Global visual sizes reset to the locked ${activeProfile.toUpperCase()} defaults.`);
     };
     $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
     $id('seatTunerResetAll').onclick=()=>{
       if(!initialized)return;
-      layout=copyObj(baseline);
+      layout=copyObj(USER_LAYOUT_DEFAULTS);
+      baseline={};
       globalLayout={...GLOBAL_DEFAULTS};
       sceneLayout={...SCENE_DEFAULTS};
       applyAll();writeFields();dirty=true;
@@ -10241,6 +10343,23 @@ renderPlayers();
     // Initial capture may need a moment because mode/player-count setup can render seats later.
     let attempts=0;
     const timer=setInterval(()=>{attempts++;if(initialize()||attempts>40)clearInterval(timer);},150);
+
+    let profileResizeTimer=null;
+    window.addEventListener('resize',()=>{
+      clearTimeout(profileResizeTimer);
+      profileResizeTimer=setTimeout(()=>{
+        let forced=null;
+        try{forced=localStorage.getItem('pdtDevLayoutProfileOverrideV1');}catch(e){}
+        if(forced==='desktop'||forced==='laptop'){
+          if(forced!==activeProfile) loadProfile(forced,true);
+          else requestAnimationFrame(applyAll);
+          return;
+        }
+        const next=automaticLayoutProfile();
+        if(next!==activeProfile) loadProfile(next,true);
+        else requestAnimationFrame(applyAll);
+      },180);
+    });
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
@@ -11984,6 +12103,6 @@ body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,b
 </script>
 
 
-<!-- V24.1.3 DEV — Side Pot Training frequency engine + live-room side-pot construction before pull + reverse showdown settlement. -->
+<!-- V24.1.3 DEV — Side Pot Training + separate locked Desktop/Laptop layout profiles + live-room side-pot procedure. -->
 </body>
 </html>
