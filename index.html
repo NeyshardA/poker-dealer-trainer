@@ -1,9 +1,10 @@
+<!-- Poker101Class V1.2 LIVE — PLO short-all-in fix: no $145->$150 staircase; exact call amount; class full-raise target stays anchored ($125->$145 => raise to $250). -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poker Dealer Trainer V24.1.5 DEV — Sparse Seating + Immediate Pot Payouts + Hand Reading</title>
+<title>Poker101Class | Poker Dealer Trainer</title>
 <style>
   :root{
     --bg:#0b0f0e;
@@ -1844,6 +1845,56 @@ body.v235-no-motion *,body.v235-no-motion *:before,body.v235-no-motion *:after{a
   border-top:1px solid #534525!important;padding-top:22px!important;
   font:500 25px Georgia,"Times New Roman",serif!important;color:#dfb865!important;letter-spacing:2px!important
 }
+.v235-count-game-picker{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+  width:min(760px,82%)!important;
+  border-top:1px solid #534525!important;
+  padding-top:18px!important;
+}
+.v235-count-game-choice{
+  min-height:82px;
+  border:1px solid #6d5b34;
+  border-radius:9px;
+  background:linear-gradient(180deg,#0c1a16,#08110e);
+  color:#c9cec9;
+  padding:10px 14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  cursor:pointer;
+  font-family:Arial,sans-serif;
+}
+.v235-count-game-choice b{
+  color:#f2eee4;
+  font:600 16px Georgia,"Times New Roman",serif;
+  letter-spacing:1px;
+}
+.v235-count-game-choice small{
+  color:#aeb6b0;
+  font-size:10px;
+  letter-spacing:1px;
+}
+.v235-count-game-choice .v235-count-game-stakes{
+  color:#dfb865;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.7px;
+}
+.v235-count-game-choice.selected{
+  border-color:#ffd26c;
+  box-shadow:0 0 0 2px #c9993f,0 0 18px rgba(255,205,91,.35);
+  background:linear-gradient(180deg,#0d563b,#082c22);
+}
+.v235-count-game-choice.selected small{color:#efd487;}
+@media(max-width:760px){
+  .v235-count-game-picker{grid-template-columns:1fr!important;width:90%!important;}
+  .v235-count-game-choice{min-height:68px;}
+}
+
 .v235-start-session{
   width:470px!important;height:62px!important;margin:22px auto 0!important;
   border:1px solid #e2be6a!important;border-radius:6px!important;
@@ -4641,60 +4692,6 @@ body.visual-mode .action,body.audition-mode .action,.v235-app .nextup,.v235-app 
   body.visual-mode .v235-app .table,body.audition-mode .v235-app .table,.v235-app .table{width:84%!important;height:500px!important;min-height:500px!important}
 }
 </style>
-
-
-<style id="v235-seat-tuner-style">
-/* PASS 24 — Seat Layout Tuner (presentation-only) */
-#seatTunerToggle{
-  position:fixed;right:14px;top:88px;z-index:20050;
-  height:38px;padding:0 16px;border-radius:999px;
-  border:1px solid #b88b3e;background:linear-gradient(180deg,#17201d,#080d0c);
-  color:#f1cf70;font:800 12px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.38)
-}
-#seatTunerToggle:hover{filter:brightness(1.12)}
-#seatTunerPanel{
-  position:fixed;right:14px;top:136px;z-index:20049;width:370px;
-  max-height:calc(100vh - 154px);overflow:auto;display:none;
-  color:#f6f2e8;background:linear-gradient(180deg,rgba(12,18,17,.985),rgba(5,9,9,.99));
-  border:1px solid #8d6b31;border-radius:15px;box-shadow:0 20px 48px rgba(0,0,0,.58);
-  font-family:Arial,Helvetica,sans-serif
-}
-#seatTunerPanel.open{display:block}
-.seat-tuner-head{position:sticky;top:0;z-index:2;padding:14px 15px 12px;background:rgba(7,12,12,.98);border-bottom:1px solid #5c4724}
-.seat-tuner-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.seat-tuner-title strong{color:#e7c66c;font-size:14px;letter-spacing:.7px}
-.seat-tuner-close{width:29px;height:29px;border-radius:50%;border:1px solid #675027;background:#111817;color:#eac96f;cursor:pointer;font-weight:900}
-.seat-tuner-help{margin-top:6px;color:#aab6b0;font-size:10px;line-height:1.35}
-.seat-tuner-seats{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}
-.seat-tuner-seat-btn{height:31px;border-radius:8px;border:1px solid #3c4a45;background:#0c1211;color:#d8dfdb;cursor:pointer;font-weight:900}
-.seat-tuner-seat-btn.active{border-color:#d1a64e;background:#2b2212;color:#f5d574;box-shadow:inset 0 0 0 1px rgba(255,220,125,.18)}
-.seat-tuner-body{padding:12px 14px 15px}
-.seat-tuner-section{padding:11px 0 12px;border-bottom:1px solid #28332f}
-.seat-tuner-section:last-of-type{border-bottom:0}
-.seat-tuner-section h4{margin:0 0 9px;color:#dcb85c;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-.seat-tuner-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.seat-tuner-field{display:grid;grid-template-columns:1fr 83px;align-items:center;gap:7px;padding:6px 7px;border:1px solid #273530;border-radius:9px;background:#08100e}
-.seat-tuner-field label{margin:0;color:#c5cfca;font-size:10px;line-height:1.2}
-.seat-tuner-field input{width:83px!important;height:31px!important;margin:0!important;padding:5px 7px!important;border:1px solid #45534d!important;border-radius:7px!important;background:#050908!important;color:#fff!important;text-align:right!important;font-size:12px!important}
-.seat-tuner-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
-.seat-tuner-actions button{min-height:37px;border-radius:9px;border:1px solid #45534c;background:#121a17;color:#f2eee2;font-weight:800;font-size:10px;cursor:pointer;letter-spacing:.35px}
-.seat-tuner-actions button.primary{border-color:#bd9142;background:linear-gradient(180deg,#dfbd67,#aa7d31);color:#171006}
-.seat-tuner-actions button.warn{border-color:#7c5231;background:#2a1810;color:#f0c7a7}
-#seatTunerStatus{margin-top:10px;min-height:17px;color:#9ecf93;font-size:10px;text-align:center}
-.seat-tuner-highlight .pro-seat-card{box-shadow:0 0 0 2px #f0c95e,0 0 25px rgba(235,195,75,.38),0 9px 17px rgba(0,0,0,.5)!important}
-.casino-chair.seat-tuner-highlight{filter:drop-shadow(0 0 9px rgba(239,198,81,.78)) drop-shadow(0 17px 15px rgba(0,0,0,.7))!important}
-@media(max-width:700px){#seatTunerPanel{width:calc(100vw - 20px);right:10px;top:128px}.seat-tuner-grid{grid-template-columns:1fr}#seatTunerToggle{right:10px}}
-</style>
-
-
-<style id="pass27-seat-tuner-click-fix">
-#seatTunerPanel,#seatTunerPanel *{pointer-events:auto!important}
-.seat-tuner-seats{position:relative!important;z-index:20!important}
-.seat-tuner-seat-btn{position:relative!important;z-index:21!important;touch-action:manipulation!important;user-select:none!important}
-</style>
-
-
 <style id="template3-dark-luxury-pass29">
 /* TEMPLATE 3 — DARK LUXURY MASTER ROOM */
 .v235-table-layout>.main{
@@ -5181,14 +5178,70 @@ body.audition-mode .v235-app .table,
   font-size:var(--chip-money-size,16px)!important;
 }
 </style>
+<meta name="poker101class-version" content="1.2">
 
-
-<style id="v24-0-8-dev-audition-lock-preview">
-/* DEV ONLY — Public Audition Coming Soon overlay preview. Pointer events stay off so Audition remains testable. */
-#devAuditionComingSoon{position:absolute!important;z-index:39!important;left:63%!important;top:44.2%!important;width:26.3%!important;height:35.8%!important;border-radius:14px!important;background:rgba(72,76,76,.42)!important;backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;-webkit-backdrop-filter:grayscale(1) saturate(0) brightness(.62)!important;border:1px solid rgba(185,185,185,.35)!important;pointer-events:none!important;}
-#devAuditionComingSoon span{position:absolute!important;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:50% 50%;display:inline-block!important;white-space:nowrap!important;padding:10px 16px!important;border-radius:999px!important;background:rgba(4,7,7,.88)!important;border:1px solid rgba(218,194,126,.65)!important;color:#e9d39a!important;font:900 13px/1 Arial,sans-serif!important;letter-spacing:1.8px!important;text-shadow:0 1px 2px #000!important;}
-#auditionLockTunerSection{border-color:#8d6b31!important;}
+<style id="pdt-v1-2-audition-disabled-only">
+/* V1.2 PUBLIC — Audition is disabled for now; no overlay is shown. */
+[data-ref-mode="audition"],
+.v235-mode-card[data-mode="audition"],
+#auditionMode,
+#v235AuditionMode {
+  pointer-events:none !important;
+}
 </style>
+
+
+<style id="pdt-pot-drill-no-chip-visuals">
+/* POT DRILLS ONLY — numbers first. Normal gameplay is unchanged. */
+body.pot-drill-only .v235-app .visual-bet.show::before{
+  display:none!important;
+  content:none!important;
+}
+body.pot-drill-only .v235-app .visual-bet.show,
+body.pot-drill-only .v235-app .visual-bet.show.pot-drill-bet{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:74px!important;
+  padding:7px 11px!important;
+  gap:0!important;
+  border:1px solid rgba(214,174,79,.72)!important;
+  border-radius:8px!important;
+  background:rgba(4,10,8,.94)!important;
+  color:#fff8df!important;
+  font:900 15px/1 Arial,Helvetica,sans-serif!important;
+  letter-spacing:.25px!important;
+  box-shadow:0 5px 11px rgba(0,0,0,.48)!important;
+  white-space:nowrap!important;
+}
+body.pot-drill-only .v235-app .visual-bet.show.pot-drill-allin{
+  min-width:116px!important;
+  color:#ffd2bd!important;
+  border-color:rgba(206,92,58,.88)!important;
+  background:rgba(42,12,7,.94)!important;
+}
+
+/* No decorative or animated chips anywhere on the felt during money-only drills. */
+body.pot-drill-only #centerPotWrap .center-pot-chips,
+body.pot-drill-only #centerPotChips,
+body.pot-drill-only #potFlightLayer,
+body.pot-drill-only #pass46ChipAnimLayer,
+body.pot-drill-only .pass46-flying-chip,
+body.pot-drill-only .pot-flight-chip,
+body.pot-drill-only .pot-chip{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+}
+
+/* Keep the hidden-pot training behavior: do not expose the center-pot dollar amount. */
+body.pot-drill-only #centerPotWrap .center-pot-amount{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+}
+</style>
+
 </head>
 <body>
 
@@ -5205,8 +5258,8 @@ body.audition-mode .v235-app .table,
     <!-- Functional mode SELECT zones. -->
     <button class="ref-hotspot mode-real" type="button" aria-label="Select Real Table Mode" data-ref-mode="real" onclick="chooseTrainingMode('real')"></button>
     <button class="ref-hotspot mode-visual" type="button" aria-label="Select Visual Dealer Mode" data-ref-mode="visual" onclick="chooseTrainingMode('visual')"></button>
-    <button class="ref-hotspot mode-audition" type="button" aria-label="Select Audition Mode" data-ref-mode="audition" onclick="chooseTrainingMode('audition')"></button>
-    <div id="devAuditionComingSoon" aria-hidden="true"><span>COMING SOON...</span></div>
+    <button class="ref-hotspot mode-audition" type="button" aria-label="Audition Mode — Coming Soon" data-ref-mode="audition" aria-disabled="true" disabled></button>
+    
 
     <!-- Dynamic game/player panel. This is real HTML so it can change later. -->
     <div class="ref-dynamic-game-panel" id="refDynamicGamePanel">
@@ -5236,10 +5289,21 @@ body.audition-mode .v235-app .table,
       <button class="count-btn" data-player-count="7">7<span>PLAYERS</span></button>
       <button class="count-btn" data-player-count="8">8<span>PLAYERS</span></button>
     </div>
-    <div class="v235-count-game">♠ &nbsp; $1/$2 NO-LIMIT HOLD’EM</div>
+    <div class="v235-count-game v235-count-game-picker" id="v235CountGamePicker" aria-label="Choose training game">
+      <button type="button" class="v235-count-game-choice selected" data-count-game="nlh" aria-pressed="true">
+        <span class="v235-count-game-stakes">$1 / $2</span>
+        <b>NO-LIMIT HOLD’EM</b>
+        <small>NLH</small>
+      </button>
+      <button type="button" class="v235-count-game-choice" data-count-game="plo" aria-pressed="false">
+        <span class="v235-count-game-stakes">$1 / $2 • $5 BRING-IN</span>
+        <b>POT-LIMIT OMAHA</b>
+        <small>PLO POT MATH</small>
+      </button>
+    </div>
     <button class="btn primary v235-start-session" id="startSessionFromCount">START SESSION</button>
     <button class="v235-count-back-bottom" id="v235CountBackBottom">← &nbsp; BACK TO MENU</button>
-    <div class="menu-foot">V23.5 DESIGN BUILD • $1/$2 NLH CORE</div>
+    <div class="menu-foot">V1.2 LIVE • $1/$2 NLH + $1/$2 PLO</div>
   </div>
 </div>
 
@@ -5254,14 +5318,19 @@ body.audition-mode .v235-app .table,
         <span class="setup-chip" id="setupPlayersChip">PLAYERS: —</span>
       </div>
     </div>
-    <div class="game-grid v23-single-game">
+    <div class="game-grid">
       <button class="game-card" data-game="nlh">
-        <div class="stakes">$1 / $2</div><h3>No-Limit Hold'em — V23 Core</h3>
-        <p>NLH-only development build: full/short raises, betting re-opening, side pots, action order, all-ins, pot tracking, rake/jackpot and TDA procedure.</p>
-        <span class="type">NLH CORE ONLY</span>
+        <div class="stakes">$1 / $2</div><h3>No-Limit Hold'em</h3>
+        <p>Full/short raises, betting re-opening, side pots, action order, all-ins, pot tracking, rake/jackpot and dealer procedure.</p>
+        <span class="type">NLH</span>
+      </button>
+      <button class="game-card" data-game="plo">
+        <div class="stakes">$1 / $2 • $5 BRING-IN</div><h3>Pot-Limit Omaha</h3>
+        <p>Four-card Omaha with aggressive POT declarations, live pot-math drills, high-number betting rounds, all-ins and side-pot construction.</p>
+        <span class="type">PLO POT MATH</span>
       </button>
     </div>
-    <div class="menu-foot"><b>V23:</b> Other games are temporarily removed until the $1/$2 NLH trainer is complete.</div>
+    <div class="menu-foot"><b>LIVE TRAINING:</b> $1/$2 NLH + $1/$2 PLO with the class $5 bring-in profile.</div>
   </div>
 </div>
 
@@ -5324,8 +5393,11 @@ body.audition-mode .v235-app .table,
         <div class="v235-settings-grid">
           <section><h3>🔊 SOUND EFFECTS</h3><p>UI preference for the future website build.</p><label class="v235-toggle"><input id="v235SoundToggle" type="checkbox" checked><span></span> ON</label></section>
           <section><h3>✦ ANIMATIONS</h3><p>Toggle table and UI animations.</p><label class="v235-toggle"><input id="v235AnimationToggle" type="checkbox" checked><span></span> ON</label></section>
+          <section><h3>♠ TRAINING GAME</h3><p>Choose the live game profile. Switching games resets the current session so the correct betting rules and hole-card count load cleanly.</p><div class="v235-segment" id="v235TrainingGame"><button class="active" data-value="nlh">$1/$2 NLH</button><button data-value="plo">$1/$2 PLO</button></div></section>
           <section><h3>▥ DIFFICULTY LEVEL</h3><p>Affects general scenario complexity.</p><div class="v235-segment" id="v235Difficulty"><button data-value="1">EASY</button><button class="active" data-value="2">MEDIUM</button><button data-value="3">HARD</button><button data-value="4">EXPERT</button></div></section>
-          <section><h3>◎ SIDE POT TRAINING</h3><p>Independent of Difficulty. Quietly varies stack depths and all-in pressure so side-pot practice emerges naturally.</p><div class="v235-segment compact" id="v235SidePotTraining"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button class="active" data-value="2">PRACTICE</button><button data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
+          <section><h3>◉ PLO POT AGGRESSION</h3><p>PLO only. Controls how often a player says <b>POT</b>. Every POT declaration hides the answer and quizzes the legal total wager before chips are revealed. <b>Room rules:</b> PLO wager totals play in <b>$5 increments</b>; $1-$4 scraps do not play toward a wager (example: $17 plays as $15). Preflop, the $1+$2 blinds are $3 real chips but line up/count as $5 for POT math. A short all-in changes the call amount but does not move the already-established full-raise target; e.g. $125 → all-in $145 means call $145 or full raise to $250.</p><div class="v235-segment compact" id="v235PloPotAggression"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button data-value="2">PRACTICE</button><button class="active" data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
+          <section><h3>◎ POT DRILLS ONLY — NO CARDS</h3><p>Money-only practice for Real Table or Visual Dealer Mode. Keeps betting rounds, POT declarations, pot-count questions, all-ins and side-pot construction, but deals <b>no hole cards and no board cards</b>. There is no hand-reading/showdown question; when the pot work is finished, NEXT ACTION starts a new drill.</p><div class="v235-segment" id="v235PotDrillMode"><button class="active" data-value="0">OFF</button><button data-value="1">ON — NO CARDS</button></div></section>
+          <section><h3>◎ SIDE POT TRAINING</h3><p>Independent of Difficulty. Quietly varies stack depths and all-in pressure so side-pot practice emerges naturally in NLH and PLO.</p><div class="v235-segment compact" id="v235SidePotTraining"><button data-value="0">OFF</button><button data-value="1">INTRO</button><button class="active" data-value="2">PRACTICE</button><button data-value="3">FREQUENT</button><button data-value="4">INTENSIVE</button></div></section>
           <section id="v235HandReadingSection"><h3>🂡 HAND READING ONLY</h3><p id="v235HandReadingNote">Visual Dealer and Audition only. No betting. Study the Flop and Turn with every hole card hidden; all active hole cards reveal only after the River is dealt.</p><div class="v235-segment" id="v235HandReadingMode"><button class="active" data-value="0">OFF</button><button data-value="1">ON</button></div></section>
           <section><h3>? QUESTION FREQUENCY</h3><p>How often training questions are asked.</p><div class="v235-segment" id="v235QuestionFrequency"><button data-value="4">LESS OFTEN</button><button class="active" data-value="3">NORMAL</button><button data-value="2">OFTEN</button></div></section>
           <section><h3>◉ STARTING STACK</h3><p>Default chip amount for sessions.</p><select id="v235StartingStack"><option>200</option><option selected>300</option><option>500</option><option>1000</option></select></section>
@@ -5389,7 +5461,7 @@ body.audition-mode .v235-app .table,
 <div class="app v235-app">
   <div class="header v235-table-header">
     <div class="v235-table-brand"><span class="v235-chip-logo" aria-hidden="true"></span><strong>POKER</strong><i></i><b>DEALER TRAINER</b></div>
-    <div class="v235-session-meta"><span>HAND ID: <b id="v235HandId">000001</b></span><span>NO-LIMIT HOLD’EM</span><em>$1/$2</em><span id="gameHeading" style="display:none">$1/$2 NO-LIMIT HOLD’EM</span><span id="v235ModeLabel" style="display:none">TRAINING</span></div>
+    <div class="v235-session-meta"><span>HAND ID: <b id="v235HandId">000001</b></span><span id="v235GameLabel">NO-LIMIT HOLD’EM</span><em id="v235StakeLabel">$1/$2</em><span id="gameHeading" style="display:none">$1/$2 NO-LIMIT HOLD’EM</span><span id="v235ModeLabel" style="display:none">TRAINING</span></div>
     <nav class="v235-table-nav">
       <button type="button" data-open-panel="settings">⚙<small>Settings</small></button>
       <button type="button" data-open-panel="stats">▥<small>Stats</small></button>
@@ -5407,12 +5479,25 @@ body.audition-mode .v235-app .table,
       </div>
       <label>Starting Stack Per Player</label>
       <input id="stack" type="number" value="200" min="20">
+      <label>Training Game</label>
+      <select id="trainingGame">
+        <option value="nlh" selected>$1/$2 No-Limit Hold'em</option>
+        <option value="plo">$1/$2 Pot-Limit Omaha • $5 Bring-In</option>
+      </select>
       <label>Difficulty</label>
       <select id="difficulty">
         <option value="1">Level 1 — Calls / Folds / Pot</option>
         <option value="2" selected>Level 2 — Bets / Raises</option>
         <option value="3">Level 3 — Raise Math</option>
         <option value="4">Level 4 — All-ins / Side Pots</option>
+      </select>
+      <label>PLO Pot Aggression</label>
+      <select id="ploPotAggression">
+        <option value="0">Off</option>
+        <option value="1">Level 1 — Introduction</option>
+        <option value="2">Level 2 — Practice</option>
+        <option value="3" selected>Level 3 — Frequent</option>
+        <option value="4">Level 4 — Intensive</option>
       </select>
       <label>Side Pot Training</label>
       <select id="sidePotTraining">
@@ -5421,6 +5506,11 @@ body.audition-mode .v235-app .table,
         <option value="2" selected>Level 2 — Practice</option>
         <option value="3">Level 3 — Frequent</option>
         <option value="4">Level 4 — Intensive</option>
+      </select>
+      <label>Pot Drills Only — No Cards</label>
+      <select id="potDrillMode">
+        <option value="0" selected>Off — Normal Gameplay</option>
+        <option value="1">On — Pot / Side-Pot Math Only, No Cards</option>
       </select>
       <label>Hand Reading Only</label>
       <select id="handReadingMode">
@@ -5594,7 +5684,7 @@ body.audition-mode .v235-app .table,
             <div class="scorebox"><span class="tiny">Accuracy</span><b id="accuracy">—</b></div>
           </div>
           <div class="tiny" style="margin-top:12px">
-            V24 focuses on $1/$2 NLH: all-in accounting, main/side pots, split pots, raise/re-opening math, action order, pot tracking and dealer procedure.
+            LIVE training supports $1/$2 NLH and $1/$2 PLO. PLO adds four-card hand reading, legal POT math, high-number betting rounds, all-ins and main/side-pot construction.
           </div>
         </section>
       </div>
@@ -5616,7 +5706,7 @@ const $ = id => document.getElementById(id);
 const GAME_CONFIG = {
   nlh:{name:"$1/$2 No-Limit Hold'em", short:"NLH", mode:"NL", drop:"POT_DROP", sb:1, bb:2, stack:300, normalPotCap:200, hardPotCap:500},
   lhe:{name:"$3/$6 Limit Hold'em", short:"LHE", mode:"LIMIT", drop:"POT_DROP", sb:1, bb:3, smallBet:3, bigBet:6, stack:300, normalPotCap:200, hardPotCap:500},
-  plo:{name:"$1/$2 Pot-Limit Omaha", short:"PLO", mode:"PL", drop:"TIME", sb:1, bb:2, stack:300, normalPotCap:1200, hardPotCap:1500},
+  plo:{name:"$1/$2 Pot-Limit Omaha", short:"PLO", mode:"PL", drop:"TIME", sb:1, bb:2, bringIn:5, stack:300, minBuyIn:200, maxBuyIn:1000, timeRake:7, normalPotCap:1200, hardPotCap:1500},
   bigo:{name:"$1/$2 Big O Omaha", short:"BIG O", mode:"PL", drop:"TIME", sb:1, bb:2, stack:300, normalPotCap:1200, hardPotCap:1500}
 };
 let trainingMode = null;
@@ -5712,11 +5802,17 @@ function playerArrayIndexById(playerId){
   if(!state?.players) return -1;
   return state.players.findIndex(p=>p.id===Number(playerId));
 }
+function potDrillsOnlyRequested(){
+  return String(document.getElementById("potDrillMode")?.value||"0")==="1";
+}
+function potDrillsOnlyEnabled(){
+  return potDrillsOnlyRequested() && (trainingMode==="real" || trainingMode==="visual" || trainingMode==="audition");
+}
 function handReadingRequested(){
   return String(document.getElementById("handReadingMode")?.value||"0")==="1";
 }
 function handReadingOnlyEnabled(){
-  return handReadingRequested() && (trainingMode==="visual" || trainingMode==="audition");
+  return !potDrillsOnlyEnabled() && handReadingRequested() && (trainingMode==="visual" || trainingMode==="audition");
 }
 
 /* ============================================================
@@ -5731,6 +5827,26 @@ const SIDE_POT_TRAINING_CONFIG = Object.freeze({
   3:{name:"FREQUENT",sidePotPct:0.35,anyAllInPct:0.45,maxGap:3,complexity:[0.60,0.30,0.10]},
   4:{name:"INTENSIVE",sidePotPct:0.50,anyAllInPct:0.60,maxGap:2,complexity:[0.45,0.35,0.20]}
 });
+const PLO_POT_AGGRESSION_CONFIG = Object.freeze({
+  0:{name:"OFF",potChance:0.00,maxGap:Infinity,foldChance:0.30},
+  1:{name:"INTRODUCTION",potChance:0.18,maxGap:5,foldChance:0.22},
+  2:{name:"PRACTICE",potChance:0.32,maxGap:3,foldChance:0.18},
+  3:{name:"FREQUENT",potChance:0.50,maxGap:2,foldChance:0.14},
+  4:{name:"INTENSIVE",potChance:0.70,maxGap:1,foldChance:0.10}
+});
+function ploPotAggressionLevel(){
+  const el=document.getElementById("ploPotAggression");
+  return Math.max(0,Math.min(4,Number(el?.value||0)));
+}
+function ploPotAggressionCfg(level=ploPotAggressionLevel()){
+  return PLO_POT_AGGRESSION_CONFIG[level]||PLO_POT_AGGRESSION_CONFIG[0];
+}
+function resetPloPotAggressionStreet(){
+  if(!state) return;
+  state.ploPotTraining=state.ploPotTraining||{opportunitiesSincePot:0,potDeclarations:0};
+  state.ploPotTraining.opportunitiesSincePot=0;
+}
+
 const sidePotTrainingTracker = {
   hands:0,
   hasPriorHand:false,
@@ -5789,18 +5905,26 @@ function pdtPickTargetStreet(kind){
   return streets[pdtWeightedChoice(weights,3)]||"Preflop";
 }
 function pdtRoundAmount(v,bb){
-  const unit=bb>=5?5:1;
-  return Math.max(bb+1,Math.round(v/unit)*unit);
+  const unit=selectedGame==="plo" ? PLO_ROOM_WAGER_UNIT : (bb>=5?5:1);
+  const minimum=selectedGame==="plo" ? PLO_ROOM_WAGER_UNIT : bb+1;
+  return Math.max(minimum,Math.round(v/unit)*unit);
 }
 function pdtTrainingStackTargets(kind,sidePots,street,baseStack,bb){
-  const profiles={
+  const profiles=selectedGame==="plo" ? {
+    // PLO targets are intentionally lower preflop so short stacks can reach
+    // all-in legally through POT-sized action instead of illegal oversized shoves.
+    Preflop:{short:[13,23,48],deep:[180,280]},
+    Flop:{short:[55,95,150],deep:[220,300]},
+    Turn:{short:[95,155,225],deep:[260,300]},
+    River:{short:[135,200,275],deep:[285,300]}
+  } : {
     Preflop:{short:[30,55,80],deep:[170,240]},
     Flop:{short:[65,100,135],deep:[210,275]},
     Turn:{short:[100,145,190],deep:[250,300]},
     River:{short:[135,180,220],deep:[275,300]}
   };
   const profile=profiles[street]||profiles.Preflop;
-  const scale=Math.max(0.25,baseStack/300);
+  const scale=selectedGame==="plo" ? 1 : Math.max(0.25,baseStack/300);
   const shortCount=kind==="sidepot"?Math.max(1,sidePots):1;
   const shortTargets=profile.short.slice(0,shortCount).map((v,i)=>{
     const jitter=0.92+Math.random()*0.16;
@@ -5838,7 +5962,7 @@ function chooseSidePotTrainingPlan(pc,baseStack,bb){
     shortStarted:false
   };
 
-  if(level<=0 || selectedGame!=="nlh" || pc<2){
+  if(level<=0 || !["nlh","plo"].includes(selectedGame) || pc<2){
     sidePotTrainingTracker.lastPlan=plan;
     updateSidePotTrainingDevDebug();
     return plan;
@@ -5936,8 +6060,40 @@ function pdtTrainingCall(p,toCall){
   };
 }
 function pdtTrainingAllIn(p){
-  const target=p.streetBet+p.stack;
-  const add=p.stack;
+  const rawTotal=p.streetBet+p.stack;
+  const target=selectedGame==="plo" ? ploRoomFloorWager(rawTotal) : rawTotal;
+  const add=Math.max(0,target-p.streetBet);
+
+  // PLO CLASS DRILL GUARD:
+  // Once an incomplete all-in has already increased the wager, do not
+  // create another "stair-step" short all-in from a player who can fully
+  // cover the current wager. That player must either CALL the exact
+  // current wager or later make a full legal raise.
+  //
+  // Example: $125 full bet -> $145 short all-in.
+  // A $150 stack does NOT auto-shove to $150. It calls $145 and keeps $5.
+  if(selectedGame==="plo" && state?.shortAllInActive && target>state.currentBet && target<currentMinRaiseTo()){
+    const toCall=Math.max(0,state.currentBet-p.streetBet);
+    if(p.stack>=toCall){
+      return pdtTrainingCall(p,toCall);
+    }
+  }
+
+  if(selectedGame==="plo" && target>state.currentBet){
+    const maxTo=potLimitMaxTo(p);
+    if(target>maxTo){
+      const legalTarget=Math.min(maxTo,target);
+      const legalAdd=Math.max(0,legalTarget-p.streetBet);
+      const toCall=Math.max(0,state.currentBet-p.streetBet);
+      return {
+        type:state.currentBet>0?"raise":"bet",target:legalTarget,amount:legalAdd,pullAmount:legalAdd,sidePotTraining:true,
+        potDeclaration:true,potBefore:actualPot(),toCall,currentBetBefore:state.currentBet,potAfterCall:actualPot()+toCall,
+        label:`PLAYER ${p.id} SAYS "POT"`,short:"POT",
+        ploSidePotBuilder:true
+      };
+    }
+  }
+
   return {
     type:"allin",target,amount:add,pullAmount:add,sidePotTraining:true,
     label:target<=state.currentBet
@@ -5967,8 +6123,9 @@ function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
 
   if(plan.kind==="allin"){
     if(isShort && !p.allin && p.stack>0){
-      plan.shortStarted=true;
-      return pdtTrainingAllIn(p);
+      const a=pdtTrainingAllIn(p);
+      if(a?.type==="allin") plan.shortStarted=true;
+      return a;
     }
     if(isDeep){
       if(toCall>0) return pdtTrainingCall(p,toCall);
@@ -5982,8 +6139,9 @@ function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
 
   // Genuine side-pot plan.
   if(isShort && !p.allin && p.stack>0){
-    plan.shortStarted=true;
-    return pdtTrainingAllIn(p);
+    const a=pdtTrainingAllIn(p);
+    if(a?.type==="allin") plan.shortStarted=true;
+    return a;
   }
 
   const allShortsDone=plan.shortIds.every(id=>{
@@ -5999,7 +6157,10 @@ function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
       const shortestRemaining=Math.min(...shortPlayers.map(x=>x.stack).filter(x=>x>0));
       if(Number.isFinite(shortestRemaining)){
         const desired=Math.max(state.bb*4,Math.round(shortestRemaining*1.12));
-        const targetBet=Math.min(p.streetBet+p.stack-1,desired);
+        let targetBet=Math.min(p.streetBet+p.stack-1,desired);
+        if(selectedGame==="plo"){
+          targetBet=ploRoomFloorWager(Math.min(targetBet,actualPot()));
+        }
         if(targetBet>0 && targetBet<p.streetBet+p.stack){
           plan.setupBetMade=true;
           return {
@@ -6015,7 +6176,10 @@ function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
       // After all short stacks are committed, create one deeper matched layer
       // when legal so the intended side pot exists before showdown.
       if(allShortsDone && !plan.deepLayerMade && mayRaise && p.stack>toCall+state.lastFullRaise){
-        const raiseTo=Math.min(p.streetBet+p.stack,state.currentBet+state.lastFullRaise);
+        let raiseTo=Math.min(p.streetBet+p.stack,currentMinRaiseTo());
+        if(selectedGame==="plo"){
+          raiseTo=ploRoomFloorWager(Math.min(raiseTo,potLimitMaxTo(p)));
+        }
         if(raiseTo>state.currentBet){
           plan.deepLayerMade=true;
           return {
@@ -6029,7 +6193,10 @@ function buildSidePotTrainingAction(p,toCall,mayRaise,minTo){
     }
 
     if(allShortsDone && !plan.deepLayerMade && p.stack>state.bb*4){
-      const betTo=Math.min(p.streetBet+p.stack,Math.max(state.bb*4,state.lastFullRaise));
+      let betTo=Math.min(p.streetBet+p.stack,Math.max(state.bb*4,state.lastFullRaise));
+      if(selectedGame==="plo"){
+        betTo=ploRoomFloorWager(Math.min(betTo,actualPot()));
+      }
       if(betTo>p.streetBet){
         plan.deepLayerMade=true;
         return {
@@ -6151,8 +6318,13 @@ function updateVisualBets(){
     const displayAmount=buildDrill?.active ? drillAmount : p.streetBet;
 
     if(displayAmount>0){
-      bet.textContent=money(displayAmount);
-      bet.className=`visual-bet show ${i===state.toAct?"active-bet":""}`;
+      if(state.potDrillsOnly){
+        bet.textContent=p.allin ? `ALL-IN ${money(displayAmount)}` : money(displayAmount);
+        bet.className=`visual-bet show pot-drill-bet ${p.allin?"pot-drill-allin ":""}${i===state.toAct?"active-bet":""}`;
+      }else{
+        bet.textContent=money(displayAmount);
+        bet.className=`visual-bet show ${i===state.toAct?"active-bet":""}`;
+      }
     }else{
       bet.textContent="";
       bet.className="visual-bet";
@@ -6165,7 +6337,7 @@ function updateVisualBets(){
       // visually represented because they remain part of the pot amount.
       if(buildDrill?.active && displayAmount>0){
         bet.textContent=`DEAD ${money(displayAmount)}`;
-        bet.className="visual-bet show";
+        bet.className=state.potDrillsOnly ? "visual-bet show pot-drill-bet" : "visual-bet show";
       }else{
         bet.textContent="";
         bet.className="visual-bet";
@@ -6333,6 +6505,159 @@ function describeRank(rank){
   if(cat===1) return `One Pair, ${pluralRank(rank[1])}`;
   return `${rankName(rank[1])}-high`;
 }
+
+/* V1.2 LIVE — FULL BEST-FIVE / KICKER COMPARISON
+   compareRank() compares the entire rank vector from left to right.
+   Therefore players only chop when every best-five comparison value ties. */
+function describeRankDetailed(rank){
+  if(!Array.isArray(rank)||!rank.length) return "No hand";
+  const cat=rank[0];
+  const names=(rank.slice(1).map(rankName));
+  if(cat===8) return `Straight Flush, ${rankName(rank[1])}-high`;
+  if(cat===7) return `Four of a Kind, ${pluralRank(rank[1])} — ${rankName(rank[2])} kicker`;
+  if(cat===6) return `Full House, ${pluralRank(rank[1])} full of ${pluralRank(rank[2])}`;
+  if(cat===5) return `Flush — ${names.join(", ")}`;
+  if(cat===4) return `Straight, ${rankName(rank[1])}-high`;
+  if(cat===3) return `Three of a Kind, ${pluralRank(rank[1])} — kickers ${rankName(rank[2])}, ${rankName(rank[3])}`;
+  if(cat===2) return `Two Pair, ${pluralRank(rank[1])} and ${pluralRank(rank[2])} — ${rankName(rank[3])} kicker`;
+  if(cat===1) return `One Pair, ${pluralRank(rank[1])} — kickers ${rankName(rank[2])}, ${rankName(rank[3])}, ${rankName(rank[4])}`;
+  return `High Card — ${names.join(", ")}`;
+}
+
+
+function holdemBestFiveUsage(playerId,ev){
+  if(!ev || !Array.isArray(ev.cards)) return "";
+  const p=state?.players?.find(x=>Number(x.id)===Number(playerId));
+  const idx=p ? state.players.indexOf(p) : -1;
+  const hole=idx>=0 ? (state.holeCards[idx]||[]) : [];
+  const bestKeys=new Set(ev.cards.map(cardText));
+  const usedHole=hole.filter(c=>bestKeys.has(cardText(c)));
+  const unusedHole=hole.filter(c=>!bestKeys.has(cardText(c)));
+  const bestFive=ev.cards.map(cardText).join(" ");
+
+  let usage="";
+  if(usedHole.length===0){
+    usage="No hole cards play; the board supplies the entire best five.";
+  }else if(usedHole.length===1){
+    usage=`Hole card ${cardText(usedHole[0])} plays in the best five.`;
+  }else{
+    usage=`Both hole cards ${usedHole.map(cardText).join(" ")} play in the best five.`;
+  }
+  if(unusedHole.length){
+    usage+=` Unused hole card${unusedHole.length>1?"s":""}: ${unusedHole.map(cardText).join(" ")} — ${unusedHole.length>1?"they do":"it does"} not break a tie.`;
+  }
+  return `<div class="best-five-usage"><b>Best five:</b> ${bestFive}<br><span>${usage}</span></div>`;
+}
+
+function omahaBestFiveUsage(playerId,ev){
+  if(!ev || !Array.isArray(ev.cards)) return "";
+  const p=state?.players?.find(x=>Number(x.id)===Number(playerId));
+  const idx=p ? state.players.indexOf(p) : -1;
+  const hole=idx>=0 ? (state.holeCards[idx]||[]) : [];
+  const bestKeys=new Set(ev.cards.map(cardText));
+  const usedHole=hole.filter(c=>bestKeys.has(cardText(c))).slice(0,2);
+  const bestFive=ev.cards.map(cardText).join(" ");
+  return `<div class="best-five-usage"><b>Best five:</b> ${bestFive}<br><span>Omaha rule: exactly 2 hole cards + exactly 3 board cards. Playing hole cards: ${usedHole.map(cardText).join(" ")||"—"}.</span></div>`;
+}
+function bestFiveUsage(playerId,ev){
+  return selectedGame==="plo"?omahaBestFiveUsage(playerId,ev):holdemBestFiveUsage(playerId,ev);
+}
+function holdemTieExplanation(evals,winnerIds){
+  const tied=(evals||[]).filter(e=>(winnerIds||[]).includes(e.player));
+  if(tied.length<2) return "The complete best five-card hands are identical, so the pot is chopped.";
+  const lines=tied.map(e=>`Player ${e.player}: ${describeRankDetailed(e.rank)}. ${bestFiveUsage(e.player,e).replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim()}`);
+  return `The complete best five-card hands are identical, so the pot is chopped. ${lines.join(" ")}`;
+}
+
+function handComparisonReason(winnerRank,otherRank){
+  if(!Array.isArray(winnerRank)||!Array.isArray(otherRank)) return "";
+  if(compareRank(winnerRank,otherRank)===0){
+    return "The complete best five-card hands are identical, so the pot is chopped.";
+  }
+
+  const wc=winnerRank[0], oc=otherRank[0];
+  if(wc!==oc){
+    return `${handName(winnerRank)} beats ${handName(otherRank)}.`;
+  }
+
+  const firstDiff=(()=>{
+    const n=Math.max(winnerRank.length,otherRank.length);
+    for(let i=1;i<n;i++){
+      const a=winnerRank[i]||0,b=otherRank[i]||0;
+      if(a!==b) return i;
+    }
+    return -1;
+  })();
+  if(firstDiff<0) return "The complete best five-card hands are identical, so the pot is chopped.";
+
+  const win=winnerRank[firstDiff]||0;
+  const lose=otherRank[firstDiff]||0;
+
+  if(wc===1){
+    if(firstDiff===1) return `Both hands are one pair; ${pluralRank(win)} beat ${pluralRank(lose)}.`;
+    return `Both players have a pair of ${pluralRank(winnerRank[1])}. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===2){
+    if(firstDiff===1) return `Both hands are two pair; the higher pair, ${pluralRank(win)}, beats ${pluralRank(lose)}.`;
+    if(firstDiff===2) return `The top pair ties, so the second pair decides it: ${pluralRank(win)} beats ${pluralRank(lose)}.`;
+    return `Both two-pair ranks are identical. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===3){
+    if(firstDiff===1) return `Both hands are trips; ${pluralRank(win)} beat ${pluralRank(lose)}.`;
+    return `Both players have three of a kind, ${pluralRank(winnerRank[1])}. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===5){
+    return `Both players have a flush. Compare the flush cards from highest downward: ${rankName(win)} beats ${rankName(lose)} at the first difference.`;
+  }
+  if(wc===7){
+    if(firstDiff===1) return `${pluralRank(win)} beat ${pluralRank(lose)} for four of a kind.`;
+    return `Both players have the same four of a kind. The ${rankName(win)} kicker beats the ${rankName(lose)} kicker.`;
+  }
+  if(wc===0){
+    return `Both players have high-card hands. At the first difference, ${rankName(win)} beats ${rankName(lose)}.`;
+  }
+  if(wc===6){
+    if(firstDiff===1) return `Both hands are full houses; ${pluralRank(win)} full wins over ${pluralRank(lose)} full.`;
+    return `The three-of-a-kind portion ties; ${pluralRank(win)} beat ${pluralRank(lose)} for the pair portion of the full house.`;
+  }
+  if(wc===4 || wc===8){
+    return `${rankName(win)}-high beats ${rankName(lose)}-high.`;
+  }
+  return `${describeRankDetailed(winnerRank)} beats ${describeRankDetailed(otherRank)}.`;
+}
+
+function kickerRuleRegressionChecks(){
+  const screenshotBoard=[
+    {r:"K",s:"♠",v:13},{r:"3",s:"♦",v:3},{r:"J",s:"♥",v:11},{r:"9",s:"♦",v:9},{r:"10",s:"♥",v:10}
+  ];
+  const screenshotP1=bestHoldem([{r:"K",s:"♥",v:13},{r:"8",s:"♠",v:8}],screenshotBoard).rank;
+  const screenshotP4=bestHoldem([{r:"K",s:"♣",v:13},{r:"5",s:"♦",v:5}],screenshotBoard).rank;
+  const checks=[
+    ["Pair of Jacks: Queen kicker beats Seven kicker",
+      compareRank([1,11,12,9,5],[1,11,7,9,5])>0],
+    ["Pair of Jacks: first kicker ties, Nine beats Eight",
+      compareRank([1,11,12,9,5],[1,11,12,8,5])>0],
+    ["Two Pair: kicker decides",
+      compareRank([2,11,9,14],[2,11,9,13])>0],
+    ["Trips: kicker decides",
+      compareRank([3,11,14,9],[3,11,13,9])>0],
+    ["Flush: compare all five ranks",
+      compareRank([5,14,12,9,7,4],[5,14,11,10,7,4])>0],
+    ["Exact same best five is a chop",
+      compareRank([1,11,12,9,5],[1,11,12,9,5])===0],
+    ["Screenshot regression: K8 vs K5 on K-3-J-9-10 is a chop because both play K-K-J-10-9",
+      compareRank(screenshotP1,screenshotP4)===0]
+  ];
+  const failed=checks.filter(([,ok])=>!ok).map(([name])=>name);
+  if(failed.length){
+    console.error("Poker101Class kicker regression failure:",failed);
+    window.PDT_KICKER_RULES_OK=false;
+  }else{
+    window.PDT_KICKER_RULES_OK=true;
+  }
+  return failed.length===0;
+}
+
 
 function theoreticalNutHand(){
   if(!state || !state.board || state.board.length<3) return null;
@@ -6647,7 +6972,7 @@ function chooseTrainingMode(mode){
   }else if(mode==="audition"){
     $("playerCountModeText").textContent="Audition Mode selected. Choose 2 to 8 players for your mock dealer audition.";
   }else{
-    $("playerCountModeText").textContent="Real Table Mode selected. Choose how many physical player stacks/seats you want to practice.";
+    $("playerCountModeText").textContent="Real Table Mode selected. Choose the player count and then choose $1/$2 NLH or $1/$2 PLO.";
   }
 }
 function backToTrainingMode(){
@@ -6694,26 +7019,29 @@ function backFromPlayerCount(){
 }
 
 function chooseGame(key){
-  // V23 is intentionally NLH-only until the core dealer trainer is complete.
-  if(key!=="nlh") key="nlh";
-  selectedGame="nlh";
+  if(!["nlh","plo"].includes(key)) key="nlh";
+  selectedGame=key;
+  const trainingGame=document.getElementById("trainingGame");
+  if(trainingGame) trainingGame.value=key;
   sessionStacks=null;
   sessionButton=null;
   sessionButtonPlayerCount=null;
   const cfg=gameCfg();
   $("menuScreen").style.display="none";
   $("gameHeading").textContent=`${trainingMode==="audition"?"AUDITION":trainingMode==="visual"?"VISUAL DEALER":"REAL TABLE"} • ${playerCount()} PLAYERS • ${cfg.name}`;
+  if($("v235GameLabel")) $("v235GameLabel").textContent=key==="plo"?"POT-LIMIT OMAHA":"NO-LIMIT HOLD’EM";
+  if($("v235StakeLabel")) $("v235StakeLabel").textContent=key==="plo"?"$1/$2 • $5 BRING-IN":"$1/$2";
   $("sb").value=cfg.sb; $("bb").value=cfg.bb; $("stack").value=cfg.stack;
   if(cfg.mode==="LIMIT"){
     $("structureInfo").textContent=`Fixed Limit: ${money(cfg.smallBet)} bets preflop/flop • ${money(cfg.bigBet)} bets turn/river. Blinds remain editable.`;
   }else if(cfg.mode==="PL"){
-    $("structureInfo").textContent="Pot Limit: bets/raises cannot exceed the legal size of the pot. The trainer calculates the max internally.";
+    $("structureInfo").textContent=`PLO class profile: ${money(cfg.sb)} small blind • ${money(cfg.bb)} big blind • ${money(cfg.bringIn||cfg.bb)} preflop bring-in. ROOM RULES: wager totals are $5 increments; $1-$4 scraps do not play toward the wager. The $1+$2 blinds remain $3 actual chips but line up/count as $5 for the applicable POT calculation. Actual-chip accounting stays separate.`;
   }else{
-    $("structureInfo").textContent="V24 NLH: full/short raises, cumulative reopening, all-in calls, folded dead money, main/side pots and split-pot payouts are actively tracked.";
+    $("structureInfo").textContent="NLH: full/short raises, cumulative reopening, all-in calls, folded dead money, main/side pots and split-pot payouts are actively tracked.";
   }
 
   if(cfg.drop==="TIME"){
-    $("dropTrainerNote").innerHTML='<b>TIME-RAKE GAME:</b> This game does not use the NLH/LHE rake + jackpot training schedule.';
+    $("dropTrainerNote").innerHTML=`<b>TIME-RAKE GAME:</b> PLO uses time rake instead of the NLH rake + jackpot schedule${cfg.timeRake?` • room listing: ${money(cfg.timeRake)} per half-hour`:""}.`;
     $("rakeDisplay").textContent="TIME";
     $("jackpotDisplay").textContent="TIME";
   }else{
@@ -6729,10 +7057,81 @@ function limitUnit(){
   return (state && (state.street==="Turn" || state.street==="River")) ? cfg.bigBet : cfg.smallBet;
 }
 
+const PLO_ROOM_WAGER_UNIT=5;
+
+function ploRoomFloorWager(value){
+  const n=Math.max(0,Number(value)||0);
+  return Math.floor((n+1e-9)/PLO_ROOM_WAGER_UNIT)*PLO_ROOM_WAGER_UNIT;
+}
+function ploRoomCeilWager(value){
+  const n=Math.max(0,Number(value)||0);
+  return Math.ceil((n-1e-9)/PLO_ROOM_WAGER_UNIT)*PLO_ROOM_WAGER_UNIT;
+}
+function ploRoomPlayableTarget(value){
+  return selectedGame==="plo" ? ploRoomFloorWager(value) : Number(value)||0;
+}
+function ploRoomPlayableStackTotal(p){
+  if(!p) return 0;
+  return selectedGame==="plo"
+    ? ploRoomFloorWager((Number(p.streetBet)||0)+(Number(p.stack)||0))
+    : (Number(p.streetBet)||0)+(Number(p.stack)||0);
+}
+
+function potLimitMaxToFromValues(potBefore,currentBet,streetBet){
+  const toCall=Math.max(0,Number(currentBet)-Number(streetBet));
+  return Number(currentBet)+Number(potBefore)+toCall;
+}
+
+/*
+  ROOM-SPECIFIC $1/$2 PLO COUNTING RULE
+  -------------------------------------
+  The physical blinds are still $1 + $2 = $3 and payouts/accounting always
+  use the real chips. For PRE-FLOP "POT" math, however, the room lines that
+  $3 blind group up as a $5 counting unit. That means the dealer adds a
+  virtual +$2 ONLY to the counting pot used to determine the legal POT wager.
+
+  Example:
+    real chips from blinds = $3
+    dealer counting value  = $5
+  No extra $2 is ever credited to a player or added to the actual pot.
+*/
+function ploBlindLineupAdjustment(){
+  if(selectedGame!=="plo" || !state || state.street!=="Preflop") return 0;
+  const cfg=gameCfg();
+  const realBlindTotal=Math.max(0,Number(state.sb)||0)+Math.max(0,Number(state.bb)||0);
+  const countingBlindUnit=Math.max(realBlindTotal,Number(cfg.bringIn)||realBlindTotal);
+  return Math.max(0,countingBlindUnit-realBlindTotal);
+}
+function ploCountingPotBeforeAction(){
+  return actualPot()+ploBlindLineupAdjustment();
+}
 function potLimitMaxTo(p){
   if(!state) return 0;
-  const toCall=Math.max(0,state.currentBet-p.streetBet);
-  return state.currentBet + actualPot() + toCall;
+  const potForPotMath=(selectedGame==="plo")?ploCountingPotBeforeAction():actualPot();
+  const raw=potLimitMaxToFromValues(potForPotMath,state.currentBet,p.streetBet);
+  // Room rule: PLO wager totals are playable only in $5 increments.
+  // Any $1-$4 remainder is scrap and does not play toward the wager.
+  return selectedGame==="plo" ? ploRoomFloorWager(raw) : raw;
+}
+function ploPotMathRegressionChecks(){
+  const roomMax=(actual,currentBet,streetBet,adjustment=2)=>
+    potLimitMaxToFromValues(actual+adjustment,currentBet,streetBet);
+
+  const checks=[
+    ["Room rule: $1+$2 blinds are $3 real but count as $5; first POT is to $15",roomMax(3,5,0)===15],
+    ["One $5 call: $8 real chips count as $10; next POT is to $20",roomMax(8,5,0)===20],
+    ["Two $5 calls: $13 real chips count as $15; next POT is to $25",roomMax(13,5,0)===25],
+    ["Room lineup example: $28 real chips are counted as $30 for preflop POT math",28+2===30],
+    ["Room wager unit: $17 contains $2 scrap, so only $15 plays",ploRoomFloorWager(17)===15],
+    ["Room wager unit: $22 becomes $20",ploRoomFloorWager(22)===20],
+    ["Room wager unit: exact $25 stays $25",ploRoomFloorWager(25)===25],
+    ["Postflop raw $17 POT wager is announced as $15",ploRoomFloorWager(potLimitMaxToFromValues(17,0,0))===15],
+    ["Postflop unopened $60 pot POT bet remains $60",ploRoomFloorWager(potLimitMaxToFromValues(60,0,0))===60]
+  ];
+  const failed=checks.filter(([,ok])=>!ok).map(([name])=>name);
+  window.PDT_PLO_POT_MATH_OK=failed.length===0;
+  if(failed.length) console.error("Poker101Class PLO pot-math regression failure:",failed);
+  return failed.length===0;
 }
 
 function nlhStreetCaps(){
@@ -6974,7 +7373,7 @@ function renderPlayers(){
   $("currentBet").textContent=money(state.currentBet);
   let minTo;
   if(gameCfg().mode==="LIMIT") minTo=state.currentBet + limitUnit();
-  else minTo=state.currentBet + state.lastFullRaise;
+  else minTo=currentMinRaiseTo();
   $("minRaise").textContent=money(minTo);
   $("street").textContent=state.street.toUpperCase();
   updateVisualSeatLabels();
@@ -7008,6 +7407,14 @@ function post(p, amount){
   p.total+=amount;
   if(p.stack===0) p.allin=true;
 
+  // PLO room rule: $1-$4 left behind is scrap and cannot be wagered.
+  // Keep it visible in the stack for physical accounting, but close the
+  // player's betting action exactly like an all-in player.
+  if(selectedGame==="plo" && p.stack>0 && p.stack<PLO_ROOM_WAGER_UNIT){
+    p.roomScrap=p.stack;
+    p.allin=true;
+  }
+
   // Visual Dealer Mode always shows the player's remaining money immediately.
   if(isVisualLike()){
     updateVisualStacks();
@@ -7017,10 +7424,13 @@ function post(p, amount){
 
 function startHand(){
   if(!selectedGame){ $("menuScreen").style.display="flex"; return; }
+  setNextActionNewHandMode(false);
   const sb=+($("sb").value||gameCfg().sb), bb=+($("bb").value||gameCfg().bb), stack=+($("stack").value||gameCfg().stack);
   const pc=playerCount();
   randomSeatAssignment(pc,false);
-  const readingOnly=handReadingOnlyEnabled();
+  const potOnly=potDrillsOnlyEnabled();
+  document.body.classList.toggle("pot-drill-only",potOnly);
+  const readingOnly=!potOnly && handReadingOnlyEnabled();
   const sidePotTrainingPlan=readingOnly
     ? {level:0,levelName:"OFF",kind:"normal",sidePots:0,targetStreet:null,shortIds:[],deepIds:[],participantIds:[],seatIndices:[],stackTargets:[],forcedByGap:false,actualRecorded:false}
     : chooseSidePotTrainingPlan(pc,stack,bb);
@@ -7073,11 +7483,14 @@ function startHand(){
       players[bbPos].lastAction=`POSTS BB ${money(bb)}`;
     }
   }
+  const openingWager=readingOnly?0:(selectedGame==="plo"?Math.max(bb,Number(gameCfg().bringIn)||bb):bb);
   state={
     sb,bb,players,button,sbPos,bbPos,
-    street:"Preflop",pot:0,currentBet:(readingOnly?0:bb),lastFullRaise:(gameCfg().mode==="LIMIT"?gameCfg().smallBet:bb),
+    street:"Preflop",pot:0,currentBet:openingWager,lastFullRaise:(gameCfg().mode==="LIMIT"?gameCfg().smallBet:openingWager),
+    lastFullWager:(gameCfg().mode==="LIMIT"?openingWager:openingWager),
     toAct:(pc===2 ? button : (bbPos+1)%pc), actions:0, handActive:true,
     handReadingOnly:readingOnly,
+    potDrillsOnly:potOnly,
     handReadingWrongPending:false,
     handReadingResult:null,
     immediatePaidPotIndices:[],
@@ -7106,6 +7519,7 @@ function startHand(){
     advancedSpot:"",
     shortAllInActive:false,
     sidePotTrainingPlan,
+    ploPotTraining:{opportunitiesSincePot:0,potDeclarations:0},
     deck:makeDeck(),board:[],burnCards:[],holeCards:[],showdownComplete:false
   };
   waitingQuestion=false;
@@ -7128,41 +7542,81 @@ function startHand(){
   $("dealerAlert").textContent="—";
   $("dealerAlert").classList.remove("dealer-alert-hot");
   updateDropDisplay(false);
-  $("actionText").textContent=readingOnly?"HAND READING ONLY — DEALING":"Preparing first action...";
+  $("actionText").textContent=readingOnly
+    ? "HAND READING ONLY — DEALING"
+    : potOnly
+      ? "POT DRILL ONLY — NO CARDS"
+      : "Preparing first action...";
   $("instruction").textContent=readingOnly
     ? "No betting in this hand. You will read the best hand after the Flop, Turn, and River."
+    : potOnly
+      ? (selectedGame==="plo"
+          ? "Money-only PLO drill. No cards will be dealt. Track every call, POT declaration, all-in, Main Pot and Side Pot through all betting rounds."
+          : "Money-only pot drill. No cards will be dealt. Track every wager, all-in, Main Pot and Side Pot through all betting rounds.")
     : pc===1
       ? "Solo mechanics mode: practice pitching, burns, board procedure and hand reading."
-      : `Blinds posted: Player ${players[sbPos].id} ${money(sb)} • Player ${players[bbPos].id} ${money(bb)}`;
+      : selectedGame==="plo"
+        ? `Blinds posted: Player ${players[sbPos].id} ${money(sb)} • Player ${players[bbPos].id} ${money(bb)} • Preflop bring-in/current wager ${money(openingWager)}`
+        : `Blinds posted: Player ${players[sbPos].id} ${money(sb)} • Player ${players[bbPos].id} ${money(bb)}`;
   $("revealNote").textContent=readingOnly
     ? "Hand Reading Only: betting, pot, rake, and side-pot questions are bypassed."
-    : "Pot stays hidden. You have 2 reveal checks for this hand.";
+    : potOnly
+      ? "POT DRILL ONLY: no hole cards, no board cards, no showdown. Pot stays hidden; you still have 2 double-check reveals."
+      : "Pot stays hidden. You have 2 reveal checks for this hand.";
   hideChipPull();
   if(readingOnly){
     log(`Hand Reading Only • Active seats: ${players.map(p=>p.id).join(", ")}`);
+  }else if(potOnly){
+    log(`POT DRILL ONLY • NO CARDS • Active seats: ${players.map(p=>p.id).join(", ")}`);
   }else if(pc===1){
     log(`Solo mechanics hand • Player ${players[0].id} has the button`);
   }else{
-    log(`Button: Player ${players[button].id} • SB: Player ${players[sbPos].id} ${money(sb)} • BB: Player ${players[bbPos].id} ${money(bb)}`);
+    log(`Button: Player ${players[button].id} • SB: Player ${players[sbPos].id} ${money(sb)} • BB: Player ${players[bbPos].id} ${money(bb)}${selectedGame==="plo"?` • Bring-in ${money(openingWager)}`:""}`);
   }
   renderPlayers();
   updateSidePotTrainingDevDebug();
 
   if(isVisualLike()){
-    animateHoleDeal().then(()=>{
-      if(readingOnly){
-        runHandReadingOnlyMode();
-      }else if(playerCount()===1){
-        runSoloVisualMechanics();
+    if(potOnly){
+      resetVisualTable();
+      updateVisualSeatLabels();
+      state.holeCards=Array.from({length:playerCount()},()=>[]);
+      state.board=[];
+      state.burnCards=[];
+      updateVisualBets();
+      updateVisualStacks();
+      $("visualStatus").textContent="POT DRILL ONLY — NO CARDS";
+      if(playerCount()===1){
+        $("actionText").textContent="POT DRILL REQUIRES 2+ PLAYERS";
+        $("instruction").textContent="Choose at least 2 players for betting and pot-math drills.";
+        state.handActive=false;
+        state.showdownComplete=true;
+        setNextActionNewHandMode(true);
       }else{
         maybeAskActionOrderQuestion(()=>prepareCurrentAction());
       }
-    });
+    }else{
+      animateHoleDeal().then(()=>{
+        if(readingOnly){
+          runHandReadingOnlyMode();
+        }else if(playerCount()===1){
+          runSoloVisualMechanics();
+        }else{
+          maybeAskActionOrderQuestion(()=>prepareCurrentAction());
+        }
+      });
+    }
   }else{
     if(playerCount()===1){
-      $("actionText").textContent="SOLO REAL-TABLE MECHANICS MODE";
-      $("instruction").textContent="With one player there is no betting action. Use this setup for physical dealing mechanics, then start another hand when ready.";
+      $("actionText").textContent=potOnly?"POT DRILL REQUIRES 2+ PLAYERS":"SOLO REAL-TABLE MECHANICS MODE";
+      $("instruction").textContent=potOnly
+        ? "Choose at least 2 players for betting and pot-math drills."
+        : "With one player there is no betting action. Use this setup for physical dealing mechanics, then start another hand when ready.";
       state.handActive=false;
+      if(potOnly){
+        state.showdownComplete=true;
+        setNextActionNewHandMode(true);
+      }
       renderPlayers();
     }else{
       maybeAskActionOrderQuestion(()=>prepareCurrentAction());
@@ -7188,7 +7642,42 @@ function actionReopenedForPlayer(p){
 }
 
 function currentMinRaiseTo(){
-  return state.currentBet + state.lastFullRaise;
+  if(!state) return 0;
+
+  // ROOM / CLASS PLO PROFILE:
+  // A short all-in changes the amount to CALL but does not move the
+  // already-established next full-raise target.
+  //
+  // Example:
+  //   full bet $125
+  //   short all-in to $145
+  //   call = $145
+  //   next full raise still = $250
+  if(selectedGame==="plo" && Number.isFinite(Number(state.lastFullWager))){
+    const anchored=Number(state.lastFullWager)+Number(state.lastFullRaise||0);
+    if(anchored>state.currentBet) return ploRoomCeilWager(anchored);
+  }
+
+  const raw=state.currentBet + state.lastFullRaise;
+  return selectedGame==="plo" ? ploRoomCeilWager(raw) : raw;
+}
+
+function ploClassShortAllInRegressionChecks(){
+  const classMin=(currentBet,lastFullWager,lastFullRaise)=>{
+    const anchored=lastFullWager+lastFullRaise;
+    return anchored>currentBet ? anchored : currentBet+lastFullRaise;
+  };
+  const checks=[
+    ["$125 full bet -> $145 short all-in keeps full raise to $250",classMin(145,125,125)===250],
+    ["Exact call after the short all-in is $145",Math.max(0,145-0)===145],
+    ["$150 is not a legal normal raise when the class minimum is $250",!(150>=250)],
+    ["Room scraps: $17 wager plays as $15",ploRoomFloorWager(17)===15],
+    ["Room scraps: $148 all-in has $145 playable and $3 scrap",ploRoomFloorWager(148)===145]
+  ];
+  const failed=checks.filter(([,ok])=>!ok).map(([name])=>name);
+  window.PDT_PLO_SHORT_ALLIN_CLASS_OK=failed.length===0;
+  if(failed.length) console.error("Poker101Class PLO short-all-in regression failure:",failed);
+  return failed.length===0;
 }
 
 function recordStreetAction(p,kind){
@@ -7701,7 +8190,7 @@ function currentHandReadingResult(){
   if(!state || !state.board || state.board.length<3) return {winners:[],evals:[]};
   const evals=state.players.map((p,i)=>{
     const hole=state.holeCards[i]||[];
-    const ev=bestHoldem(hole,state.board);
+    const ev=selectedGame==="plo"?bestOmaha(hole,state.board):bestHoldem(hole,state.board);
     return {player:p.id,...ev};
   }).filter(e=>Array.isArray(e.rank));
   if(!evals.length) return {winners:[],evals:[]};
@@ -7716,7 +8205,7 @@ function handReadingExplanation(result){
     const p=state.players.find(x=>x.id===e.player);
     const i=state.players.indexOf(p);
     const hole=(state.holeCards[i]||[]).map(cardText).join(" ");
-    return `<li><b>Player ${e.player}</b> (${hole}): ${describeRank(e.rank)}</li>`;
+    return `<li><b>Player ${e.player}</b> (${hole}): ${describeRankDetailed(e.rank)}${bestFiveUsage(e.player,e)}</li>`;
   }).join("");
   const texture=commonBoardHands().slice(0,3).map(x=>`<li>${x}</li>`).join("");
   return `<div style="margin-top:8px"><b>Hand-by-hand check:</b><ol class="detail-steps">${rows}</ol>`+
@@ -7781,8 +8270,8 @@ function answerHandReadingStreet(choice){
   f.className=`showdown-feedback ${correct?"good":"bad"}`;
   const winnerText=actual.length>1?`Players ${actual.join(" & ")} are tied`:`Player ${actual[0]} is ahead`;
   f.innerHTML=(correct
-    ? `<b>Correct.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`
-    : `<b>Incorrect.</b> ${winnerText} with <b>${bestEval?describeRank(bestEval.rank):"the best hand"}</b>.`)
+    ? `<b>Correct.</b> ${winnerText} with <b>${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}</b>.`
+    : `<b>Incorrect.</b> ${winnerText} with <b>${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}</b>.`)
     + handReadingExplanation(result);
 
   if(correct){
@@ -7812,11 +8301,10 @@ async function advanceHandReadingStreet(){
   const bestEval=finalResult.evals.find(e=>finalResult.winners.includes(e.player));
   $("actionText").textContent="HAND READING COMPLETE";
   $("instruction").textContent=finalResult.winners.length>1
-    ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`
-    : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRank(bestEval.rank):"the best hand"}.`;
+    ? `Final result: Players ${finalResult.winners.join(" & ")} chop with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`
+    : `Final result: Player ${finalResult.winners[0]} wins with ${bestEval?describeRankDetailed(bestEval.rank):"the best hand"}.`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
-  $("nextAction").textContent="NEXT ACTION / DONE";
-  $("nextAction").disabled=false;
+  setNextActionNewHandMode(true);
   $("streetReady").classList.add("show");
   $("streetReady").innerHTML=`<b>HAND READING REVIEW COMPLETE.</b>${showdownLearningHTML()}`;
   revealVisualHoleCards();
@@ -7912,6 +8400,83 @@ async function runSoloVisualMechanics(){
   renderPlayers();
 }
 
+function buildPloPotTrainingAction(p,toCall,mayRaise,minTo){
+  if(selectedGame!=="plo" || !state || !mayRaise || p.folded || p.allin) return null;
+  const level=ploPotAggressionLevel();
+  if(level<=0) return null;
+  const cfg=ploPotAggressionCfg(level);
+  state.ploPotTraining=state.ploPotTraining||{opportunitiesSincePot:0,potDeclarations:0};
+
+  const potBefore=actualPot();
+  const blindLineupAdjustment=ploBlindLineupAdjustment();
+  const countingPotBefore=potBefore+blindLineupAdjustment;
+  const maxTo=potLimitMaxTo(p);
+  const remainingTotal=p.streetBet+p.stack;
+
+  // Only call it POT when the player can actually cover the full legal pot amount.
+  // Shorter stacks remain normal all-in candidates instead of teaching an impossible amount.
+  if(remainingTotal<maxTo || maxTo<=state.currentBet || (state.currentBet>0 && maxTo<minTo)){
+    return null;
+  }
+
+  state.ploPotTraining.opportunitiesSincePot++;
+  let chance=cfg.potChance;
+
+  // Class-style preflop pattern: allow one or two $5 calls to build the pot,
+  // then make POT very likely/forced according to the selected aggression level.
+  if(state.street==="Preflop" && state.currentBet===(Number(gameCfg().bringIn)||state.bb) && state.actions<2){
+    chance*=0.35;
+  }
+
+  const forceByGap=Number.isFinite(cfg.maxGap) && state.ploPotTraining.opportunitiesSincePot>cfg.maxGap;
+  if(!forceByGap && Math.random()>=chance) return null;
+
+  state.ploPotTraining.opportunitiesSincePot=0;
+  state.ploPotTraining.potDeclarations++;
+  const target=maxTo;
+  const add=Math.max(0,target-p.streetBet);
+  return {
+    type:state.currentBet>0?"raise":"bet",target,amount:add,pullAmount:add,
+    label:`PLAYER ${p.id} SAYS "POT"`,short:"POT",potDeclaration:true,
+    potBefore,countingPotBefore,blindLineupAdjustment,toCall,currentBetBefore:state.currentBet,
+    potAfterCall:potBefore+toCall,countingPotAfterCall:countingPotBefore+toCall,
+    ploAggressionLevel:level,forcedPot:forceByGap
+  };
+}
+
+function askPloPotDeclarationQuestion(p,pending){
+  if(!pending?.potDeclaration) return;
+  hideChipPull();
+  $("actionText").textContent=`PLAYER ${p.id} SAYS “POT”`;
+  $("instruction").textContent=pending.blindLineupAdjustment>0
+    ? "Call the pot immediately. ROOM RULE: count the $1+$2 blind group as $5 for this preflop POT calculation. Wager totals play in $5 increments; any $1-$4 scrap does not play. Enter the TOTAL legal wager."
+    : "Call the pot immediately. ROOM RULE: PLO wager totals play in $5 increments. Drop any $1-$4 scrap from the wager amount, then enter the TOTAL legal wager.";
+  askQuestion(
+    "PLO POT — WHAT IS THE TOTAL WAGER?",
+    "Use the chips already in the pot plus the amount this player must call. The answer stays hidden until you submit.",
+    pending.target,"plopot",()=>{
+      showChipPull(pending.pullAmount,p.id,pending.type==="raise"?"ADD":"PULL");
+      $("actionText").textContent=`PLAYER ${p.id} POT — TO ${money(pending.target)}`;
+      $("instruction").textContent=`Correct pot amount: ${money(pending.target)} total. Player ${p.id} already has ${money(p.streetBet)} in front, so pull/add ${money(pending.pullAmount)}, then press NEXT ACTION.`;
+      renderPlayers();
+    }
+  );
+  state.pendingQuestion.ploPotContext={
+    playerId:p.id,
+    potBefore:pending.potBefore,
+    countingPotBefore:pending.countingPotBefore,
+    blindLineupAdjustment:pending.blindLineupAdjustment,
+    toCall:pending.toCall,
+    currentBet:pending.currentBetBefore,
+    streetBet:p.streetBet,
+    potAfterCall:pending.potAfterCall,
+    countingPotAfterCall:pending.countingPotAfterCall,
+    totalWager:pending.target,
+    addAmount:pending.pullAmount,
+    startedAt:Date.now()
+  };
+}
+
 function buildActionForPlayer(p){
   const toCall=Math.max(0,state.currentBet-p.streetBet);
   const difficulty=+$("difficulty").value;
@@ -7924,10 +8489,13 @@ function buildActionForPlayer(p){
   const normalCap=cfg.normalPotCap || 200;
   const difficulty4=difficulty>=4;
   const mayRaise=canPlayerRaise(p);
-  const minTo=state.currentBet+state.lastFullRaise;
+  const minTo=currentMinRaiseTo();
 
   const sidePotTrainingAction=buildSidePotTrainingAction(p,toCall,mayRaise,minTo);
   if(sidePotTrainingAction) return sidePotTrainingAction;
+
+  const ploPotAction=buildPloPotTrainingAction(p,toCall,mayRaise,minTo);
+  if(ploPotAction) return ploPotAction;
 
   // V23 short-all-in engine. If the player's entire stack lands between
   // the call amount and a full legal raise, it is an incomplete all-in raise.
@@ -7956,7 +8524,11 @@ function buildActionForPlayer(p){
     let foldChance=0.34;
     let callCutoff=0.89; // raise frequency roughly cut in half
 
-    if(selectedGame==="nlh" && state.street==="Preflop"){
+    if(selectedGame==="plo"){
+      const pcfg=ploPotAggressionCfg();
+      foldChance=pcfg.foldChance;
+      callCutoff=0.985; // POT decisions are handled above; non-POT PLO action mostly calls.
+    }else if(selectedGame==="nlh" && state.street==="Preflop"){
       if(state.currentBet>=20){
         // In this room, a preflop raise around $20-$30 usually gets folds.
         foldChance=0.70;
@@ -8001,13 +8573,16 @@ function buildActionForPlayer(p){
     // Level 4 occasionally pushes a remaining stack all-in to create
     // full-raise and side-pot situations.
     if(difficulty4 && mayRaise && p.stack>toCall && Math.random()<0.16){
-      const allInTarget=p.streetBet+p.stack;
-      if(allInTarget>state.currentBet){
+      const rawAllInTarget=p.streetBet+p.stack;
+      const allInTarget=selectedGame==="plo" ? ploRoomFloorWager(rawAllInTarget) : rawAllInTarget;
+      const allInAdd=Math.max(0,allInTarget-p.streetBet);
+      if(allInTarget>state.currentBet && allInAdd>0){
         return {
-          type:"allin",target:allInTarget,amount:p.stack,
-          label:`PLAYER ${p.id} IS ALL-IN TO ${money(allInTarget)} — ADD ${money(p.stack)}`,
+          type:"allin",target:allInTarget,amount:allInAdd,
+          label:`PLAYER ${p.id} IS ALL-IN TO ${money(allInTarget)} — ADD ${money(allInAdd)}`,
           short:`ALL-IN TO ${money(allInTarget)}`,
-          pullAmount:p.stack
+          pullAmount:allInAdd,
+          roomScrapLeft:selectedGame==="plo"?Math.max(0,rawAllInTarget-allInTarget):0
         };
       }
     }
@@ -8015,12 +8590,13 @@ function buildActionForPlayer(p){
     if(cfg.mode==="LIMIT"){
       target=Math.min(state.currentBet+limitUnit(),remainingTotal);
     }else if(cfg.mode==="PL"){
-      const branchMinTo=state.currentBet+state.lastFullRaise;
+      const branchMinTo=currentMinRaiseTo();
       const maxTo=potLimitMaxTo(p);
       const preferred=Math.max(branchMinTo,Math.round(state.currentBet*2.5));
       target=Math.min(preferred,maxTo,remainingTotal);
+      if(selectedGame==="plo") target=ploRoomFloorWager(target);
     }else{
-      const branchMinTo=state.currentBet+state.lastFullRaise;
+      const branchMinTo=currentMinRaiseTo();
 
       if(selectedGame==="nlh"){
         // Rare genuine big-pot branch. Much more likely on turn/river than preflop/flop.
@@ -8103,6 +8679,10 @@ function buildActionForPlayer(p){
     const fractions=[0.5,0.66,0.75,1];
     target=Math.round(tablePot*fractions[Math.floor(Math.random()*fractions.length)]);
     target=Math.min(target,remainingTotal,tablePot);
+    if(selectedGame==="plo"){
+      target=ploRoomFloorWager(target);
+      if(target>0 && target<PLO_ROOM_WAGER_UNIT) target=PLO_ROOM_WAGER_UNIT;
+    }
   }else if(selectedGame==="nlh"){
     const tablePot=Math.max(4,gross);
     let fractions;
@@ -8145,6 +8725,119 @@ function buildActionForPlayer(p){
   };
 }
 
+function normalizeGeneratedAction(p,a){
+  if(!p || !a || !state) return a;
+
+  // Final room-rule safety net: in PLO, normal wager TARGETS are $5 based.
+  // This prevents any generator from leaking values such as $17 or $22.
+  if(selectedGame==="plo" && ["bet","raise","allin"].includes(a.type) && Number.isFinite(Number(a.target))){
+    const rawTarget=Number(a.target);
+    let playableTarget=ploRoomFloorWager(rawTarget);
+
+    // A full bet/raise cannot be rounded below the current wager.
+    if(a.type!=="allin" && playableTarget<=state.currentBet && rawTarget>state.currentBet){
+      playableTarget=state.currentBet;
+    }
+
+    // For all-ins, leave $1-$4 scrap behind rather than putting it into play.
+    if(a.type==="allin"){
+      const maxPlayable=ploRoomPlayableStackTotal(p);
+      playableTarget=Math.min(playableTarget,maxPlayable);
+      a.roomScrapLeft=Math.max(0,(p.streetBet+p.stack)-playableTarget);
+    }
+
+    if(playableTarget!==rawTarget){
+      a={...a,target:playableTarget};
+      const add=Math.max(0,playableTarget-p.streetBet);
+      a.amount=add;
+      a.pullAmount=add;
+      if(a.type==="bet"){
+        a.label=`PLAYER ${p.id} BETS ${money(playableTarget)}`;
+        a.short=`BETS ${money(playableTarget)}`;
+      }else if(a.type==="raise"){
+        a.label=`PLAYER ${p.id} RAISES TO ${money(playableTarget)} — ADD ${money(add)}`;
+        a.short=`RAISES TO ${money(playableTarget)} — ADD ${money(add)}`;
+      }else{
+        a.label=`PLAYER ${p.id} IS ALL-IN TO ${money(playableTarget)} — ADD ${money(add)}`;
+        a.short=`ALL-IN TO ${money(playableTarget)}`;
+      }
+      a.roomIncrementCorrected=true;
+    }
+  }
+
+  const toCall=Math.max(0,state.currentBet-p.streetBet);
+  const minTo=currentMinRaiseTo();
+  const remainingTotal=p.streetBet+p.stack;
+
+  if(selectedGame==="plo" && a.type==="bet" && Number(a.target)<=0){
+    return {type:"check",label:`PLAYER ${p.id} CHECKS`,short:"CHECKS",pullAmount:0,roomIncrementCorrected:true};
+  }
+
+  // A CALL is always exactly the current wager, unless the player cannot
+  // cover it, in which case it is an all-in call for the remaining stack.
+  if(a.type==="call"){
+    const amt=Math.min(toCall,p.stack);
+    return {
+      ...a,
+      type:"call",
+      amount:amt,
+      target:undefined,
+      pullAmount:amt,
+      label:(amt===p.stack && amt<toCall)
+        ? `PLAYER ${p.id} IS ALL-IN — ADD ${money(amt)}`
+        : `PLAYER ${p.id} CALLS — ADD ${money(amt)}`,
+      short:(amt===p.stack && amt<toCall)
+        ? `ALL-IN — ADD ${money(amt)}`
+        : `CALLS — ADD ${money(amt)}`
+    };
+  }
+
+  // A normal raise may never land between the call amount and the minimum
+  // full raise. If a generator proposes one, convert it to an exact call.
+  if(a.type==="raise" && Number(a.target)>state.currentBet && Number(a.target)<minTo){
+    const amt=Math.min(toCall,p.stack);
+    return {
+      type:"call",amount:amt,pullAmount:amt,
+      label:(amt===p.stack && amt<toCall)
+        ? `PLAYER ${p.id} IS ALL-IN — ADD ${money(amt)}`
+        : `PLAYER ${p.id} CALLS — ADD ${money(amt)}`,
+      short:(amt===p.stack && amt<toCall)
+        ? `ALL-IN — ADD ${money(amt)}`
+        : `CALLS — ADD ${money(amt)}`,
+      legalityCorrected:true
+    };
+  }
+
+  // In PLO, a non-all-in raise must also stay at or below the legal pot cap.
+  if(selectedGame==="plo" && a.type==="raise"){
+    const maxTo=potLimitMaxTo(p);
+    if(Number(a.target)>maxTo){
+      if(maxTo>=minTo && maxTo<=remainingTotal){
+        const add=Math.max(0,maxTo-p.streetBet);
+        return {
+          ...a,target:maxTo,amount:add,pullAmount:add,
+          label:`PLAYER ${p.id} RAISES TO ${money(maxTo)} — ADD ${money(add)}`,
+          short:`RAISES TO ${money(maxTo)} — ADD ${money(add)}`,
+          legalityCorrected:true
+        };
+      }
+      const amt=Math.min(toCall,p.stack);
+      return {
+        type:"call",amount:amt,pullAmount:amt,
+        label:(amt===p.stack && amt<toCall)
+          ? `PLAYER ${p.id} IS ALL-IN — ADD ${money(amt)}`
+          : `PLAYER ${p.id} CALLS — ADD ${money(amt)}`,
+        short:(amt===p.stack && amt<toCall)
+          ? `ALL-IN — ADD ${money(amt)}`
+          : `CALLS — ADD ${money(amt)}`,
+        legalityCorrected:true
+      };
+    }
+  }
+
+  return a;
+}
+
 function prepareCurrentAction(){
   if(!state || !state.handActive || waitingQuestion) return;
   if(activePlayers().length===1){ awardUncontestedWinner(); return; }
@@ -8161,12 +8854,19 @@ function prepareCurrentAction(){
   // Clear old pending indicators.
   state.players.forEach(x=>x.pendingAction="");
 
-  const pending=buildActionForPlayer(p);
+  const pending=normalizeGeneratedAction(p,buildActionForPlayer(p));
   state.pendingAction={...pending,playerIndex:state.toAct};
   p.pendingAction=pending.short;
 
   $("actionText").textContent=pending.label;
   const reopened=canPlayerRaise(p);
+
+  if(pending.potDeclaration){
+    renderPlayers();
+    askPloPotDeclarationQuestion(p,pending);
+    return;
+  }
+
   $("instruction").textContent=pending.pullAmount>0
     ? "This is what the player is doing NOW. Pull the chips shown below, then press NEXT ACTION when you have completed it."
     : "This is what the player is doing NOW. Perform the action, then press NEXT ACTION.";
@@ -8188,6 +8888,10 @@ function commitPendingAction(){
   p.pendingAction="";
   const oldBet=state.currentBet;
   const oldLastFullRaise=state.lastFullRaise;
+  const oldLastFullWager=Number.isFinite(Number(state.lastFullWager))?Number(state.lastFullWager):oldBet;
+  const oldAnchoredMinTo=(selectedGame==="plo" && oldLastFullWager+oldLastFullRaise>oldBet)
+    ? oldLastFullWager+oldLastFullRaise
+    : oldBet+oldLastFullRaise;
   let actionKind=a.type;
   let wasShortRaise=false;
   let wasFullRaise=false;
@@ -8211,20 +8915,32 @@ function commitPendingAction(){
 
     if(target>oldBet){
       state.currentBet=target;
-      if(raiseSize>=oldLastFullRaise){
-        state.lastFullRaise=raiseSize;
+      const classFullRaise=(selectedGame==="plo" && target>=oldAnchoredMinTo);
+      if(raiseSize>=oldLastFullRaise || classFullRaise){
+        if(selectedGame==="plo"){
+          state.lastFullRaise=Math.max(oldLastFullRaise,target-oldLastFullWager);
+          state.lastFullWager=target;
+        }else{
+          state.lastFullRaise=raiseSize;
+        }
         wasFullRaise=true;
       }else{
-        // TDA: an incomplete all-in raise changes the current wager,
-        // but it does NOT change the last full raise increment.
+        // Incomplete all-in: the amount to CALL changes, but the PLO class
+        // profile keeps the already-established full-raise target anchored.
         wasShortRaise=true;
       }
     }
   }else if(a.type==="raise"){
     const raiseSize=a.target-oldBet;
     post(p,a.amount);
-    if(raiseSize>=oldLastFullRaise){
-      state.lastFullRaise=raiseSize;
+    const classFullRaise=(selectedGame==="plo" && a.target>=oldAnchoredMinTo);
+    if(raiseSize>=oldLastFullRaise || classFullRaise){
+      if(selectedGame==="plo"){
+        state.lastFullRaise=Math.max(oldLastFullRaise,a.target-oldLastFullWager);
+        state.lastFullWager=a.target;
+      }else{
+        state.lastFullRaise=raiseSize;
+      }
       wasFullRaise=true;
     }
     state.currentBet=a.target;
@@ -8233,6 +8949,7 @@ function commitPendingAction(){
     state.currentBet=a.target;
     if(a.target>=state.bb){
       state.lastFullRaise=a.target;
+      state.lastFullWager=a.target;
       wasFullRaise=true;
     }
   }
@@ -8244,7 +8961,9 @@ function commitPendingAction(){
   if(wasShortRaise){
     state.shortAllInActive=true;
     state.advancedSpot=`SHORT ALL-IN: P${p.id} TO ${money(state.currentBet)}`;
-    $("dealerAlert").textContent=`SHORT ALL-IN • FULL RAISE STILL ${money(state.lastFullRaise)}`;
+    $("dealerAlert").textContent=selectedGame==="plo"
+      ? `SHORT ALL-IN • CALL ${money(state.currentBet)} • FULL RAISE TO ${money(currentMinRaiseTo())}`
+      : `SHORT ALL-IN • FULL RAISE STILL ${money(state.lastFullRaise)}`;
     $("dealerAlert").classList.add("dealer-alert-hot");
   }else if(wasFullRaise){
     state.shortAllInActive=false;
@@ -8274,7 +8993,53 @@ function commitPendingAction(){
   advanceAction();
 }
 
+function setNextActionNewHandMode(on){
+  const base=$("nextAction");
+  const visible=document.getElementById("v235NextAction");
+
+  if(on){
+    if(base){
+      base.textContent="START NEW HAND";
+      base.disabled=false;
+    }
+    if(visible){
+      visible.innerHTML="START NEW HAND &nbsp; →";
+      visible.disabled=false;
+    }
+  }else{
+    if(base){
+      base.textContent="NEXT ACTION / DONE";
+      base.disabled=false;
+    }
+    if(visible){
+      visible.innerHTML="NEXT ACTION &nbsp; →";
+      visible.disabled=false;
+    }
+  }
+}
+
+function startNewHandFromNextAction(){
+  // Use the public bottom-bar NEW HAND control when available so the
+  // existing UI hand counter and cleanup hooks run exactly as they do
+  // when the user clicks NEW HAND manually.
+  const publicNewHand=document.getElementById("v235NewHand");
+  if(publicNewHand && !publicNewHand.disabled){
+    publicNewHand.click();
+    return;
+  }
+
+  const engineNewHand=document.getElementById("newHand");
+  if(engineNewHand && !engineNewHand.disabled) engineNewHand.click();
+}
+
 function act(){
+  // Once showdown/payout is finished, NEXT ACTION becomes the convenient
+  // "start the next hand" shortcut.
+  if(state && (state.winnerPaid || state.showdownComplete)){
+    startNewHandFromNextAction();
+    return;
+  }
+
   if(state?.handReadingOnly){
     if(state.street==="Flop" || state.street==="Turn"){
       advanceHandReadingBoard();
@@ -8328,8 +9093,13 @@ async function runAllInBoardToRiver(){
     state.street=streets[idx];
     $("street").textContent=state.street.toUpperCase();
     if(isVisualLike()){
-      await animateBoardForStreet(state.street);
-      await wait(220);
+      if(state.potDrillsOnly){
+        $("visualStatus").textContent=`${state.street.toUpperCase()} POT DRILL — NO CARDS`;
+        await wait(80);
+      }else{
+        await animateBoardForStreet(state.street);
+        await wait(220);
+      }
     }
   }
 
@@ -8388,7 +9158,9 @@ function endStreet(){
       state.lastFullRaise=(gameCfg().mode==="LIMIT"
         ? ((state.street==="Turn"||state.street==="River")?gameCfg().bigBet:gameCfg().smallBet)
         : state.bb);
+      state.lastFullWager=0;
       state.actions=0;
+      resetPloPotAggressionStreet();
       resetStreetActionRights();
 
       let i=state.button;
@@ -8398,12 +9170,21 @@ function endStreet(){
       }
 
       $("streetReady").classList.remove("show");
-      $("actionText").textContent=`${state.street.toUpperCase()} — betting round begins`;
-      $("instruction").textContent=`Put out the ${state.street.toLowerCase()} cards. Player ${state.players[state.toAct].id} is first to act.`;
-      log(`${state.street} begins`);
+      $("actionText").textContent=state.potDrillsOnly
+        ? `${state.street.toUpperCase()} — POT DRILL BETTING ROUND`
+        : `${state.street.toUpperCase()} — betting round begins`;
+      $("instruction").textContent=state.potDrillsOnly
+        ? `No cards in POT DRILLS ONLY. Treat this as the ${state.street} betting round. Player ${state.players[state.toAct].id} is first to act.`
+        : `Put out the ${state.street.toLowerCase()} cards. Player ${state.players[state.toAct].id} is first to act.`;
+      log(`${state.street} begins${state.potDrillsOnly?" • POT DRILL • NO CARDS":""}`);
       renderPlayers();
       if(isVisualLike()){
-        animateBoardForStreet(state.street).then(()=>maybeAskActionOrderQuestion(()=>prepareCurrentAction()));
+        if(state.potDrillsOnly){
+          $("visualStatus").textContent=`${state.street.toUpperCase()} POT DRILL — NO CARDS`;
+          maybeAskActionOrderQuestion(()=>prepareCurrentAction());
+        }else{
+          animateBoardForStreet(state.street).then(()=>maybeAskActionOrderQuestion(()=>prepareCurrentAction()));
+        }
       }else{
         maybeAskActionOrderQuestion(()=>prepareCurrentAction());
       }
@@ -8496,6 +9277,7 @@ function awardUncontestedWinner(){
     $("actionText").textContent=`UNCONTESTED — PLAYER ${winner.id} WINS`;
     $("instruction").textContent=`All other players folded. Player ${winner.id} has been paid ${money(award)}. Start a new hand when ready.`;
     $("nextUp").textContent="NEXT UP: START NEW HAND";
+    setNextActionNewHandMode(true);
 
     if(newHandBtn) newHandBtn.disabled=false;
     if(topNewHand) topNewHand.disabled=false;
@@ -8559,13 +9341,29 @@ function finishHand(alreadyQuizzed=false){
       state.finalNetPot=netPotAfterDrop(state.finalGrossPot);
     }
 
+    if(state.potDrillsOnly){
+      state.showdownComplete=true;
+      state.winnerPaid=false;
+      sessionStacks=null;
+      $("winnerPanel").classList.remove("show");
+      $("showdownPanel").classList.remove("show");
+      $("payoutResult").classList.remove("show");
+      $("actionText").textContent="POT DRILL COMPLETE — NO SHOWDOWN";
+      $("instruction").textContent=`Money work complete. Final actual pot: ${money(state.finalGrossPot)}. No cards were dealt and no winner is required. Use NEXT ACTION to start a new pot drill.`;
+      $("nextUp").textContent="NEXT UP: START NEW POT DRILL";
+      if(isVisualLike()) $("visualStatus").textContent="POT DRILL COMPLETE — NO CARDS / NO SHOWDOWN";
+      setNextActionNewHandMode(true);
+      log(`POT DRILL COMPLETE • Final actual pot ${money(state.finalGrossPot)} • No showdown`);
+      renderPlayers();
+      return;
+    }
+
     $("actionText").textContent="BETTING COMPLETE — PAY THE WINNER";
     $("instruction").textContent="You have already checked the final pot, rake, and jackpot. Now determine the winner, push the remaining pot, then select that player below.";
     $("nextUp").textContent="NEXT UP: SELECT WINNER";
     log("Betting complete — waiting for winner selection");
 
     if(isVisualLike()){
-      // Visual showdown itself determines the correct winner. After DONE it auto-pays.
       showVisualShowdown(null);
     }else{
       showWinnerSelection();
@@ -8807,11 +9605,24 @@ function answerShowdown(choice){
   const choseChop=choice[0]==="CHOP";
   const correct=(choseChop && actual.length>1) || (!choseChop && actual.length===1 && actual[0]===choice[0]);
   const f=$("showdownFeedback");
-  const detail=bestEval ? `${handName(bestEval.rank)} — ${bestEval.cards.map(cardText).join(" ")}` : "";
+  const detail=bestEval ? `${describeRankDetailed(bestEval.rank)}${bestFiveUsage(bestEval.player,bestEval)}` : "";
+  let comparisonHTML="";
+  if(!correct && actual.length===1 && bestEval){
+    const chosenId=Number(choice[0]);
+    const chosenEval=r.evals.find(e=>e.player===chosenId);
+    if(chosenEval){
+      comparisonHTML=`<br><b>Why:</b> ${handComparisonReason(bestEval.rank,chosenEval.rank)}`;
+    }else if(choseChop){
+      const other=r.evals.find(e=>e.player!==actual[0] && (!state.sidePotShowdownMode || (state.roomShowdownCandidates||[]).includes(e.player)));
+      if(other) comparisonHTML=`<br><b>Why this is not a chop:</b> ${handComparisonReason(bestEval.rank,other.rank)}`;
+    }
+  }else if(!correct && actual.length>1){
+    comparisonHTML=`<br><b>Why:</b> ${holdemTieExplanation(r.evals,actual)}`;
+  }
   f.className=`showdown-feedback ${correct?"good":"bad"}`;
   f.innerHTML=(correct
     ? `<b>Correct.</b> ${potLabel}${actual.length>1?`Players ${actual.join(" & ")} chop.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`
-    : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}`)
+    : `<b>Incorrect.</b> ${potLabel}${actual.length>1?`The pot is chopped by Players ${actual.join(" & ")}.`:`Player ${actual[0]} wins.`}<br><b>Winning hand:</b> ${detail}${comparisonHTML}`)
     + (state.sidePotShowdownMode?"":showdownLearningHTML());
   if(correct){
     $("showdownDoneWrap").classList.remove("show");
@@ -8922,6 +9733,7 @@ function autoPayVisualShowdown(){
   const allPayoutLines=[...(state.immediatePayoutLog||[]),...payoutLog];
   $("instruction").innerHTML=`Correct eligible winners have been paid in side-pot-first order.<br>${allPayoutLines.join(" • ")}`;
   $("nextUp").textContent="NEXT UP: START NEW HAND";
+  setNextActionNewHandMode(true);
   payoutLog.forEach(x=>log(x)); renderPlayers();
 }
 
@@ -9098,6 +9910,34 @@ function buildDetailedExplanation(type, userAnswer, correct){
       </ol>
       <b>Dealer habit:</b> keep the last full raise size separate from the total raise-to amount.`;
   }
+  if(type==="plopot"){
+    const c=state.pendingQuestion?.ploPotContext||{};
+    const potBefore=Number(c.potBefore)||0;
+    const blindAdj=Number(c.blindLineupAdjustment)||0;
+    const countingBefore=Number.isFinite(Number(c.countingPotBefore))?Number(c.countingPotBefore):potBefore+blindAdj;
+    const toCall=Number(c.toCall)||0;
+    const realAfterCall=Number.isFinite(Number(c.potAfterCall))?Number(c.potAfterCall):potBefore+toCall;
+    const countingAfterCall=Number.isFinite(Number(c.countingPotAfterCall))?Number(c.countingPotAfterCall):countingBefore+toCall;
+    const currentBet=Number(c.currentBet)||0;
+    const streetBet=Number(c.streetBet)||0;
+    const addAmount=Number(c.addAmount)||Math.max(0,Number(correct)-streetBet);
+
+    const blindRule=blindAdj>0
+      ? `<li><b>Room blind-lineup rule:</b> the $1 + $2 blinds are <b>$3 real chips</b>, but that blind group is treated as a <b>$5 counting unit</b> for preflop POT math. Add the <b>${money(blindAdj)} counting adjustment</b>: ${money(potBefore)} real → <b>${money(countingBefore)}</b> counting value.</li>`
+      : `<li>No blind-lineup adjustment applies on this street, so the real pot and dealer counting pot are the same: <b>${money(countingBefore)}</b>.</li>`;
+
+    return `
+      <ol class="detail-steps">
+        <li><b>Real chips before the player acts:</b> ${money(potBefore)}. This is the amount that actually exists for accounting/payout.</li>
+        ${blindRule}
+        <li>The player must call <b>${money(toCall)}</b> first. For POT math, ${money(countingBefore)} + ${money(toCall)} = <b>${money(countingAfterCall)}</b>.</li>
+        <li>A full POT raise is then <b>${money(countingAfterCall)}</b> more.</li>
+        <li>Current wager ${money(currentBet)} + pot-sized raise ${money(countingAfterCall)} = <b>${money(correct)} total legal wager</b>.</li>
+        <li>The player already has ${money(streetBet)} physically in front, so pull/add <b>${money(addAmount)}</b>.</li>
+        <li><b>Accounting reminder:</b> the blind-lineup adjustment is only mental POT math. It never creates extra chips. Real pot after the call is ${money(realAfterCall)}.</li>
+      </ol>
+      <b>Fast room formula:</b> line the $1+$2 blinds up as $5 when required → call first → calculate POT → <b>drop any $1-$4 scrap so the wager is a $5 increment</b> → keep actual-chip accounting separate.`;
+  }
   if(type==="pot"){
     return `
       <ol class="detail-steps">
@@ -9229,13 +10069,16 @@ function submit(){
   updateAuditionDisplay();
 
   const f=$("feedback");
+  const potCtx=type==="plopot"?state.pendingQuestion?.ploPotContext:null;
+  const potSpeed=potCtx?.startedAt?Math.max(0,(Date.now()-potCtx.startedAt)/1000):null;
+  const speedText=Number.isFinite(potSpeed)?` <span style="opacity:.8">• ${potSpeed.toFixed(1)}s</span>`:"";
   if(ok){
     f.className="feedback good";
-    f.innerHTML=`<b>Correct.</b> ${correctDisplay}.`;
+    f.innerHTML=`<b>Correct.</b> ${correctDisplay}.${speedText}`;
     $("askCorner").classList.remove("show");
   }else{
     f.className="feedback bad";
-    f.innerHTML=`<b>Incorrect.</b> Your answer: <b>${userDisplay}</b><br>Correct answer: <b>${correctDisplay}</b>${buildDetailedExplanation(type,val,correct)}`;
+    f.innerHTML=`<b>Incorrect.</b> Your answer: <b>${userDisplay}</b>${speedText}<br>Correct answer: <b>${correctDisplay}</b>${buildDetailedExplanation(type,val,correct)}`;
     $("askCorner").classList.add("show");
   }
 
@@ -9414,16 +10257,37 @@ renderPlayers();
   document.querySelectorAll('[data-close-panel]').forEach(btn=>btn.addEventListener('click',closePanels));
   document.querySelectorAll('.v235-overlay').forEach(panel=>panel.addEventListener('click',e=>{if(e.target===panel) closePanels()}));
 
-  // Player count Option A: select first, then Start Session.
+  // Player count + visible game selection, then Start Session.
   let savedDefaultPlayers=5;
   try{ savedDefaultPlayers=Number(window.localStorage?.getItem('v235DefaultPlayers')||5); }catch(e){ savedDefaultPlayers=5; }
   selectedCount=savedDefaultPlayers;
   if(selectedCount<2||selectedCount>8) selectedCount=5;
   selectedPlayerCount=selectedCount;
+
+  let selectedCountGame='nlh';
+  const syncCountGamePicker=()=>{
+    document.querySelectorAll('[data-count-game]').forEach(btn=>{
+      const active=btn.dataset.countGame===selectedCountGame;
+      btn.classList.toggle('selected',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+    });
+    const hiddenGame=document.getElementById('trainingGame');
+    if(hiddenGame) hiddenGame.value=selectedCountGame;
+  };
+
   document.querySelectorAll('.count-btn').forEach(btn=>{
     btn.classList.toggle('selected',Number(btn.dataset.playerCount)===selectedCount);
     btn.addEventListener('click',()=>{ selectedCount=Number(btn.dataset.playerCount); choosePlayerCount(selectedCount); });
   });
+
+  document.querySelectorAll('[data-count-game]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      selectedCountGame=btn.dataset.countGame==='plo'?'plo':'nlh';
+      syncCountGamePicker();
+    });
+  });
+  syncCountGamePicker();
+
   document.getElementById('v235CountBackBottom')?.addEventListener('click',backFromPlayerCount);
   const startBtn=document.getElementById('startSessionFromCount');
   if(startBtn) startBtn.addEventListener('click',()=>{
@@ -9435,7 +10299,7 @@ renderPlayers();
     }
     document.getElementById('playerCountScreen').style.display='none';
     document.getElementById('menuScreen').style.display='none';
-    chooseGame('nlh');
+    chooseGame(selectedCountGame);
     document.body.classList.add('v235-live');
     updateModeLabel();
   });
@@ -9576,9 +10440,21 @@ renderPlayers();
 
   // Settings: connect only to real engine controls or harmless UI preferences.
   try{
+    const savedTrainingGame=window.localStorage?.getItem('pdtTrainingGameV1');
+    if(savedTrainingGame && document.getElementById('trainingGame') && ["nlh","plo"].includes(savedTrainingGame)){
+      document.getElementById('trainingGame').value=savedTrainingGame;
+    }
+    const savedPloPotAggression=window.localStorage?.getItem('pdtPloPotAggressionV1');
+    if(savedPloPotAggression!==null && document.getElementById('ploPotAggression')){
+      document.getElementById('ploPotAggression').value=String(Math.max(0,Math.min(4,Number(savedPloPotAggression))));
+    }
     const savedSidePotLevel=window.localStorage?.getItem('pdtSidePotTrainingLevelV1');
     if(savedSidePotLevel!==null && document.getElementById('sidePotTraining')){
       document.getElementById('sidePotTraining').value=String(Math.max(0,Math.min(4,Number(savedSidePotLevel))));
+    }
+    const savedPotDrillMode=window.localStorage?.getItem('pdtPotDrillsOnlyV1');
+    if(savedPotDrillMode!==null && document.getElementById('potDrillMode')){
+      document.getElementById('potDrillMode').value=String(Number(savedPotDrillMode)?1:0);
     }
     const savedHandReading=window.localStorage?.getItem('pdtHandReadingOnlyV1');
     if(savedHandReading!==null && document.getElementById('handReadingMode')){
@@ -9597,15 +10473,44 @@ renderPlayers();
       : "Available only after entering Visual Dealer Mode or Audition Mode.";
   }
   function syncSettingsFromEngine(){
+    markSegment('v235TrainingGame',document.getElementById('trainingGame')?.value||selectedGame||'nlh');
     markSegment('v235Difficulty',document.getElementById('difficulty').value);
+    markSegment('v235PloPotAggression',document.getElementById('ploPotAggression')?.value||'3');
     markSegment('v235SidePotTraining',document.getElementById('sidePotTraining')?.value||'2');
+    markSegment('v235PotDrillMode',document.getElementById('potDrillMode')?.value||'0');
     markSegment('v235HandReadingMode',document.getElementById('handReadingMode')?.value||'0');
     syncHandReadingAvailability();
     markSegment('v235QuestionFrequency',document.getElementById('qfreq').value);
     const ss=document.getElementById('v235StartingStack'); if(ss)ss.value=String(document.getElementById('stack').value);
     document.querySelectorAll('#v235DefaultPlayers button').forEach(b=>b.classList.toggle('active',Number(b.textContent.trim())===selectedCount));
   }
+  document.querySelectorAll('#v235TrainingGame button').forEach(b=>b.addEventListener('click',()=>{
+    const v=["nlh","plo"].includes(b.dataset.value)?b.dataset.value:"nlh";
+    const engine=document.getElementById('trainingGame'); if(engine) engine.value=v;
+    try{window.localStorage?.setItem('pdtTrainingGameV1',v);}catch(e){}
+    markSegment('v235TrainingGame',v);
+    if(trainingMode) chooseGame(v);
+  }));
+  document.getElementById('trainingGame')?.addEventListener('change',e=>{
+    const v=["nlh","plo"].includes(e.target.value)?e.target.value:"nlh";
+    try{window.localStorage?.setItem('pdtTrainingGameV1',v);}catch(err){}
+    markSegment('v235TrainingGame',v);
+    if(trainingMode) chooseGame(v);
+  });
   document.querySelectorAll('#v235Difficulty button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('difficulty').value=b.dataset.value;markSegment('v235Difficulty',b.dataset.value)}));
+  document.querySelectorAll('#v235PloPotAggression button').forEach(b=>b.addEventListener('click',()=>{
+    const v=String(Math.max(0,Math.min(4,Number(b.dataset.value||0))));
+    const engine=document.getElementById('ploPotAggression'); if(engine) engine.value=v;
+    try{window.localStorage?.setItem('pdtPloPotAggressionV1',v);}catch(e){}
+    markSegment('v235PloPotAggression',v);
+    if(state?.ploPotTraining) state.ploPotTraining.opportunitiesSincePot=0;
+  }));
+  document.getElementById('ploPotAggression')?.addEventListener('change',e=>{
+    const v=String(Math.max(0,Math.min(4,Number(e.target.value||0))));
+    try{window.localStorage?.setItem('pdtPloPotAggressionV1',v);}catch(err){}
+    markSegment('v235PloPotAggression',v);
+    if(state?.ploPotTraining) state.ploPotTraining.opportunitiesSincePot=0;
+  });
   document.querySelectorAll('#v235SidePotTraining button').forEach(b=>b.addEventListener('click',()=>{
     const v=String(Math.max(0,Math.min(4,Number(b.dataset.value||0))));
     const engine=document.getElementById('sidePotTraining'); if(engine) engine.value=v;
@@ -9619,16 +10524,52 @@ renderPlayers();
     markSegment('v235SidePotTraining',v);
     resetSidePotTrainingTracker();
   });
+  document.querySelectorAll('#v235PotDrillMode button').forEach(b=>b.addEventListener('click',()=>{
+    const v=String(Number(b.dataset.value||0)?1:0);
+    const engine=document.getElementById('potDrillMode');
+    if(engine) engine.value=v;
+    try{window.localStorage?.setItem('pdtPotDrillsOnlyV1',v);}catch(e){}
+    markSegment('v235PotDrillMode',v);
+    if(v==="1"){
+      const hr=document.getElementById('handReadingMode');
+      if(hr) hr.value="0";
+      markSegment('v235HandReadingMode',"0");
+      try{window.localStorage?.removeItem('pdtHandReadingOnlyV1');}catch(e){}
+    }
+  }));
+  document.getElementById('potDrillMode')?.addEventListener('change',e=>{
+    const v=String(Number(e.target.value||0)?1:0);
+    try{window.localStorage?.setItem('pdtPotDrillsOnlyV1',v);}catch(err){}
+    markSegment('v235PotDrillMode',v);
+    if(v==="1"){
+      const hr=document.getElementById('handReadingMode');
+      if(hr) hr.value="0";
+      markSegment('v235HandReadingMode',"0");
+      try{window.localStorage?.removeItem('pdtHandReadingOnlyV1');}catch(err){}
+    }
+  });
   document.querySelectorAll('#v235HandReadingMode button').forEach(b=>b.addEventListener('click',()=>{
     if(!(trainingMode==="visual"||trainingMode==="audition")) return;
     const v=String(Number(b.dataset.value||0)?1:0);
     const engine=document.getElementById("handReadingMode");
     if(engine) engine.value=v;
+    if(v==="1"){
+      const pot=document.getElementById("potDrillMode");
+      if(pot) pot.value="0";
+      markSegment("v235PotDrillMode","0");
+      try{window.localStorage?.setItem("pdtPotDrillsOnlyV1","0");}catch(e){}
+    }
     try{window.localStorage?.setItem("pdtHandReadingOnlyV1",v);}catch(e){}
     markSegment("v235HandReadingMode",v);
   }));
   document.getElementById("handReadingMode")?.addEventListener("change",e=>{
     const v=String(Number(e.target.value||0)?1:0);
+    if(v==="1"){
+      const pot=document.getElementById("potDrillMode");
+      if(pot) pot.value="0";
+      markSegment("v235PotDrillMode","0");
+      try{window.localStorage?.setItem("pdtPotDrillsOnlyV1","0");}catch(err){}
+    }
     try{window.localStorage?.setItem("pdtHandReadingOnlyV1",v);}catch(err){}
     markSegment("v235HandReadingMode",v);
   });
@@ -9687,7 +10628,7 @@ renderPlayers();
       return `<div class="v235-show-player ${winners.has(p.id)?'winner':''}">
         <b>${visualPlayerName(state.players.indexOf(p))}</b>${winners.has(p.id)?'<div class="winflag">WINS</div>':''}
         <div class="seat-hand">${hole.map(c=>cardHTML(c,false,false)).join('')}</div>
-        <div class="hand-name">${describeRank(ev.rank)}</div>
+        <div class="hand-name">${describeRankDetailed(ev.rank)}</div>
       </div>`;
     }).join('');
     const primaryWinner=r.winners?.[0];
@@ -9705,7 +10646,7 @@ renderPlayers();
       <div class="v235-showdown-grid">${playerCards}</div>
       <div class="v235-show-summary"><h4>HAND SUMMARY</h4><dl>
         <dt>WINNER</dt><dd>${r.winners.length>1?`Players ${r.winners.join(' & ')}`:`Player ${primaryWinner}`}</dd>
-        <dt>WINNING HAND</dt><dd>${primaryEval?describeRank(primaryEval.rank):'—'}</dd>
+        <dt>WINNING HAND</dt><dd>${primaryEval?describeRankDetailed(primaryEval.rank):'—'}</dd>
         <dt>NUT HAND</dt><dd>${nuts?describeRank(nuts.rank):'—'}</dd>
         <dt>COMMON MADE HANDS</dt><dd>${common.slice(0,2).join(' • ')||'—'}</dd>
       </dl></div>
@@ -9714,7 +10655,7 @@ renderPlayers();
       <button class="v235-show-next" id="v235ShowNext">NEXT HAND &nbsp; →</button>`;
     box.style.display='block';
     rail.classList.add('showdown-result-mode');
-    document.getElementById('v235ShowNext')?.addEventListener('click',()=>{clearFinalShowdown();generalHands++;document.getElementById('newHand').click();syncRail()});
+    document.getElementById('v235ShowNext')?.addEventListener('click',()=>{clearFinalShowdown();startNewHandFromNextAction();syncRail()});
   }
   const originalAutoPayVisualShowdown=autoPayVisualShowdown;
   autoPayVisualShowdown=function(){
@@ -10195,166 +11136,6 @@ renderPlayers();
 </script>
 
 
-<button id="seatTunerToggle" type="button">SEAT TUNER</button>
-<div id="seatTunerPanel" aria-hidden="true">
-  <div class="seat-tuner-head">
-    <div class="seat-tuner-title"><strong>SEAT LAYOUT TUNER — LAPTOP PROFILE</strong><button id="seatTunerClose" class="seat-tuner-close" type="button">×</button></div>
-    <div class="seat-tuner-help">Desktop and Laptop use separate locked profiles.</div>
-    <div style="display:flex;gap:7px;align-items:center;margin:8px 0 3px;flex-wrap:wrap">
-      <span style="font-size:9px;color:#b6c0ba;font-weight:800;letter-spacing:.6px">DEV PROFILE</span>
-      <select id="devLayoutProfileSelect" style="width:auto;min-width:170px;padding:6px 8px;font-size:10px">
-        <option value="auto">AUTO — SCREEN SIZE</option>
-        <option value="desktop">FORCE DESKTOP</option>
-        <option value="laptop">FORCE LAPTOP</option>
-      </select>
-      <span id="devLayoutProfileStatus" style="font-size:9px;color:#e4c77e"></span>
-    </div>
-    <div class="seat-tuner-seats" id="seatTunerSeatButtons"></div>
-  </div>
-  <div class="seat-tuner-body">
-    <div class="seat-tuner-section">
-      <h4>Nameplate / Seat Anchor</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Nameplate X (%)</label><input id="stSeatX" type="number" step="1" min="-20" max="120"></div>
-        <div class="seat-tuner-field"><label>Nameplate Y (%)</label><input id="stSeatY" type="number" step="1" min="-30" max="140"></div>
-        <div class="seat-tuner-field"><label>Nameplate Rotation (°)</label><input id="stNameplateRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Chair</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Chair X (%)</label><input id="stChairX" type="number" step="1" min="-30" max="130"></div>
-        <div class="seat-tuner-field"><label>Chair Y (%)</label><input id="stChairY" type="number" step="1" min="-40" max="150"></div>
-        <div class="seat-tuner-field"><label>Chair Size (%)</label><input id="stChairScale" type="number" step="1" min="35" max="180"></div>
-        <div class="seat-tuner-field"><label>Chair Rotation (°) — -360 to 360</label><input id="stChairRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Hole Cards — offset from nameplate</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Cards X (px)</label><input id="stCardsX" type="number" step="1" min="-260" max="260"></div>
-        <div class="seat-tuner-field"><label>Cards Y (px)</label><input id="stCardsY" type="number" step="1" min="-180" max="180"></div>
-        <div class="seat-tuner-field"><label>Cards Rotation (°)</label><input id="stCardsRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Bet / Chips — offset from nameplate</h4>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Bet X (px)</label><input id="stBetX" type="number" step="1" min="-2000" max="2000"></div>
-        <div class="seat-tuner-field"><label>Bet Y (px)</label><input id="stBetY" type="number" step="1" min="-2000" max="2000"></div>
-        <div class="seat-tuner-field"><label>Bet / Chips Rotation (°)</label><input id="stBetRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Dealer Button — offset from selected nameplate</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Only the Dealer Button is shown in this room profile. Position and rotation are saved per seat. Dealer Button size is controlled globally below.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Dealer Button X (px)</label><input id="stDX" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Dealer Button Y (px)</label><input id="stDY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Dealer Button Rotation (°)</label><input id="stDRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Community Cards — global table positions</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Flop moves all three flop cards together. Use Flop Gap to bring the 3 flop cards closer together or farther apart independently of card size. Turn and River move separately. The BURN label and burn cards are hidden from the table.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Flop Gap Between Cards (px)</label><input id="stFlopGap" type="number" step="1" min="-40" max="200" value="25"></div>
-        <div class="seat-tuner-field"><label>Flop X (px)</label><input id="stFlopX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>Flop Y (px)</label><input id="stFlopY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Flop Rotation (°)</label><input id="stFlopRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>Turn X (px)</label><input id="stTurnX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>Turn Y (px)</label><input id="stTurnY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>Turn Rotation (°)</label><input id="stTurnRot" type="number" step="1" min="-360" max="360"></div>
-        <div class="seat-tuner-field"><label>River X (px)</label><input id="stRiverX" type="number" step="1" min="-800" max="800"></div>
-        <div class="seat-tuner-field"><label>River Y (px)</label><input id="stRiverY" type="number" step="1" min="-500" max="500"></div>
-        <div class="seat-tuner-field"><label>River Rotation (°)</label><input id="stRiverRot" type="number" step="1" min="-360" max="360"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section" id="centerPotTunerSection">
-      <h4>Center Pot Chips — global table position</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">These controls move and resize the chip pile that remains in the middle after completed-street bets are pulled in. X/Y are offsets from the automatic under-board position, so the pot still follows the board if you move the community cards.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Center Pot X Offset (px)</label><input id="stCenterPotX" type="number" step="1" min="-800" max="800" value="0"></div>
-        <div class="seat-tuner-field"><label>Center Pot Y Offset (px)</label><input id="stCenterPotY" type="number" step="1" min="-500" max="500" value="0"></div>
-        <div class="seat-tuner-field"><label>Center Pot Size (%)</label><input id="stCenterPotScale" type="number" step="1" min="25" max="300" value="100"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stCenterPotReset" type="button">RESET CENTER POT</button></div>
-    </div>
-    <div class="seat-tuner-section" id="tableHudTunerSection">
-      <h4>Blinds / Hand Box — global table HUD</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Move or resize the BLINDS / HAND information box without changing the table, seats, cards, or rail. Positive X moves right. Positive Y moves down.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Blinds / Hand Box X Offset (px)</label><input id="stBlindsBoxX" type="number" step="1" min="-800" max="800" value="0"></div>
-        <div class="seat-tuner-field"><label>Blinds / Hand Box Y Offset (px)</label><input id="stBlindsBoxY" type="number" step="1" min="-500" max="500" value="0"></div>
-        <div class="seat-tuner-field"><label>Blinds / Hand Box Size (%)</label><input id="stBlindsBoxScale" type="number" step="1" min="25" max="250" value="90"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stBlindsBoxReset" type="button">RESET BLINDS / HAND BOX</button></div>
-    </div>
-    <div class="seat-tuner-section" id="auditionLockTunerSection">
-      <h4>Audition Coming Soon Lock — PUBLIC PREVIEW</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Move and resize the gray Audition lock exactly where you want it on the main menu. These controls are DEV-only. The public site will receive the final values after you approve them.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Gray Area X (%)</label><input id="stAuditionLockX" type="number" step="0.1" min="0" max="100" value="63"></div>
-        <div class="seat-tuner-field"><label>Gray Area Y (%)</label><input id="stAuditionLockY" type="number" step="0.1" min="0" max="100" value="44.2"></div>
-        <div class="seat-tuner-field"><label>Gray Area Width (%)</label><input id="stAuditionLockW" type="number" step="0.1" min="5" max="100" value="26.3"></div>
-        <div class="seat-tuner-field"><label>Gray Area Height (%)</label><input id="stAuditionLockH" type="number" step="0.1" min="5" max="100" value="35.8"></div>
-        <div class="seat-tuner-field"><label>Gray Area Darkness (%)</label><input id="stAuditionLockOpacity" type="number" step="1" min="0" max="90" value="42"></div>
-        <div class="seat-tuner-field"><label>Coming Soon Badge X (%)</label><input id="stAuditionBadgeX" type="number" step="0.5" min="0" max="100" value="50"></div>
-        <div class="seat-tuner-field"><label>Coming Soon Badge Y (%)</label><input id="stAuditionBadgeY" type="number" step="0.5" min="0" max="100" value="50"></div>
-        <div class="seat-tuner-field"><label>Coming Soon Badge Size (%)</label><input id="stAuditionBadgeScale" type="number" step="1" min="40" max="200" value="100"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stAuditionLockReset" type="button">RESET AUDITION LOCK</button></div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Global Nameplate Elements — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Adjust these once. Every player nameplate uses the same money and seat-circle offsets.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Money X Offset (px)</label><input id="stMoneyX" type="number" step="1" min="-120" max="120" value="0"></div>
-        <div class="seat-tuner-field"><label>Money Y Offset (px)</label><input id="stMoneyY" type="number" step="1" min="-80" max="80" value="0"></div>
-        <div class="seat-tuner-field"><label>Money Rotation (°)</label><input id="stMoneyRot" type="number" step="1" min="-360" max="360" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle X Offset (px)</label><input id="stCircleX" type="number" step="1" min="-120" max="120" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle Y Offset (px)</label><input id="stCircleY" type="number" step="1" min="-80" max="80" value="0"></div>
-        <div class="seat-tuner-field"><label>Seat Circle Rotation (°)</label><input id="stCircleRot" type="number" step="1" min="-360" max="360" value="0"></div>
-      </div>
-    </div>
-    <div class="seat-tuner-section">
-      <h4>Nameplate Inner Background — applies to all 8 seats</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">This moves/resizes only the black patterned background INSIDE the poker-chip border. The nameplate X/Y, rotation, border, player name, money, cards, bets and buttons do not move.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Background X (px)</label><input id="stPlateBgX" type="number" step="1" min="-100" max="100" value="0"></div>
-        <div class="seat-tuner-field"><label>Background Y (px)</label><input id="stPlateBgY" type="number" step="1" min="-100" max="100" value="0"></div>
-        <div class="seat-tuner-field"><label>Background Width (%)</label><input id="stPlateBgScaleX" type="number" step="1" min="25" max="200" value="100"></div>
-        <div class="seat-tuner-field"><label>Background Height (%)</label><input id="stPlateBgScaleY" type="number" step="1" min="25" max="200" value="100"></div>
-        <div class="seat-tuner-field"><label>Background Rotation (°)</label><input id="stPlateBgRot" type="number" step="1" min="-360" max="360" value="0"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stPlateBgReset" type="button">RESET NAMEPLATE BACKGROUND</button></div>
-    </div>
-    <div class="seat-tuner-section" id="globalResizeSection">
-      <h4>GLOBAL RESIZE CONTROLS — LAPTOP PROFILE</h4>
-      <div class="seat-tuner-help" style="margin:0 0 9px">Every control in this section applies globally. Changing a size here resizes that visual element at ALL seats without changing any saved X/Y coordinates or rotations.</div>
-      <div class="seat-tuner-grid">
-        <div class="seat-tuner-field"><label>Whole Nameplate Size (%) — ALL SEATS</label><input id="stPlateScale" type="number" step="1" min="25" max="220" value="62"></div>
-        <div class="seat-tuner-field"><label>Hole Cards Size (%) — ALL SEATS</label><input id="stHoleCardScale" type="number" step="1" min="25" max="250" value="100"></div>
-        <div class="seat-tuner-field"><label>Bet / Chips Size (%) — ALL SEATS</label><input id="stBetScale" type="number" step="1" min="25" max="400" value="75"></div>
-        <div class="seat-tuner-field"><label>Dealer Button Size (%) — ALL SEATS</label><input id="stMarkerScale" type="number" step="1" min="25" max="400" value="70"></div>
-        <div class="seat-tuner-field"><label>Community Card Size (%) — ALL BOARD CARDS</label><input id="stCommunityScale" type="number" step="1" min="25" max="300" value="71"></div>
-        <div class="seat-tuner-field"><label>Poker-Chip Edge Thickness (px) — ALL NAMEPLATES</label><input id="stPlateEdgeSize" type="number" step="1" min="1" max="30" value="5"></div>
-        <div class="seat-tuner-field"><label>Player Name Size (px) — ALL NAMEPLATES</label><input id="stPlateNameSize" type="number" step="1" min="8" max="40" value="14"></div>
-        <div class="seat-tuner-field"><label>Money Size (px) — ALL NAMEPLATES</label><input id="stPlateMoneySize" type="number" step="1" min="8" max="40" value="13"></div>
-      </div>
-      <div class="seat-tuner-actions" style="margin-top:8px"><button id="stGlobalResizeReset" type="button">RESET GLOBAL SIZES TO LAPTOP DEFAULTS</button></div>
-    </div>
-    <div class="seat-tuner-actions">
-      <button id="seatTunerSave" class="primary" type="button">SAVE LAYOUT</button>
-      <button id="seatTunerCopy" type="button">COPY COORDINATES</button>
-      <button id="seatTunerDownload" type="button">DOWNLOAD LAYOUT NOTE (.TXT)</button>
-      <button id="seatTunerResetSeat" class="warn" type="button">RESET THIS SEAT</button>
-      <button id="seatTunerResetAll" class="warn" type="button">RESET ALL SEATS</button>
-    </div>
-    <div id="seatTunerStatus"></div>
-  </div>
-</div>
-
 
 <!-- V24.0.2 DEV: Global whole-nameplate scale control. DEV ONLY. -->
 <script>
@@ -10396,10 +11177,6 @@ renderPlayers();
     return (w>=1500 && h>=820)?'desktop':'laptop';
   }
   function selectedLayoutProfile(){
-    try{
-      const forced=localStorage.getItem('pdtDevLayoutProfileOverrideV1');
-      if(forced==='desktop'||forced==='laptop') return forced;
-    }catch(e){}
     return automaticLayoutProfile();
   }
   function profileStorageKeys(profile){
@@ -10641,7 +11418,7 @@ renderPlayers();
     }
   }
   function applyAuditionLock(){
-    const overlay=document.getElementById('devAuditionComingSoon');
+    const overlay=document.getElementById('publicAuditionComingSoon');
     const badge=overlay?.querySelector('span');
     if(!overlay) return;
     const x=Number(sceneLayout.auditionLockX);
@@ -10810,7 +11587,7 @@ renderPlayers();
       exportedSeats[seatNo]=dealerOnly;
     });
     return {
-      layoutVersion:'V24.1.6 DEV — Updated Locked Desktop Profile + Laptop Profile + Current Training Features',
+      layoutVersion:'Poker101Class V1.2 LIVE — Locked Desktop/Laptop Profiles',
       deviceProfile:activeProfile,
       savedAt:new Date().toISOString(),
       seats:exportedSeats,
@@ -10851,15 +11628,15 @@ renderPlayers();
     const firstInit=!initialized;
     if(!captureBaseline()) return false;
     if(firstInit){
-      const stored=readStored();
+      const stored=null; // PUBLIC V1.2 locked layout
       if(stored){
         for(let n=1;n<=8;n++){
           if(stored[n]) layout[n]={...(layout[n]||baseline[n]||{}),...stored[n]};
         }
       }
-      const storedGlobal=readGlobalStored();
+      const storedGlobal=null; // PUBLIC V1.2 locked layout
       if(storedGlobal) globalLayout={...GLOBAL_DEFAULTS,...storedGlobal};
-      const storedScene=readSceneStored();
+      const storedScene=null; // PUBLIC V1.2 locked layout
       if(storedScene) sceneLayout={...SCENE_DEFAULTS,...storedScene};
       initialized=true;
     }
@@ -10902,14 +11679,14 @@ renderPlayers();
       window.addEventListener('resize',paintProfileStatus);
     }
 
-    $id('seatTunerToggle').onclick=()=>showPanel(!$id('seatTunerPanel').classList.contains('open'));
-    $id('seatTunerClose').onclick=()=>showPanel(false);
+    if($id('seatTunerToggle')) $id('seatTunerToggle').onclick=()=>showPanel(!$id('seatTunerPanel')?.classList.contains('open'));
+    if($id('seatTunerClose')) $id('seatTunerClose').onclick=()=>showPanel(false);
     fields.forEach(k=>{const el=$id(ids[k]);if(el){el.addEventListener('input',readFields);el.addEventListener('change',readFields);}});
     globalFields.forEach(k=>{const el=$id(globalIds[k]);if(el){el.addEventListener('input',readGlobalFields);el.addEventListener('change',readGlobalFields);}});
     sceneFields.forEach(k=>{const el=$id(sceneIds[k]);if(el){el.addEventListener('input',readSceneFields);el.addEventListener('change',readSceneFields);}});
-    $id('seatTunerSave').onclick=()=>{readFields();readGlobalFields();readSceneFields();saveStored();};
-    $id('seatTunerCopy').onclick=copyCoordinates;
-    $id('seatTunerDownload').onclick=downloadLayoutNote;
+    if($id('seatTunerSave')) $id('seatTunerSave').onclick=()=>{readFields();readGlobalFields();readSceneFields();saveStored();};
+    if($id('seatTunerCopy')) $id('seatTunerCopy').onclick=copyCoordinates;
+    if($id('seatTunerDownload')) $id('seatTunerDownload').onclick=downloadLayoutNote;
     const bgReset=$id('stPlateBgReset');
     if(bgReset) bgReset.onclick=()=>{
       globalLayout.plateBgX=0; globalLayout.plateBgY=0;
@@ -10946,8 +11723,8 @@ renderPlayers();
       applyAll(); writeGlobalFields(); writeSceneFields(); dirty=true;
       status(`Global visual sizes reset to the locked ${activeProfile.toUpperCase()} defaults.`);
     };
-    $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
-    $id('seatTunerResetAll').onclick=()=>{
+    if($id('seatTunerResetSeat')) $id('seatTunerResetSeat').onclick=()=>{const base=baseline[selectedSeat]||captureSeat(selectedSeat);if(!base)return status(`Seat ${selectedSeat} is not rendered yet.`);baseline[selectedSeat]=baseline[selectedSeat]||copyObj(base);layout[selectedSeat]=copyObj(baseline[selectedSeat]);applySeat(selectedSeat,layout[selectedSeat]);writeFields();dirty=true;status(`Seat ${selectedSeat} reset to its starting position.`);};
+    if($id('seatTunerResetAll')) $id('seatTunerResetAll').onclick=()=>{
       if(!initialized)return;
       layout=copyObj(USER_LAYOUT_DEFAULTS);
       baseline={};
@@ -10961,7 +11738,7 @@ renderPlayers();
     // Click a nameplate to select its seat while tuner is open.
     document.addEventListener('click',e=>{
       const s=e.target.closest?.('.visual-seat');
-      if(!s || !$id('seatTunerPanel').classList.contains('open'))return;
+      const tunerPanel=$id('seatTunerPanel'); if(!s || !tunerPanel || !tunerPanel.classList.contains('open'))return;
       const m=[...s.classList].find(c=>/^vpos[0-7]$/.test(c));if(m){selectSeat(Number(m.slice(4))+1);}
     },true);
 
@@ -10982,13 +11759,6 @@ renderPlayers();
     window.addEventListener('resize',()=>{
       clearTimeout(profileResizeTimer);
       profileResizeTimer=setTimeout(()=>{
-        let forced=null;
-        try{forced=localStorage.getItem('pdtDevLayoutProfileOverrideV1');}catch(e){}
-        if(forced==='desktop'||forced==='laptop'){
-          if(forced!==activeProfile) loadProfile(forced,true);
-          else requestAnimationFrame(applyAll);
-          return;
-        }
         const next=automaticLayoutProfile();
         if(next!==activeProfile) loadProfile(next,true);
         else requestAnimationFrame(applyAll);
@@ -11014,33 +11784,6 @@ renderPlayers();
   });
 })();
 </script>
-
-
-<script id="template3-tuner-cleanup-pass29">
-(function(){
-  function cleanTemplate3Tuner(){
-    const chairField=document.getElementById('stChairX');
-    const chairSection=chairField?.closest('.seat-tuner-section');
-    if(chairSection){
-      chairSection.innerHTML='<h4>Template 3 Chairs</h4><div class="seat-tuner-help">The eight luxury chairs are built into the new Template 3 room image, so they stay perfectly matched to the table. Use the controls below to position each nameplate, hole cards and bet/chip spot around those chairs.</div>';
-    }
-    ['stCircleX','stCircleY','stCircleRot'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(el?.closest('.seat-tuner-field')) el.closest('.seat-tuner-field').style.display='none';
-    });
-    const sections=[...document.querySelectorAll('#seatTunerPanel .seat-tuner-section')];
-    const globalSection=sections.find(s=>s.querySelector('#stMoneyX'));
-    if(globalSection){
-      const h=globalSection.querySelector('h4'); if(h) h.textContent='Global Money Position — applies to all seats';
-      const help=globalSection.querySelector('.seat-tuner-help'); if(help) help.textContent='Move the money amount once and the same offset is applied to every player nameplate.';
-    }
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',cleanTemplate3Tuner,{once:true});
-  else cleanTemplate3Tuner();
-})();
-</script>
-
-
 <script id="template3-final-visual-lock-pass30">
 (function(){
   const css = `
@@ -11552,6 +12295,7 @@ body.v235-live #v235Rail{
   }
 
   function makeFlight(start,target,cls,idx,payout=false){
+    if(state?.potDrillsOnly) return null;
     const el=document.createElement('span');
     el.className=`pass46-flying-chip ${payout?'pass46-payout-chip ':''}${cls}`;
     el.style.left=`${start.x}px`;el.style.top=`${start.y}px`;
@@ -11969,27 +12713,19 @@ body.v235-live #seatTunerToggle{display:block!important;}
       const dest=target.querySelector('.v235-settings-grid');
       sections.filter(s=>words.some(w=>(s.querySelector('h3')?.textContent||'').toUpperCase().includes(w))).forEach(s=>dest.appendChild(s));
     }
-    moveMatch(general,['STARTING STACK','DEFAULT PLAYER COUNT']);
-    moveMatch(training,['DIFFICULTY','SIDE POT TRAINING','HAND READING ONLY','QUESTION FREQUENCY','HINTS']);
+    moveMatch(general,['TRAINING GAME','STARTING STACK','DEFAULT PLAYER COUNT']);
+    moveMatch(training,['DIFFICULTY','PLO POT AGGRESSION','POT DRILLS ONLY','SIDE POT TRAINING','HAND READING ONLY','QUESTION FREQUENCY','HINTS']);
     moveMatch(table,['CHIP SET']);
     moveMatch(audition,['AUDITION TIMER']);
     moveMatch(audio,['SOUND EFFECTS']);
     moveMatch(appearance,['ANIMATIONS']);
-
-    table.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>♠ TABLE LAYOUT</h3><p>The same saved seat, nameplate, cards, bets, D/SB/BB and board coordinates are shared by Real, Visual and Audition modes.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
-    audition.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>◷ AUDITION MODE</h3><p>Uses the same final table visuals and coordinates, while tracking scored dealer practice. Advanced timed audition controls remain separate from the visual layout.</p></section>`);
-    appearance.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>✎ NAMEPLATES & POSITIONS</h3><p>Adjust nameplate background, edge thickness, name size, money size, seat positions, card positions and board placement with the shared layout tuner.</p><button type="button" class="v235-tab-action" data-open-layout-tuner>OPEN LAYOUT TUNER</button></section>`);
-    account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>● LOCAL PROFILE</h3><p>This standalone HTML stores trainer preferences and layout settings locally in this browser. Website account synchronization is not connected in this standalone build.</p></section>`);
+audition.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>◷ AUDITION MODE</h3><p>Uses the same final table visuals and coordinates, while tracking scored dealer practice. Advanced timed audition controls remain separate from the visual layout.</p></section>`);
+account.querySelector('.v235-settings-grid').insertAdjacentHTML('beforeend',`<section><h3>● LOCAL PROFILE</h3><p>This standalone HTML stores trainer preferences and layout settings locally in this browser. Website account synchronization is not connected in this standalone build.</p></section>`);
     if(actions) account.appendChild(actions);
 
     general.classList.add('active');
     wireNav('v235SettingsPanel',['general','training','table','audition','audio','appearance','account']);
-
-    panel.querySelectorAll('[data-open-layout-tuner]').forEach(btn=>btn.addEventListener('click',()=>{
-      panel.classList.remove('open');panel.setAttribute('aria-hidden','true');
-      setTimeout(()=>document.getElementById('seatTunerToggle')?.click(),30);
-    }));
-  }
+}
 
   function statVal(id,fallback='—'){return $(id)?.textContent?.trim()||fallback;}
   function setupStats(){
@@ -12305,6 +13041,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
     if($v('actionText')) $v('actionText').textContent='ALL POTS PAID — HAND COMPLETE';
     if($v('instruction')) $v('instruction').textContent='All main/side pots have been paid. Match the physical stacks, then start the next hand.';
     if($v('nextUp')) $v('nextUp').textContent='NEXT UP: START NEW HAND';
+    if(typeof setNextActionNewHandMode==='function') setNextActionNewHandMode(true);
     potIntegrity('manual payout complete');
   }
 
@@ -12416,7 +13153,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
 
   /* Keep the version visible in existing status/help text without moving UI elements. */
   function stampVersion(){
-    document.title='Poker Dealer Trainer V24.0 — Live Dealer Logic';
+    document.title='Poker101Class | Poker Dealer Trainer';
     const rules=document.querySelector('#v23RulesPanel .v23-title');
     if(rules) rules.textContent='V24 LIVE DEALER LOGIC';
     const info=$v('structureInfo');
@@ -12474,9 +13211,6 @@ body.v235-live #seatTunerToggle{display:block!important;}
   flex-basis:35px!important;
 }
 </style>
-
-<div id="devBuildMarker" data-build="V24.1.2-ROOM-SIDEPOT" hidden></div>
-
 <script id="v24-0-8-audition-lock-live-preview">
 (function(){
   function refresh(){
@@ -12490,7 +13224,7 @@ body.v235-live #seatTunerToggle{display:block!important;}
       const evt=()=>{
         // Existing tuner listeners update sceneLayout/applyAuditionLock. This RAF keeps preview immediate if listener order differs.
         requestAnimationFrame(()=>{
-          const overlay=document.getElementById('devAuditionComingSoon');
+          const overlay=document.getElementById('publicAuditionComingSoon');
           if(!overlay) return;
           const val=(x,f)=>{const n=Number(document.getElementById(x)?.value);return Number.isFinite(n)?n:f};
           overlay.style.left=val('stAuditionLockX',63)+'%';
@@ -12512,234 +13246,118 @@ body.v235-live #seatTunerToggle{display:block!important;}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',refresh,{once:true}); else refresh();
 })();
 </script>
+<!-- Poker101Class V1.2 LIVE — PLO room wager-unit fix: all playable wager totals use $5 increments; $1-$4 scraps stay out of wagers; $17=> $15. -->
 
-
-<style id="v24-1-0-dev-scenario-lab-style">
-#devScenarioToggle{
-  position:fixed;left:14px;top:88px;z-index:250;height:38px;padding:0 15px;border-radius:999px;
-  border:1px solid #a87837;background:linear-gradient(180deg,#21170d,#0c0906);color:#f0cb74;
-  font:800 11px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.38)
-}
-#devScenarioToggle:hover{filter:brightness(1.12)}
-#devScenarioPanel{
-  position:fixed;left:14px;top:136px;z-index:249;width:385px;max-height:calc(100vh - 154px);overflow:auto;display:none;
-  color:#f6f2e8;background:linear-gradient(180deg,rgba(18,15,11,.99),rgba(6,8,7,.99));
-  border:1px solid #8d6b31;border-radius:15px;box-shadow:0 20px 48px rgba(0,0,0,.58);padding:13px
-}
-#devScenarioPanel.open{display:block}
-.dev-scenario-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-.dev-scenario-head strong{color:#f0cb74;font-size:12px;letter-spacing:.8px}
-#devScenarioClose{border:1px solid #5a4828;background:#15120e;color:#e9d7ad;border-radius:7px;width:30px;height:30px;cursor:pointer}
-.dev-scenario-help{font-size:10px;color:#b9c2bd;line-height:1.45;margin-bottom:10px}
-.dev-scenario-grid{display:grid;grid-template-columns:1fr;gap:7px}
-.dev-scenario-btn{width:100%;min-height:43px;border:1px solid #71562c;border-radius:8px;background:#111916;color:#f5e8c4;font-weight:800;font-size:11px;cursor:pointer;padding:8px 10px;text-align:left}
-.dev-scenario-btn small{display:block;color:#aeb8b2;font-size:9px;margin-top:3px;font-weight:500;line-height:1.3}
-.dev-scenario-btn:hover{border-color:#d1a957;background:#17211d}
-.dev-scenario-btn.danger{border-color:#74413c;color:#f5c4bd;background:#1c1110}
-#devScenarioRepeatRow{display:flex;align-items:center;gap:7px;margin:9px 0 0;font-size:10px;color:#d9d0b8}
-#devScenarioRepeatRow input{width:auto!important;margin:0}
-#devScenarioStatus{margin-top:9px;padding:9px;border:1px solid #3c4b44;border-radius:7px;background:#09100e;color:#dcd5c2;font-size:10px;line-height:1.45;min-height:36px}
-#devScenarioBanner{position:fixed;left:50%;top:92px;transform:translateX(-50%);z-index:248;background:rgba(25,16,8,.96);border:1px solid #bb8c45;border-radius:999px;padding:7px 14px;color:#f3d58e;font:800 10px/1.2 Arial,sans-serif;letter-spacing:.5px;display:none;pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.38)}
-body:not(.v235-live) #devScenarioToggle,body:not(.v235-live) #devScenarioPanel,body:not(.v235-live) #devScenarioBanner{display:none!important}
-@media(max-width:700px){#devScenarioPanel{width:calc(100vw - 20px);left:10px;top:128px}#devScenarioToggle{left:10px}}
-</style>
-
-<button id="devScenarioToggle" type="button">DEV SCENARIOS</button>
-<div id="devScenarioPanel" aria-hidden="true">
-  <div class="dev-scenario-head"><strong>ALL-IN / SIDE-POT SCENARIO LAB</strong><button id="devScenarioClose" type="button">×</button></div>
-  <div class="dev-scenario-help">DEV-only deterministic test hands. These do not change the normal public hand generator. Arm one scenario, then press START / NEW HAND.</div>
-  <div class="dev-scenario-grid">
-    <button type="button" class="dev-scenario-btn" data-dev-scenario="side3">3-WAY ALL-IN • 1 SIDE POT<small>For testing one main pot plus one side pot.</small></button>
-    <button type="button" class="dev-scenario-btn" data-dev-scenario="side4">4-WAY ALL-IN • 2 SIDE POTS<small>For testing multiple eligibility layers and payouts.</small></button>
-    <button type="button" class="dev-scenario-btn" data-dev-scenario="side5">5-WAY ALL-IN • 3 SIDE POTS<small>Stress test for deep multi-side-pot accounting.</small></button>
-    <button type="button" class="dev-scenario-btn danger" id="devScenarioCancel">CANCEL TEST • RETURN TO NORMAL HANDS</button>
-  </div>
-  <label id="devScenarioRepeatRow"><input id="devScenarioRepeat" type="checkbox"> Repeat the selected scenario on every NEW HAND until cancelled</label>
-  <div id="devScenarioStatus">NORMAL HAND GENERATOR ACTIVE.</div>
-  <div id="devSidePotTrainingDebug" style="margin-top:7px;padding:8px;border:1px solid #54462c;border-radius:7px;background:#0b120f;color:#d8cfb6;font-size:9px;line-height:1.45">SIDE POT TRAINING DEBUG WILL APPEAR HERE.</div>
-</div>
-<div id="devScenarioBanner" aria-live="polite"></div>
-
-<script id="v24-1-1-dev-scenario-lab">
+<script id="v24-1-8-temp-hand-reading-setting">
 (function(){
-  if(window.__pdtDevScenarioLabLoaded) return;
-  window.__pdtDevScenarioLabLoaded=true;
-  window.PDT_DEV_VERSION='24.1.2-dev';
+  function resetHandReadingDefault(){
+    if(window.__pdtHandReadingDefaultApplied) return;
+    window.__pdtHandReadingDefaultApplied=true;
 
-  const defs={
-    side3:{label:'3-WAY ALL-IN • 1 SIDE POT',need:3,stacks:[35,70,120]},
-    side4:{label:'4-WAY ALL-IN • 2 SIDE POTS',need:4,stacks:[30,55,90,140]},
-    side5:{label:'5-WAY ALL-IN • 3 SIDE POTS',need:5,stacks:[25,45,70,110,170]}
-  };
-  const ctl={armed:null,repeat:false,run:null,lastWasScenario:false};
-  window.__pdtDevScenarioCtl=ctl;
-  const $d=id=>document.getElementById(id);
-  const running=()=>ctl.run&&ctl.run.active?ctl.run:null;
-
-  function status(msg){const el=$d('devScenarioStatus');if(el)el.textContent=msg}
-  function banner(msg){const el=$d('devScenarioBanner');if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none'}
-  function showPanel(show){const p=$d('devScenarioPanel');if(!p)return;p.classList.toggle('open',!!show);p.setAttribute('aria-hidden',show?'false':'true')}
-
-  function arm(key){
-    const def=defs[key];if(!def)return;
-    ctl.armed=key;
-    status(`ARMED: ${def.label}. Test stacks: ${def.stacks.map((s,i)=>`P${i+1} $${s}`).join(' • ')}. Other players will fold. Press START / NEW HAND.`);
-  }
-
-  function cancel(){
-    ctl.armed=null;ctl.run=null;ctl.repeat=false;ctl.lastWasScenario=true;
-    if(typeof sessionStacks!=='undefined') sessionStacks=null;
-    const cb=$d('devScenarioRepeat');if(cb)cb.checked=false;
-    banner('');status('NORMAL HAND GENERATOR ACTIVE. Next hand resets to normal equal starting stacks.');
-  }
-
-  if(typeof buildActionForPlayer==='function'){
-    const baseBuild=buildActionForPlayer;
-    buildActionForPlayer=function(p){
-      const run=running();
-      if(run && state && state.street==='Preflop'){
-        if(run.participants.includes(p.id) && !p.folded && !p.allin && p.stack>0){
-          const target=p.streetBet+p.stack;
-          const add=p.stack;
-          const isCallOnly=target<=state.currentBet;
-          return {
-            type:'allin',target,amount:add,pullAmount:add,devScenario:true,
-            label:isCallOnly
-              ? `DEV SIDE-POT TEST — PLAYER ${p.id} IS ALL-IN FOR ${money(target)} — ADD ${money(add)}`
-              : `DEV SIDE-POT TEST — PLAYER ${p.id} IS ALL-IN TO ${money(target)} — ADD ${money(add)}`,
-            short:isCallOnly?`ALL-IN CALL • ${money(target)}`:`ALL-IN TO ${money(target)}`
-          };
-        }
-        if(!run.participants.includes(p.id) && !p.folded && !p.allin){
-          return {type:'fold',label:`DEV SIDE-POT TEST — PLAYER ${p.id} FOLDS`,short:'FOLDS',pullAmount:0,devScenario:true};
-        }
-      }
-      return baseBuild.apply(this,arguments);
-    };
-  }
-
-  /* Scenario hands focus on the all-in / pot workflow, not unrelated random quizzes. */
-  if(typeof maybeAskActionOrderQuestion==='function'){
-    const base=maybeAskActionOrderQuestion;
-    maybeAskActionOrderQuestion=function(onDone){if(running()){if(typeof onDone==='function')onDone();return;}return base.apply(this,arguments)};
-  }
-  if(typeof maybeQuestion==='function'){
-    const base=maybeQuestion;
-    maybeQuestion=function(){if(running())return false;return base.apply(this,arguments)};
-  }
-  if(typeof maybeAdvancedProcedureQuestion==='function'){
-    const base=maybeAdvancedProcedureQuestion;
-    maybeAdvancedProcedureQuestion=function(){if(running())return false;return base.apply(this,arguments)};
-  }
-
-  if(typeof startHand==='function'){
-    const baseStart=startHand;
-    startHand=function(){
-      const requested=ctl.armed;
-      if(!requested){
-        if(ctl.lastWasScenario){
-          sessionStacks=null;
-          ctl.lastWasScenario=false;
-          status('NORMAL HAND GENERATOR ACTIVE. Test stacks cleared.');
-        }
-        ctl.run=null;banner('');
-        return baseStart.apply(this,arguments);
-      }
-
-      const def=defs[requested];
-      const pc=typeof playerCount==='function'?playerCount():0;
-      if(pc<def.need){
-        status(`${def.label} requires at least ${def.need} players. Current table has ${pc}. Change the player count, then arm the scenario again.`);
-        if(!ctl.repeat)ctl.armed=null;
-        ctl.run=null;banner('');
-        return;
-      }
-
-      const normalStack=Number($d('stack')?.value)||300;
-      sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
-      ctl.run={active:true,key:requested,label:def.label,participants:randomSeatAssignment(pc,false).slice(0,def.need),stacks:[...def.stacks]};
-      ctl.lastWasScenario=true;
-      banner(`DEV TEST • ${def.label}`);
-      status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. Complete the hand and verify pot amounts, eligibility and payouts.`);
-      if(!ctl.repeat)ctl.armed=null;
-      const out=baseStart.apply(this,arguments);
-      if(state){
-        state.devScenario={...ctl.run};
-        state.advancedSpot=`DEV ${def.label}`;
-        const alert=$d('dealerAlert');if(alert){alert.textContent=`DEV TEST • ${def.label}`;alert.classList.add('dealer-alert-hot')}
-      }
-      return out;
-    };
-  }
-
-  /* V24.1.1 FIX — the polished UI captured the original startHand() before
-     this DEV lab was appended. Intercept the real #newHand click in capture
-     phase so the scenario is prepared BEFORE that older onclick runs. */
-  function prepareScenarioFromNewHandClick(ev){
-    const requested=ctl.armed;
-
-    if(!requested){
-      if(ctl.lastWasScenario){
-        sessionStacks=null;
-        ctl.run=null;
-        ctl.lastWasScenario=false;
-        banner('');
-        status('NORMAL HAND GENERATOR ACTIVE. Test stacks cleared.');
-      }
-      return true;
+    const select=document.getElementById("handReadingMode");
+    if(select){
+      select.value="0";
+      select.dispatchEvent(new Event("change",{bubbles:true}));
     }
 
-    const def=defs[requested];
-    const pc=typeof playerCount==='function'?playerCount():0;
-    if(pc<def.need){
-      status(`${def.label} requires at least ${def.need} players. Current table has ${pc}. Change the player count, then arm the scenario again.`);
-      banner('');
-      ctl.run=null;
-      if(!ctl.repeat) ctl.armed=null;
-      if(ev){ev.preventDefault();ev.stopImmediatePropagation();}
-      return false;
+    const segmented=document.getElementById("v235HandReadingMode");
+    if(segmented){
+      segmented.querySelectorAll("button").forEach(btn=>{
+        btn.classList.toggle("active", String(btn.dataset.value||"0")==="0");
+      });
     }
 
-    const normalStack=Number($d('stack')?.value)||300;
-    sessionStacks=Array.from({length:pc},(_,i)=>i<def.need?def.stacks[i]:normalStack);
-    ctl.run={active:true,key:requested,label:def.label,participants:randomSeatAssignment(pc,false).slice(0,def.need),stacks:[...def.stacks]};
-    ctl.lastWasScenario=true;
-    banner(`DEV TEST • ${def.label}`);
-    status(`RUNNING: ${def.label}. Forced participants: ${ctl.run.participants.map((id,i)=>`P${id} $${def.stacks[i]}`).join(' • ')}. This hand is forced immediately.`);
-    if(!ctl.repeat) ctl.armed=null;
-
-    /* The older onclick now starts the hand using the prepared sessionStacks.
-       Tag the created state immediately afterward for debugging/visibility. */
-    setTimeout(()=>{
-      if(state && ctl.run?.active){
-        state.devScenario={...ctl.run};
-        state.advancedSpot=`DEV ${def.label}`;
-        const alert=$d('dealerAlert');
-        if(alert){alert.textContent=`DEV TEST • ${def.label}`;alert.classList.add('dealer-alert-hot')}
-      }
-    },0);
-    return true;
+    // Remove any old saved value left behind by previous DEV builds.
+    try{ localStorage.removeItem("pdtHandReadingOnlyV1"); }catch(_){}
   }
 
-  const realNewHand=$d('newHand');
-  if(realNewHand && !realNewHand.__devScenarioCapture){
-    realNewHand.__devScenarioCapture=true;
-    realNewHand.addEventListener('click',prepareScenarioFromNewHandClick,true);
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",resetHandReadingDefault,{once:true});
+  }else{
+    resetHandReadingDefault();
   }
-
-  function wire(){
-    updateSidePotTrainingDevDebug();
-    $d('devScenarioToggle')?.addEventListener('click',()=>showPanel(!$d('devScenarioPanel')?.classList.contains('open')));
-    $d('devScenarioClose')?.addEventListener('click',()=>showPanel(false));
-    document.querySelectorAll('[data-dev-scenario]').forEach(btn=>btn.addEventListener('click',()=>arm(btn.dataset.devScenario)));
-    $d('devScenarioCancel')?.addEventListener('click',cancel);
-    $d('devScenarioRepeat')?.addEventListener('change',e=>{ctl.repeat=!!e.target.checked});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 })();
 </script>
 
 
-<!-- V24.1.7 DEV — Spaced short-handed seating + updated locked Desktop coordinates + River-only Hand Reading reveal + prior training updates. -->
+<script id="pdt-v1-2-public-cleanup">
+(function(){
+  try{localStorage.removeItem("pdtDevLayoutProfileOverrideV1");}catch(_){}
+  window.PDT_PUBLIC_VERSION="1.2";
+  if(typeof kickerRuleRegressionChecks==="function") kickerRuleRegressionChecks();
+  if(typeof ploPotMathRegressionChecks==="function") ploPotMathRegressionChecks();
+ploClassShortAllInRegressionChecks();
+})();
+</script>
+
+
+<style id="pdt-v1-2-release-notes-style">
+#pdtReleaseNotesV12{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+#pdtReleaseNotesV12.show{display:flex}
+#pdtReleaseNotesV12 .rn-card{width:min(620px,94vw);max-height:88vh;overflow:auto;padding:28px;border:1px solid #8c7335;border-radius:18px;background:linear-gradient(180deg,#171814,#0c0d0b);box-shadow:0 24px 80px rgba(0,0,0,.72),0 0 34px rgba(194,158,71,.12);color:#f3efe3;font-family:Arial,Helvetica,sans-serif}
+#pdtReleaseNotesV12 .rn-kicker{margin-bottom:8px;color:#c8aa62;font-size:11px;font-weight:900;letter-spacing:.22em}
+#pdtReleaseNotesV12 h2{margin:0;font-size:30px;line-height:1.05}
+#pdtReleaseNotesV12 h3{margin:7px 0 20px;color:#c8aa62;font-size:15px}
+#pdtReleaseNotesV12 ul{margin:0;padding-left:22px;display:grid;gap:10px;line-height:1.4}
+#pdtReleaseNotesV12 li::marker{color:#c8aa62}
+#pdtReleaseNotesV12 .rn-footer{display:flex;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid rgba(200,170,98,.22)}
+#pdtReleaseNotesV12 button{padding:12px 18px;border:1px solid #a88a43;border-radius:10px;background:linear-gradient(180deg,#d2b66d,#a68438);color:#0c0d0b;font-weight:900;letter-spacing:.05em;cursor:pointer}
+</style>
+<div id="pdtReleaseNotesV12" role="dialog" aria-modal="true" aria-labelledby="pdtReleaseNotesV12Title">
+  <div class="rn-card">
+    <div class="rn-kicker">POKER101CLASS UPDATE</div>
+    <h2 id="pdtReleaseNotesV12Title">V1.2 IS HERE</h2>
+    <h3>Training &amp; Side Pot Update</h3>
+    <ul>
+      <li>New <b>Side Pot Training</b> levels</li>
+      <li>Step-by-step <b>Main Pot and Side Pot construction</b></li>
+      <li><b>Immediate side-pot payouts</b> as each pot is settled</li>
+      <li><b>Spaced randomized seating</b> for short-handed tables</li>
+      <li>Expanded <b>Real Table Mode</b> side-pot practice</li>
+      <li>Correct answers now <b>move forward automatically</b></li>
+      <li>Detailed explanations remain after <b>incorrect answers</b></li>
+      <li>New <b>Hand Reading Only</b> practice with hole cards revealed after the River</li>
+      <li>Improved <b>Desktop and Laptop</b> table handling</li>
+    </ul>
+    <div class="rn-footer"><button type="button" id="pdtReleaseNotesV12Close">START TRAINING</button></div>
+  </div>
+</div>
+<script id="pdt-v1-2-release-notes-script">
+(function(){
+  const key="pdtSeenReleaseNotesV1_2";
+  function init(){
+    const modal=document.getElementById("pdtReleaseNotesV12");
+    const close=document.getElementById("pdtReleaseNotesV12Close");
+    if(!modal||!close)return;
+    let seen=false;
+    try{seen=localStorage.getItem(key)==="1";}catch(_){}
+    if(!seen)modal.classList.add("show");
+    close.addEventListener("click",()=>{
+      modal.classList.remove("show");
+      try{localStorage.setItem(key,"1");}catch(_){}
+    });
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
+})();
+</script>
+
+
+<script id="pass-real-table-game-picker-regression">
+(function(){
+  function checkRealTableGamePicker(){
+    const nlh=document.querySelector('[data-count-game="nlh"]');
+    const plo=document.querySelector('[data-count-game="plo"]');
+    const start=document.getElementById('startSessionFromCount');
+    const ok=!!(nlh&&plo&&start);
+    window.PDT_REAL_TABLE_GAME_PICKER_OK=ok;
+    if(!ok) console.error('Poker101Class regression: Real Table game picker is missing NLH/PLO controls.');
+    return ok;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',checkRealTableGamePicker,{once:true});
+  else checkRealTableGamePicker();
+})();
+</script>
+
 </body>
 </html>
