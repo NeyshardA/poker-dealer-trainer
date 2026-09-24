@@ -55,6 +55,19 @@
 .assign-box.answer-correct{background:#68b77b!important;border-color:#68b77b!important;color:#07120a!important}
 .assign-box.answer-wrong{background:#7b2f34!important;border-color:#d16a72!important}
 .answer-lock-note{margin-top:10px;text-align:center;color:#9ca7a8;font-size:11px;text-transform:uppercase;letter-spacing:.8px}
+
+@media(max-width:640px){
+  .players.many-card-hands{grid-template-columns:1fr!important;gap:10px!important}
+  .players.many-card-hands .player{min-height:112px!important;padding:10px 8px!important;overflow:hidden}
+  .players.many-card-hands .player .cards{justify-content:center!important;flex-wrap:nowrap!important;width:100%;padding:0 6px;box-sizing:border-box}
+  .players.many-card-hands .player .card{width:44px!important;min-width:44px!important;height:64px!important;font-size:17px!important;margin-left:-7px!important}
+  .players.many-card-hands .player .card:first-child{margin-left:0!important}
+  .players.five-card-hands{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  .players.five-card-hands .player{overflow:hidden}
+  .players.five-card-hands .player .cards{justify-content:center!important;flex-wrap:nowrap!important}
+  .players.five-card-hands .player .card{width:38px!important;min-width:38px!important;margin-left:-9px!important}
+  .players.five-card-hands .player .card:first-child{margin-left:0!important}
+}
 </style>
 </head>
 <body class="trainer-page">
@@ -151,7 +164,11 @@ function renderHand(h){
  $('splitPicks').classList.toggle('hidden',!split);
  let q=split?'Select the HIGH and LOW winners':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
  $('instruction').textContent=split?'Use the boxes below to mark who has HIGH and who has LOW. Mark every tied winner.':'Tap a hand to select the winner.';
- $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
+ const handCount=h.players[0]?.length||0;
+   $('players').classList.remove('many-card-hands','five-card-hands');
+   if(handCount>=7)$('players').classList.add('many-card-hands');
+   else if(handCount>=4)$('players').classList.add('five-card-hands');
+   $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
  if(split){
    $('assignmentRows').innerHTML=h.players.map((_,i)=>'<div class="assignment-row"><div class="assignment-name">Player '+(i+1)+'</div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' high" data-pick="high" data-i="'+i+'"></button></div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' low" data-pick="low" data-i="'+i+'"></button></div></div>').join('');
    document.querySelectorAll('.assign-box').forEach(btn=>btn.onclick=()=>{if(state.locked)return;
