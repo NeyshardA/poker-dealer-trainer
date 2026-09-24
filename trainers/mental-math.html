@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#101719" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="format-detection" content="telephone=no" />
+<title>Poker Dealer Mental Math Trainer</title>
+<!-- v1.2 Mobile: responsive phone layout, touch submit, safe areas, mobile keyboard persistence -->
+<style>
+  :root {
+    --bg: #07100d;
+    --panel: #0d1915;
+    --panel-2: #11221b;
+    --panel-3: #172a22;
+    --gold: #d8b35a;
+    --gold-2: #f2d88b;
+    --green: #41c77a;
+    --red: #ef6a6a;
+    --text: #f4f6f3;
+    --muted: #9eb0a7;
+    --border: rgba(216,179,90,.22);
+    --shadow: 0 18px 45px rgba(0,0,0,.32);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { overscroll-behavior-y: contain; -webkit-tap-highlight-color: transparent; }
+  button, select, input { touch-action: manipulation; }
+  html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at 50% -20%, #163126 0%, var(--bg) 38%, #040806 100%); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  button, input, select { font: inherit; }
+  button { cursor: pointer; }
+  .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+  header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); background: rgba(5,12,9,.92); border-bottom: 1px solid var(--border); }
+  .topbar { max-width: 1500px; margin: 0 auto; padding: 16px 22px; display: flex; align-items: center; gap: 18px; justify-content: space-between; }
+  .brand-wrap { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .chip-mark { width: 44px; height: 44px; border-radius: 50%; border: 4px dashed var(--gold); box-shadow: inset 0 0 0 5px #132219, 0 0 0 2px rgba(216,179,90,.2); display: grid; place-items: center; color: var(--gold-2); font-weight: 900; background: #0e1b16; }
+  .brand { min-width: 0; }
+  .brand h1 { margin: 0; font-size: clamp(17px, 2vw, 24px); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+  .formula-pill { border: 1px solid var(--border); background: rgba(216,179,90,.08); color: var(--gold-2); padding: 10px 14px; border-radius: 999px; font-weight: 800; font-size: 13px; white-space: nowrap; }
+  main { width: 100%; max-width: 1500px; margin: 0 auto; padding: 22px; display: grid; grid-template-columns: 270px minmax(0,1fr) 300px; gap: 20px; }
+  .panel { background: linear-gradient(180deg, rgba(18,34,28,.96), rgba(10,22,17,.96)); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--radius); }
+  .nav { padding: 12px; align-self: start; position: sticky; top: 94px; }
+  .nav-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; padding: 10px 10px 8px; }
+  .nav button { width: 100%; border: 0; background: transparent; color: #dce5df; text-align: left; padding: 12px 12px; border-radius: 12px; margin: 2px 0; display: flex; gap: 10px; align-items: center; font-weight: 760; }
+  .nav button:hover { background: rgba(255,255,255,.045); }
+  .nav button.active { background: linear-gradient(90deg, rgba(216,179,90,.16), rgba(65,199,122,.07)); color: white; outline: 1px solid rgba(216,179,90,.2); }
+  .nav .num { width: 25px; height: 25px; border-radius: 7px; display: grid; place-items: center; background: #1b2f26; color: var(--gold-2); font-size: 12px; flex: 0 0 auto; }
+  .workspace { min-width: 0; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .hero { padding: 24px; margin-bottom: 18px; }
+  .eyebrow { color: var(--gold-2); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 900; }
+  h2 { margin: 8px 0 8px; font-size: clamp(24px, 3vw, 38px); line-height: 1.08; }
+  .sub { color: var(--muted); line-height: 1.5; max-width: 820px; }
+  .mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 20px; }
+  .mode-card { background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 16px; }
+  .mode-card h3 { margin: 0 0 6px; font-size: 17px; }
+  .mode-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .section { padding: 22px; margin-bottom: 18px; }
+  .section-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-title h3 { margin: 0; font-size: 18px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+  .field label { display: block; color: var(--muted); font-size: 12px; margin: 0 0 7px 2px; font-weight: 700; }
+  select, .small-input { width: 100%; border: 1px solid rgba(255,255,255,.1); border-radius: 12px; background: #09140f; color: white; padding: 12px 13px; outline: none; }
+  select:focus, .small-input:focus, .answer-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(216,179,90,.1); }
+  .btn { border: 1px solid rgba(255,255,255,.09); border-radius: 12px; color: white; background: #183025; padding: 11px 15px; font-weight: 850; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.primary { background: linear-gradient(135deg,#ae8734,#e2c66e); color: #171109; border-color: transparent; }
+  .btn.green { background: linear-gradient(135deg,#176838,#3fc675); border-color: transparent; }
+  .btn.red { background: rgba(239,106,106,.13); color: #ffc6c6; border-color: rgba(239,106,106,.28); }
+  .btn.ghost { background: rgba(255,255,255,.035); }
+  .btn:disabled { cursor: not-allowed; opacity: .45; filter: none; }
+  .setup-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .trainer { overflow: hidden; }
+  .trainer-top { padding: 13px 18px; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+  .status-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge { font-size: 12px; font-weight: 850; padding: 7px 10px; background: rgba(255,255,255,.05); border-radius: 999px; color: #dfe8e2; }
+  .badge.gold { color: var(--gold-2); background: rgba(216,179,90,.1); }
+  .problem-area { padding: 32px 24px 24px; text-align: center; min-height: 450px; display: flex; flex-direction: column; justify-content: center; }
+  .problem-label { color: var(--muted); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; font-weight: 850; margin-bottom: 12px; }
+  .problem-main { font-size: clamp(38px,7vw,78px); line-height: 1; font-weight: 950; letter-spacing: -.03em; margin: 0; }
+  .problem-stack { display: grid; gap: 12px; width: min(540px,100%); margin: 0 auto 20px; }
+  .problem-line { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(255,255,255,.08); padding: 10px 2px; gap: 20px; }
+  .problem-line span:first-child { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: .1em; font-weight: 900; }
+  .problem-line strong { font-size: clamp(30px,5vw,52px); }
+  .pot-call { color: var(--gold-2); font-size: 16px; font-weight: 900; letter-spacing: .18em; margin-top: 4px; }
+  .answer-wrap { width: min(520px,100%); margin: 26px auto 0; }
+  .answer-input { width: 100%; height: 84px; border-radius: 17px; border: 1px solid rgba(255,255,255,.12); background: #06100b; color: white; text-align: center; font-size: 42px; font-weight: 900; outline: none; }
+  .hint { margin-top: 9px; color: var(--muted); font-size: 12px; }
+  .feedback { margin: 18px auto 0; width: min(680px,100%); border-radius: 16px; padding: 16px; text-align: left; display: none; }
+  .feedback.correct { display: block; background: rgba(65,199,122,.1); border: 1px solid rgba(65,199,122,.28); }
+  .feedback.wrong { display: block; background: rgba(239,106,106,.09); border: 1px solid rgba(239,106,106,.28); }
+  .feedback h4 { margin: 0 0 9px; }
+  .feedback .steps { display: grid; gap: 6px; color: #e9efeb; line-height: 1.5; }
+  .feedback .correct-answer { margin-top: 12px; color: var(--gold-2); font-weight: 950; font-size: 18px; }
+  .trainer-controls { padding: 15px 18px; border-top: 1px solid rgba(255,255,255,.07); display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; }
+  .stats-panel { align-self: start; position: sticky; top: 94px; padding: 16px; }
+  .stats-panel h3 { margin: 0 0 12px; font-size: 16px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .stat { border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.025); border-radius: 12px; padding: 10px; }
+  .stat .k { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .09em; }
+  .stat .v { margin-top: 4px; font-size: 19px; font-weight: 900; }
+  .weak-box { margin-top: 14px; border-top: 1px solid rgba(255,255,255,.07); padding-top: 14px; }
+  .weak-list { display: grid; gap: 7px; }
+  .weak-item { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; background: rgba(255,255,255,.028); padding: 8px 9px; border-radius: 9px; }
+  .weak-item span:last-child { color: #ffc0c0; font-weight: 850; }
+  .table-progress { display: grid; gap: 8px; }
+  .progress-row { display: grid; grid-template-columns: 38px 1fr 48px; align-items: center; gap: 9px; font-size: 12px; }
+  .bar { height: 8px; border-radius: 999px; overflow: hidden; background: #07110c; }
+  .bar > div { height: 100%; background: linear-gradient(90deg,#2f8c57,#d9b55d); border-radius: inherit; }
+  .study-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+  .study-content { display: none; }
+  .study-content.active { display: block; }
+  .study-table { width: 100%; border-collapse: collapse; overflow: hidden; }
+  .study-table th, .study-table td { padding: 10px 9px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; }
+  .study-table th { color: var(--gold-2); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .study-table td { color: #e6ece8; }
+  .mult-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+  .mult-card { border: 1px solid rgba(255,255,255,.07); border-radius: 13px; background: rgba(255,255,255,.025); padding: 13px; }
+  .mult-card h4 { margin: 0 0 8px; color: var(--gold-2); }
+  .mult-card div { line-height: 1.7; font-variant-numeric: tabular-nums; }
+  .callout { border-left: 3px solid var(--gold); padding: 12px 14px; background: rgba(216,179,90,.07); border-radius: 0 12px 12px 0; margin: 10px 0; line-height: 1.55; }
+  .level-list { display: grid; gap: 10px; }
+  .level-item { border: 1px solid rgba(255,255,255,.07); border-radius: 13px; padding: 13px; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+  .level-item strong { color: var(--gold-2); }
+  .results { padding: 22px; display: none; }
+  .results.show { display: block; }
+  .result-grade { font-size: 56px; font-weight: 950; color: var(--gold-2); }
+  .result-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 15px 0; }
+  .result-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); padding: 12px; border-radius: 12px; }
+  .result-card .rlabel { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .result-card .rvalue { font-weight: 900; font-size: 20px; margin-top: 3px; }
+  .recommend { border-top: 1px solid rgba(255,255,255,.07); margin-top: 16px; padding-top: 15px; }
+  .empty { color: var(--muted); font-size: 13px; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 100; display: none; place-items: center; padding: 18px; }
+  .modal-backdrop.show { display: grid; }
+  .modal { width: min(560px,100%); max-height: 90vh; overflow: auto; background: #0d1b15; border: 1px solid var(--border); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); }
+  .modal h3 { margin-top: 0; }
+  .modal-actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 9px; }
+  footer { color: #718178; text-align: center; padding: 14px; font-size: 11px; }
+  .kbd { display: inline-grid; place-items: center; min-width: 24px; padding: 2px 6px; border-radius: 5px; background: #18251f; border: 1px solid rgba(255,255,255,.11); color: #dce5df; font-size: 11px; }
+  .mobile-submit { display: none; width: 100%; margin-top: 10px; min-height: 52px; font-size: 17px; }
+  .answer-input:disabled + .mobile-submit { opacity: .45; pointer-events: none; }
+  @media (max-width: 1150px) {
+    main { grid-template-columns: 230px minmax(0,1fr); }
+    .stats-panel { position: static; grid-column: 1 / -1; }
+    .stat-grid { grid-template-columns: repeat(4,1fr); }
+  }
+  @media (max-width: 820px) {
+    .app { min-height: 100svh; }
+    header { position: sticky; top: 0; }
+    .topbar { align-items: center; padding: 11px 12px; min-height: 64px; }
+    .chip-mark { width: 38px; height: 38px; border-width: 3px; font-size: 13px; flex: 0 0 auto; }
+    .brand h1 { font-size: 16px; }
+    .brand p { display: none; }
+    .formula-pill { display: none; }
+    main { grid-template-columns: 1fr; padding: 8px 10px 18px; gap: 10px; }
+    .nav { position: sticky; top: 64px; z-index: 18; display: flex; overflow-x: auto; gap: 6px; white-space: nowrap; padding: 7px; border-radius: 13px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav-label { display: none; }
+    .nav button { width: auto; min-height: 44px; flex: 0 0 auto; padding: 9px 11px; margin: 0; gap: 7px; }
+    .nav button span:last-child { display: inline; font-size: 12px; }
+    .nav .num { width: 27px; height: 27px; min-width: 27px; padding: 0; }
+    .hero, .section { padding: 17px; margin-bottom: 10px; }
+    .mode-grid, .grid-2, .grid-3, .mult-grid { grid-template-columns: 1fr; }
+    .result-grid, .stat-grid { grid-template-columns: repeat(2,1fr); }
+    .trainer-top { padding: 10px 12px; align-items: flex-start; }
+    .problem-area { min-height: 0; padding: 24px 14px 18px; }
+    .problem-stack { gap: 7px; margin-bottom: 14px; }
+    .answer-wrap { margin-top: 20px; }
+    .answer-input { height: 76px; font-size: 38px; border-radius: 15px; }
+    .mobile-submit { display: block; }
+    .trainer-controls { position: sticky; bottom: 0; z-index: 16; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,16,13,.96); backdrop-filter: blur(14px); display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+    .trainer-controls .btn { min-height: 46px; padding: 9px 8px; font-size: 13px; }
+    .stats-panel { margin-top: 0; }
+    select, .small-input { min-height: 48px; font-size: 16px; }
+    .btn { min-height: 46px; }
+    footer { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 560px) {
+    .topbar { padding-left: calc(10px + env(safe-area-inset-left)); padding-right: calc(10px + env(safe-area-inset-right)); }
+    .brand-wrap { gap: 9px; }
+    .brand h1 { font-size: 15px; max-width: calc(100vw - 72px); }
+    main { padding-left: calc(7px + env(safe-area-inset-left)); padding-right: calc(7px + env(safe-area-inset-right)); }
+    .nav button { padding: 8px 9px; }
+    .nav button span:last-child { font-size: 11px; }
+    h2 { font-size: 27px; }
+    .sub { font-size: 13px; }
+    .mode-card { padding: 13px; }
+    .section-title { align-items: flex-start; }
+    .trainer { border-radius: 14px; }
+    .trainer-top { gap: 7px; }
+    .status-row { gap: 6px; }
+    .badge { font-size: 10px; padding: 6px 8px; }
+    .problem-label { font-size: 11px; margin-bottom: 9px; }
+    .problem-main { font-size: clamp(40px,14vw,62px); }
+    .problem-line { padding: 8px 2px; gap: 10px; }
+    .problem-line strong { font-size: 34px; }
+    .problem-line span:first-child { font-size: 10px; }
+    .pot-call { font-size: 14px; }
+    .answer-input { height: 72px; font-size: 36px; }
+    .hint { font-size: 11px; line-height: 1.35; }
+    .feedback { padding: 13px; font-size: 13px; }
+    .trainer-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .trainer-controls .btn { font-size: 13px; }
+    .result-grade { font-size: 46px; }
+    .result-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .result-card { padding: 10px; }
+    .result-card .rvalue { font-size: 18px; }
+    .stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .mult-card div { line-height: 1.6; }
+  }
+
+  </style>
+<link rel="stylesheet" href="../assets/poker101class.css">
+</head>
+<body class="trainer-page mental-math-page">
+<div class="app">
+<header class="p101-header">
+  <div class="topbar p101-topbar">
+    <a class="p101-brand" href="../index.html" aria-label="Poker101Class training hub">
+      <img src="../assets/poker101class-logo-18.webp" alt="Poker101Class" width="1942" height="809" decoding="async">
+    </a>
+    <span class="p101-divider" aria-hidden="true"></span>
+    <div class="p101-trainer-title">
+      <span>Trainer 02</span>
+      <strong>Dealer Mental Math</strong>
+    </div>
+    <nav class="p101-nav" aria-label="Poker101Class trainers">
+      <a href="../index.html">Home</a>
+      <a href="table-games.html">Table Games</a>
+      <a href="mental-math.html" class="active" aria-current="page">Mental Math</a>
+      <a href="mixed-games.html">Mixed Games</a>
+    </nav>
+    <details class="p101-mobile-nav">
+      <summary aria-label="Open Poker101Class navigation">Menu <span aria-hidden="true">☰</span></summary>
+      <nav aria-label="Poker101Class mobile navigation">
+        <a href="../index.html">Home</a>
+        <a href="table-games.html">Table Games</a>
+        <a href="mental-math.html" aria-current="page">Mental Math</a>
+        <a href="mixed-games.html">Mixed Games</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main>
+  <aside class="panel nav" id="nav">
+    <div class="nav-label">Training</div>
+    <button class="active" data-screen="home"><span class="num">⌂</span><span>Dashboard</span></button>
+    <button data-screen="mode1"><span class="num">1</span><span>Multiplication 2–12</span></button>
+    <button data-screen="mode2"><span class="num">2</span><span>PLO ×3 Drill</span></button>
+    <button data-screen="mode3"><span class="num">3</span><span>Triple + Trail</span></button>
+    <button data-screen="mode4"><span class="num">4</span><span>Rapid Fire</span></button>
+    <button data-screen="mode5"><span class="num">5</span><span>Progressive</span></button>
+    <button data-screen="mode6"><span class="num">6</span><span>Weak Numbers</span></button>
+    <button data-screen="mode7"><span class="num">7</span><span>Addition / Make 100</span></button>
+    <button data-screen="mode8"><span class="num">8</span><span>Timed Dealer Test</span></button>
+    <button data-screen="mode9"><span class="num">9</span><span>Blinds + Callers Test</span></button>
+    <div class="nav-label">Reference</div>
+    <button data-screen="study"><span class="num">S</span><span>Study / Cheat Sheets</span></button>
+  </aside>
+
+  <section class="workspace">
+    <div class="screen active" id="screen-home">
+      <div class="panel hero">
+        <div class="eyebrow">Dealer-specific mental math</div>
+        <h2>Make the math automatic.</h2>
+        <div class="sub">This trainer is built around the exact PLO calculation you use in class: triple the last bet, then add the betting trail. Your weak facts and slow answers are saved on this computer and recycled more often.</div>
+        <div class="mode-grid">
+          <div class="mode-card"><h3>Multiplication foundation</h3><p>Master tables 2–12 with ordered learning, random recall, speed work, perfect-table tests, and full mixed tests.</p></div>
+          <div class="mode-card"><h3>PLO dealer math</h3><p>Train ×3, Triple + Trail, awkward 5-ending numbers, blinds + callers, and realistic POT answers under time pressure.</p></div>
+          <div class="mode-card"><h3>Mental shortcuts</h3><p>Split 75 × 3 into 70 × 3 + 5 × 3. Bridge additions to the next hundred instead of counting slowly.</p></div>
+          <div class="mode-card"><h3>Adaptive weak-number practice</h3><p>Wrong or slow facts become more likely to return. Multiplication weaknesses also influence PLO number selection.</p></div>
+        </div>
+      </div>
+      <div class="panel section">
+        <div class="section-title"><h3>Recommended progression</h3><span class="badge gold" id="home-level-badge">Level 1</span></div>
+        <div class="level-list">
+          <div class="level-item"><div><strong>Beginner</strong><div class="sub">2s, 5s, 10s</div></div><span class="badge">foundation</span></div>
+          <div class="level-item"><div><strong>Easy</strong><div class="sub">2s, 3s, 4s, 5s, 10s</div></div><span class="badge">recall</span></div>
+          <div class="level-item"><div><strong>Intermediate</strong><div class="sub">6s, 7s, 8s</div></div><span class="badge">dealer-relevant</span></div>
+          <div class="level-item"><div><strong>Advanced</strong><div class="sub">9s, 11s, 12s</div></div><span class="badge">hard facts</span></div>
+          <div class="level-item"><div><strong>Mastery</strong><div class="sub">2–12 mixed together</div></div><span class="badge">automatic recall</span></div>
+        </div>
+      </div>
+      <div class="panel section">
+        <div class="section-title"><h3>Multiplication table progress</h3><span class="badge" id="weakest-table-label">Weakest: —</span></div>
+        <div class="table-progress" id="table-progress"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-mode1">
+      <div class="panel section">
+        <div class="eyebrow">Mode 1</div><h2>Multiplication Tables 2–12</h2>
+        <div class="grid-3">
+          <div class="field"><label>Table</label><select id="m1-table"></select></div>
+          <div class="field"><label>Practice</label><select id="m1-practice"><option value="order">Learn in Order</option><option value="random">Random Quiz</option><option value="speed">Speed Challenge — 60 sec</option><option value="perfect">Perfect Table Test</option><option value="full">Full 2–12 Test</option></select></div>
+          <div class="field"><label>Difficulty set</label><select id="m1-difficulty"><option value="beginner">Beginner — 2, 5, 10</option><option value="easy">Easy — 2, 3, 4, 5, 10</option><option value="intermediate">Intermediate — 6, 7, 8</option><option value="advanced">Advanced — 9, 11, 12</option><option value="mastery">Mastery — 2–12</option></select></div>
+        </div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode1">Start Multiplication Training</button></div>
+      </div>
+      <div id="trainer-mode1"></div>
+    </div>
+
+    <div class="screen" id="screen-mode2">
+      <div class="panel section">
+        <div class="eyebrow">Mode 2</div><h2>PLO ×3 Drill</h2><div class="sub">Poker amounts in $5 increments. Numbers ending in 5 are taught by splitting off the 5.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Range</label><select id="m2-level"><option value="1">Level 1 — $5 to $35</option><option value="2">Level 2 — $15 to $75</option><option value="3">Level 3 — $25 to $100</option><option value="4">Level 4 — $35 to $150</option><option value="5">Level 5 — $50 to $200</option></select></div><div class="field"><label>Questions</label><select id="m2-count"><option>15</option><option selected>25</option><option>50</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode2">Start ×3 Drill</button><button class="btn ghost" data-study="triple">Open ×3 Chart</button></div>
+      </div>
+      <div id="trainer-mode2"></div>
+    </div>
+
+    <div class="screen" id="screen-mode3">
+      <div class="panel section"><div class="eyebrow">Mode 3</div><h2>Triple + Trail Drill</h2><div class="sub">One of the core dealer drills: Last Bet × 3 + Betting Trail.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Difficulty</label><select id="m3-level"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3" selected>Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option></select></div><div class="field"><label>Questions</label><select id="m3-count"><option>10</option><option selected>25</option><option>50</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode3">Start Triple + Trail</button></div>
+      </div><div id="trainer-mode3"></div>
+    </div>
+
+    <div class="screen" id="screen-mode4">
+      <div class="panel section"><div class="eyebrow">Mode 4</div><h2>Rapid Fire Dealer Drill</h2><div class="sub">The timer starts the instant the problem appears. Correct answers move on quickly. Wrong answers stop the drill until you review the math.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Starting difficulty</label><select id="m4-level"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3" selected>Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option></select></div><div class="field"><label>Round length</label><select id="m4-count"><option>15</option><option selected>25</option><option>50</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode4">Start Rapid Fire</button></div>
+      </div><div id="trainer-mode4"></div>
+    </div>
+
+    <div class="screen" id="screen-mode5">
+      <div class="panel section"><div class="eyebrow">Mode 5</div><h2>Progressive Difficulty</h2><div class="sub">Your saved dealer level advances when recent accuracy is at least 90% and average response time is 5 seconds or faster.</div>
+        <div class="level-list" style="margin-top:16px">
+          <div class="level-item"><div><strong>Level 1</strong><div class="sub">Last bets $5–$35, easy trails.</div></div><span class="badge">foundation</span></div>
+          <div class="level-item"><div><strong>Level 2</strong><div class="sub">Last bets about $35–$75.</div></div><span class="badge">building speed</span></div>
+          <div class="level-item"><div><strong>Level 3</strong><div class="sub">Last bets $50–$100, trails up to ~$150.</div></div><span class="badge">class pace</span></div>
+          <div class="level-item"><div><strong>Level 4</strong><div class="sub">POT answers commonly $150–$300.</div></div><span class="badge">pressure</span></div>
+          <div class="level-item"><div><strong>Level 5</strong><div class="sub">Difficult dealer-class spots, often $200–$500+.</div></div><span class="badge">advanced</span></div>
+        </div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode5">Start at My Level</button><span class="badge gold" id="progressive-current">Current: Level 1</span></div>
+      </div><div id="trainer-mode5"></div>
+    </div>
+
+    <div class="screen" id="screen-mode6">
+      <div class="panel section"><div class="eyebrow">Mode 6</div><h2>Weak Number Training</h2><div class="sub">This mode pulls from the facts, ×3 bet amounts, and betting trails where you have the highest error rate or slowest responses. If there is not enough history yet, it deliberately favors 5-ending dealer numbers.</div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode6">Train My Weak Numbers</button></div>
+      </div><div id="trainer-mode6"></div>
+    </div>
+
+    <div class="screen" id="screen-mode7">
+      <div class="panel section"><div class="eyebrow">Mode 7</div><h2>Addition / Make 100 Training</h2><div class="sub">Practice awkward poker additions by moving the first number to the next hundred, then adding what remains.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Difficulty</label><select id="m7-level"><option value="1">Level 1 — around $100–$250</option><option value="2" selected>Level 2 — around $150–$350</option><option value="3">Level 3 — around $200–$500</option></select></div><div class="field"><label>Questions</label><select id="m7-count"><option>10</option><option selected>25</option><option>50</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode7">Start Addition Drill</button></div>
+      </div><div id="trainer-mode7"></div>
+    </div>
+
+    <div class="screen" id="screen-mode8">
+      <div class="panel section"><div class="eyebrow">Mode 8</div><h2>Timed Dealer Test</h2><div class="sub">A mixed test of ×3, Triple + Trail, and dealer-style addition. Your report grades accuracy, speed, and weak areas.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Problems</label><select id="m8-count"><option>10</option><option selected>25</option><option>50</option></select></div><div class="field"><label>Difficulty</label><select id="m8-level"><option value="1">Level 1</option><option value="2">Level 2</option><option value="3" selected>Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode8">Begin Timed Dealer Test</button></div>
+      </div><div id="trainer-mode8"></div>
+    </div>
+
+    <div class="screen" id="screen-mode9">
+      <div class="panel section"><div class="eyebrow">Mode 9</div><h2>Blinds + Callers Test</h2><div class="sub">Memorize the dealer shortcut from your class: Blinds only = $15, then every caller adds $5.</div>
+        <div class="grid-2" style="margin-top:15px"><div class="field"><label>Test length</label><select id="m9-count"><option value="9">9 questions — each fact once</option><option value="18" selected>18 questions — each fact twice</option><option value="27">27 questions — each fact three times</option></select></div><div class="field"><label>Facts</label><select disabled><option>Blinds only + 1–8 callers</option></select></div></div>
+        <div class="setup-actions"><button class="btn primary" data-start="mode9">Start Blinds + Callers Test</button><button class="btn ghost" data-study="blinds">Open Blinds Chart</button></div>
+      </div><div id="trainer-mode9"></div>
+    </div>
+
+    <div class="screen" id="screen-study">
+      <div class="panel section"><div class="eyebrow">Study Mode</div><h2>Cheat Sheets & Mental Shortcuts</h2>
+        <div class="study-tabs"><button class="btn primary" data-study-tab="tables">Tables 2–12</button><button class="btn ghost" data-study-tab="triple">×3 Poker Chart</button><button class="btn ghost" data-study-tab="make100">Make 100</button><button class="btn ghost" data-study-tab="formula">Triple + Trail</button><button class="btn ghost" data-study-tab="shortcuts">Shortcuts</button><button class="btn ghost" data-study-tab="blinds">Blinds + Callers</button></div>
+        <div class="study-content active" id="study-tables"><div class="mult-grid" id="study-mult-grid"></div></div>
+        <div class="study-content" id="study-triple"><div class="callout"><strong>Pattern:</strong> for a number ending in 5, split off the 5. Example: 85 × 3 = (80 × 3) + (5 × 3) = 240 + 15 = 255.</div><table class="study-table"><thead><tr><th>Bet</th><th>×3</th></tr></thead><tbody id="triple-chart"></tbody></table></div>
+        <div class="study-content" id="study-make100"><div class="callout"><strong>195 + 85:</strong> 195 needs 5 to reach 200. Take 5 from 85, leaving 80. 200 + 80 = 280.</div><div class="callout"><strong>225 + 95:</strong> 225 needs 75 to reach 300. Take 75 from 95, leaving 20. 300 + 20 = 320.</div><div class="callout"><strong>Rule:</strong> look for the amount needed to reach the next 100. If the second number is large enough, move that amount first, then add the remainder.</div></div>
+        <div class="study-content" id="study-formula"><div class="callout"><strong>POT = Last Bet × 3 + Betting Trail</strong><br><br>Example: Last Bet $75, Trail $95.<br>70 × 3 = 210<br>5 × 3 = 15<br>210 + 15 = 225<br>225 + 95 = 320<br><strong>POT = $320</strong></div></div>
+        <div class="study-content" id="study-shortcuts"><div class="callout"><strong>×3 ending in 5:</strong> remove the 5, triple the round-ten part, then add 15.</div><div class="callout"><strong>Make the next 100:</strong> ask “how much gets me to 200 / 300 / 400?” Move that amount first.</div><div class="callout"><strong>Dealer priority:</strong> accuracy first, then smooth speed. Repeated correct answers under 5 seconds are the target.</div><div class="callout"><strong>Weak-number rule:</strong> anything wrong or slower than your target should return more often until it becomes automatic.</div></div>
+        <div class="study-content" id="study-blinds"><div class="callout"><strong>Blinds + Callers shortcut:</strong> memorize Blinds only = $15. Every caller adds $5.</div><table class="study-table"><thead><tr><th>Situation</th><th>Total</th></tr></thead><tbody><tr><td>Blinds only</td><td>$15</td></tr><tr><td>Blinds + 1 caller</td><td>$20</td></tr><tr><td>Blinds + 2 callers</td><td>$25</td></tr><tr><td>Blinds + 3 callers</td><td>$30</td></tr><tr><td>Blinds + 4 callers</td><td>$35</td></tr><tr><td>Blinds + 5 callers</td><td>$40</td></tr><tr><td>Blinds + 6 callers</td><td>$45</td></tr><tr><td>Blinds + 7 callers</td><td>$50</td></tr><tr><td>Blinds + 8 callers</td><td>$55</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel stats-panel">
+    <h3>Performance</h3>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Correct</div><div class="v" id="stat-correct">0</div></div>
+      <div class="stat"><div class="k">Wrong</div><div class="v" id="stat-wrong">0</div></div>
+      <div class="stat"><div class="k">Accuracy</div><div class="v" id="stat-accuracy">—</div></div>
+      <div class="stat"><div class="k">Streak</div><div class="v" id="stat-streak">0</div></div>
+      <div class="stat"><div class="k">Best streak</div><div class="v" id="stat-best-streak">0</div></div>
+      <div class="stat"><div class="k">Avg time</div><div class="v" id="stat-avg">—</div></div>
+      <div class="stat"><div class="k">Fastest</div><div class="v" id="stat-fast">—</div></div>
+      <div class="stat"><div class="k">Slowest</div><div class="v" id="stat-slow">—</div></div>
+    </div>
+    <div class="weak-box"><h3>Weak areas</h3><div class="weak-list" id="weak-list"><div class="empty">Answer some problems to build your weak-number profile.</div></div></div>
+    <div class="setup-actions"><button class="btn ghost" id="settings-btn">Settings</button></div>
+  </aside>
+</main>
+<footer>Progress is stored locally in this browser on this device. No internet connection or calculator is required.</footer>
+</div>
+
+<div class="modal-backdrop" id="settings-modal">
+  <div class="modal"><h3>Settings</h3>
+    <div class="grid-2"><div class="field"><label>Slow-answer threshold (seconds)</label><input class="small-input" id="setting-slow" type="number" min="2" max="15" step="0.5" /></div><div class="field"><label>Correct auto-next delay (ms)</label><input class="small-input" id="setting-delay" type="number" min="150" max="2500" step="50" /></div></div>
+    <div class="callout">Any correct answer slower than your threshold is still counted correct, but it receives extra weak-number weight so it comes back more often.</div>
+    <div class="modal-actions"><button class="btn red" id="erase-progress">Erase All Progress</button><button class="btn ghost" id="close-settings">Cancel</button><button class="btn primary" id="save-settings">Save</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/poker101class-auth.js"></script>
+<script>
+/* CORE_START */
+const DealerMathCore = (() => {
+  const triple = n => Number(n) * 3;
+  const multiply = (a,b) => Number(a) * Number(b);
+  const potAmount = (lastBet, trail) => triple(lastBet) + Number(trail);
+  const blindsCallersTotal = callers => 15 + Number(callers) * 5;
+  function tripleSteps(n) {
+    n = Number(n);
+    if (n % 10 === 5) {
+      const base = n - 5;
+      return [
+        `${base} × 3 = ${base*3}`,
+        `5 × 3 = 15`,
+        `${base*3} + 15 = ${n*3}`
+      ];
+    }
+    if (n >= 100) {
+      const hundreds = Math.floor(n/100)*100;
+      const rest = n - hundreds;
+      if (rest) return [`${hundreds} × 3 = ${hundreds*3}`, `${rest} × 3 = ${rest*3}`, `${hundreds*3} + ${rest*3} = ${n*3}`];
+    }
+    return [`${n} × 3 = ${n*3}`];
+  }
+  function additionSteps(a,b) {
+    a = Number(a); b = Number(b);
+    const target = Math.floor(a/100)*100 + 100;
+    const gap = target - a;
+    if (gap > 0 && gap <= b) {
+      const remains = b - gap;
+      return [
+        `${a} needs ${gap} to reach ${target}.`,
+        `Take ${gap} from ${b}; ${remains} remains.`,
+        `${target} + ${remains} = ${a+b}`
+      ];
+    }
+    const tens = Math.floor(b/10)*10;
+    const ones = b - tens;
+    if (ones) return [`${a} + ${tens} = ${a+tens}`, `${a+tens} + ${ones} = ${a+b}`];
+    return [`${a} + ${b} = ${a+b}`];
+  }
+  function potSteps(lastBet, trail) {
+    const first = tripleSteps(lastBet);
+    const t = triple(lastBet);
+    return [...first, `Then add the betting trail:`, ...additionSteps(t, trail), `POT = $${potAmount(lastBet,trail)}`];
+  }
+  return { triple, multiply, potAmount, blindsCallersTotal, tripleSteps, additionSteps, potSteps };
+})();
+if (typeof globalThis !== 'undefined') globalThis.DealerMathCore = DealerMathCore;
+/* CORE_END */
+
+const STORAGE_KEY = 'pokerDealerMentalMathTrainer_v1';
+const DIFF_TABLES = {
+  beginner:[2,5,10], easy:[2,3,4,5,10], intermediate:[6,7,8], advanced:[9,11,12], mastery:[2,3,4,5,6,7,8,9,10,11,12]
+};
+const LEVELS = {
+  1:{betMin:5,betMax:35,trailMin:5,trailMax:60},
+  2:{betMin:35,betMax:75,trailMin:10,trailMax:100},
+  3:{betMin:50,betMax:100,trailMin:15,trailMax:150},
+  4:{betMin:40,betMax:100,trailMin:30,trailMax:180},
+  5:{betMin:50,betMax:165,trailMin:35,trailMax:220}
+};
+const defaultData = () => ({
+  stats:{correct:0,wrong:0,currentStreak:0,bestStreak:0,totalMs:0,timedAnswers:0,fastestMs:null,slowestMs:null},
+  tables:{}, facts:{}, betStats:{}, trailStats:{}, addStats:{}, callerStats:{}, progressiveLevel:1,
+  settings:{slowSec:5,autoDelay:650}, savedAt:null
+});
+let data = loadData();
+let session = null;
+let tickTimer = null;
+let autoNextTimer = null;
+
+function loadData(){
+  try { const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)); return mergeData(defaultData(), parsed || {}); }
+  catch(e){ return defaultData(); }
+}
+function mergeData(base, incoming){
+  const out = {...base, ...incoming};
+  out.stats = {...base.stats, ...(incoming.stats||{})};
+  out.settings = {...base.settings, ...(incoming.settings||{})};
+  out.tables = incoming.tables || {};
+  out.facts = incoming.facts || {};
+  out.betStats = incoming.betStats || {};
+  out.trailStats = incoming.trailStats || {};
+  out.addStats = incoming.addStats || {};
+  out.callerStats = incoming.callerStats || {};
+  out.progressiveLevel = incoming.progressiveLevel || 1;
+  return out;
+}
+function saveData(){ try { data.savedAt=Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){} renderStats(); renderTableProgress(); }
+function esc(s){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function money(n){ return `$${Number(n).toLocaleString()}`; }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function randomFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function multiplesOf5(min,max){ const out=[]; for(let n=Math.ceil(min/5)*5;n<=max;n+=5) out.push(n); return out; }
+function ensureBucket(obj,key){ if(!obj[key]) obj[key]={correct:0,wrong:0,totalMs:0,count:0,slow:0}; return obj[key]; }
+function weakness(bucket){ if(!bucket) return 1.5; const total=bucket.correct+bucket.wrong; if(!total) return 1.5; const error=bucket.wrong/total; const slow=bucket.slow/Math.max(1,bucket.count); return 1 + error*7 + slow*3; }
+function weightedPick(items, weightFn){ const weights=items.map(x=>Math.max(.1,weightFn(x))); const total=weights.reduce((a,b)=>a+b,0); let r=Math.random()*total; for(let i=0;i<items.length;i++){ r-=weights[i]; if(r<=0) return items[i]; } return items[items.length-1]; }
+function factKey(a,b){ return `${a}×${b}`; }
+function tablePercent(t){ const b=data.tables[t]; if(!b || !(b.correct+b.wrong)) return null; return Math.round(100*b.correct/(b.correct+b.wrong)); }
+function linkedTripleFact(amount){ const base=Math.floor(Number(amount)/10); if(base>=2 && base<=12) return factKey(base,3); return null; }
+
+function trackBucket(bucket, correct, ms){
+  bucket.count++; bucket.totalMs += ms;
+  if(correct) bucket.correct++; else bucket.wrong++;
+  if(ms > data.settings.slowSec*1000) bucket.slow++;
+}
+function recordAnswer(problem, correct, ms){
+  const s=data.stats;
+  if(correct){ s.correct++; s.currentStreak++; s.bestStreak=Math.max(s.bestStreak,s.currentStreak); } else { s.wrong++; s.currentStreak=0; }
+  s.totalMs += ms; s.timedAnswers++;
+  s.fastestMs = s.fastestMs===null ? ms : Math.min(s.fastestMs,ms);
+  s.slowestMs = s.slowestMs===null ? ms : Math.max(s.slowestMs,ms);
+  if(problem.type==='mult'){
+    trackBucket(ensureBucket(data.facts,factKey(problem.a,problem.b)),correct,ms);
+    trackBucket(ensureBucket(data.tables,String(problem.a)),correct,ms);
+  }
+  if(problem.type==='triple' || problem.type==='pot'){
+    trackBucket(ensureBucket(data.betStats,String(problem.lastBet)),correct,ms);
+    const link=linkedTripleFact(problem.lastBet);
+    if(link) trackBucket(ensureBucket(data.facts,link),correct,ms);
+  }
+  if(problem.type==='pot') trackBucket(ensureBucket(data.trailStats,String(problem.trail)),correct,ms);
+  if(problem.type==='addition'){
+    trackBucket(ensureBucket(data.addStats,`${problem.a}+${problem.b}`),correct,ms);
+    trackBucket(ensureBucket(data.trailStats,String(problem.b)),correct,ms);
+  }
+  if(problem.type==='callers'){
+    trackBucket(ensureBucket(data.callerStats,String(problem.callers)),correct,ms);
+  }
+  saveData();
+}
+
+function generateTriple(level=3, adaptive=true){
+  const ranges={1:[5,35],2:[15,75],3:[25,100],4:[35,150],5:[50,200]};
+  const [min,max]=ranges[level]||ranges[3];
+  const nums=multiplesOf5(min,max);
+  const lastBet=adaptive ? weightedPick(nums,n=>{
+    const b=weakness(data.betStats[n]);
+    const linked=linkedTripleFact(n); return b + (linked?weakness(data.facts[linked])*.7:0) + (n%10===5?1.2:0);
+  }) : randomFrom(nums);
+  return {type:'triple',lastBet,answer:DealerMathCore.triple(lastBet)};
+}
+function generatePot(level=3, adaptive=true){
+  const cfg=LEVELS[level]||LEVELS[3];
+  const bets=multiplesOf5(cfg.betMin,cfg.betMax);
+  const trails=multiplesOf5(cfg.trailMin,cfg.trailMax);
+  const lastBet=adaptive ? weightedPick(bets,n=>weakness(data.betStats[n])+(n%10===5?1.1:0)+(linkedTripleFact(n)?weakness(data.facts[linkedTripleFact(n)])*.5:0)) : randomFrom(bets);
+  const trail=adaptive ? weightedPick(trails,n=>weakness(data.trailStats[n])+(n%10===5?.7:0)) : randomFrom(trails);
+  return {type:'pot',lastBet,trail,answer:DealerMathCore.potAmount(lastBet,trail),level};
+}
+function generateAddition(level=2, adaptive=true){
+  const ranges={1:[100,250],2:[150,350],3:[200,500]};
+  const [minTotal,maxTotal]=ranges[level]||ranges[2];
+  let a,b,tries=0;
+  do {
+    const aCandidates=multiplesOf5(Math.max(95,minTotal-100),Math.min(395,maxTotal-35));
+    a=adaptive?weightedPick(aCandidates,n=>(n%10===5?1.8:1)):randomFrom(aCandidates);
+    const bCandidates=[15,25,35,45,55,65,75,85,95,105,115,125].filter(x=>a+x>=minTotal&&a+x<=maxTotal);
+    b=bCandidates.length ? (adaptive?weightedPick(bCandidates,n=>weakness(data.trailStats[n])+(n%10===5?1:0)):randomFrom(bCandidates)) : 55;
+    tries++;
+  } while(tries<30 && a+b>maxTotal);
+  return {type:'addition',a,b,answer:a+b};
+}
+function generateBlindsCallers(callers=null){
+  const n=(callers===null || callers===undefined) ? weightedPick([0,1,2,3,4,5,6,7,8],x=>weakness(data.callerStats[x])) : Number(callers);
+  return {type:'callers',callers:n,answer:DealerMathCore.blindsCallersTotal(n)};
+}
+function generateMult(tables, forcedTable=null){
+  const a=forcedTable || weightedPick(tables,t=>2+weakness(data.tables[t]));
+  const bs=Array.from({length:12},(_,i)=>i+1);
+  const b=weightedPick(bs,x=>weakness(data.facts[factKey(a,x)]));
+  return {type:'mult',a,b,answer:DealerMathCore.multiply(a,b)};
+}
+function generateWeak(){
+  const candidates=[];
+  Object.entries(data.facts).forEach(([k,b])=>candidates.push({kind:'fact',key:k,score:weakness(b)}));
+  Object.entries(data.betStats).forEach(([k,b])=>candidates.push({kind:'bet',key:k,score:weakness(b)+.5}));
+  Object.entries(data.trailStats).forEach(([k,b])=>candidates.push({kind:'trail',key:k,score:weakness(b)}));
+  Object.entries(data.callerStats).forEach(([k,b])=>candidates.push({kind:'callers',key:k,score:weakness(b)+.5}));
+  candidates.sort((a,b)=>b.score-a.score);
+  const top=candidates.slice(0,25);
+  if(!top.length || Math.random()<.3) return Math.random()<.5 ? generateTriple(3,true) : generatePot(3,true);
+  const chosen=weightedPick(top,x=>x.score);
+  if(chosen.kind==='fact'){
+    const [a,b]=chosen.key.split('×').map(Number); return {type:'mult',a,b,answer:a*b,weak:true};
+  }
+  if(chosen.kind==='bet'){
+    const lastBet=Number(chosen.key); return Math.random()<.55 ? {type:'triple',lastBet,answer:lastBet*3,weak:true} : (()=>{const trail=randomFrom([25,35,45,55,65,75,85,95,105,115]);return {type:'pot',lastBet,trail,answer:DealerMathCore.potAmount(lastBet,trail),weak:true};})();
+  }
+  if(chosen.kind==='callers'){
+    const callers=Number(chosen.key); return {...generateBlindsCallers(callers),weak:true};
+  }
+  const trail=Number(chosen.key); const lastBet=randomFrom([35,45,55,65,75,85,95]); return {type:'pot',lastBet,trail,answer:DealerMathCore.potAmount(lastBet,trail),weak:true};
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function trainerHost(mode){ return document.getElementById(`trainer-${mode}`); }
+function buildTrainer(mode){
+  const host=trainerHost(mode);
+  host.innerHTML=`<div class="panel trainer">
+    <div class="trainer-top"><div class="status-row"><span class="badge gold" id="session-mode">Training</span><span class="badge" id="session-progress">0 / 0</span><span class="badge" id="session-level"></span></div><div class="status-row"><span class="badge" id="problem-time">0.0s</span><span class="badge gold" id="session-clock"></span></div></div>
+    <div class="problem-area"><div id="problem-render"><div class="problem-label">Press Start</div><div class="problem-main">Ready</div></div>
+      <div class="answer-wrap"><input id="answer-input" class="answer-input" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Answer" placeholder="Answer" disabled /><button class="btn primary mobile-submit" id="mobile-submit" type="button">Submit Answer</button><div class="hint">Type the number and press <span class="kbd">Enter</span> or tap Submit. Do not type the $ sign.</div></div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+    <div class="trainer-controls"><button class="btn green" id="control-start">Start</button><button class="btn ghost" id="control-pause" disabled>Pause</button><button class="btn red" id="control-reset">Reset</button><button class="btn ghost" id="control-next" disabled>Next</button><button class="btn primary" id="control-done" style="display:none">Done</button><button class="btn ghost" id="control-settings">Settings</button></div>
+  </div><div class="panel results" id="results"></div>`;
+  host.querySelector('#control-start').addEventListener('click',()=>startTrainerFromControl(mode));
+  host.querySelector('#control-pause').addEventListener('click',togglePause);
+  host.querySelector('#control-reset').addEventListener('click',()=>resetSession(true));
+  host.querySelector('#control-next').addEventListener('click',skipProblem);
+  host.querySelector('#control-done').addEventListener('click',doneWrong);
+  host.querySelector('#control-settings').addEventListener('click',openSettings);
+  const answerInput=host.querySelector('#answer-input');
+  answerInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); submitAnswer(); } });
+  host.querySelector('#mobile-submit').addEventListener('click',()=>{ if(!answerInput.disabled && !session?.answerLocked) submitAnswer(); });
+  answerInput.addEventListener('focus',()=>{
+    if(window.matchMedia('(max-width: 820px)').matches){
+      setTimeout(()=>answerInput.scrollIntoView({block:'center',behavior:'smooth'}),180);
+    }
+  });
+}
+function initAllTrainers(){ ['mode1','mode2','mode3','mode4','mode5','mode6','mode7','mode8','mode9'].forEach(buildTrainer); }
+
+// The trainer uses one shared session object. A completed session cannot be
+// reused because its index/queue/timer state is already exhausted. Internal
+// Start / Start Again buttons therefore prepare a fresh session for their own
+// mode before starting. This also prevents a Start button on another screen
+// from accidentally restarting the previously active mode.
+function startTrainerFromControl(mode){
+  if(!session || session.mode!==mode || !session.active){
+    prepareSession(mode);
+  }
+  startPreparedSession();
+}
+
+function prepareSession(mode){
+  clearTimers();
+  const base={mode,active:false,paused:false,answerLocked:false,problem:null,index:0,correct:0,wrong:0,times:[],mistakes:[],queue:[],count:25,level:3,sessionStarted:0,wallStartedAt:0,cloudSessionId:globalThis.crypto?.randomUUID?.()||('math-'+Date.now()+'-'+Math.random().toString(16).slice(2)),problemStarted:0,problemElapsedBeforePause:0,speedEnd:null,perfectSeen:new Set(),rapidRecent:[],attempts:[],pauseStarted:null};
+  if(mode==='mode1'){
+    const practice=document.getElementById('m1-practice').value;
+    const tableVal=document.getElementById('m1-table').value;
+    const diff=document.getElementById('m1-difficulty').value;
+    const tables=tableVal==='all'?DIFF_TABLES[diff]:[Number(tableVal)];
+    base.practice=practice; base.tables=tables;
+    if(practice==='order'){
+      if(tableVal==='all') base.queue=tables.flatMap(t=>Array.from({length:12},(_,i)=>({type:'mult',a:t,b:i+1,answer:t*(i+1)})));
+      else { const t=Number(tableVal); base.queue=Array.from({length:12},(_,i)=>({type:'mult',a:t,b:i+1,answer:t*(i+1)})); }
+      base.count=base.queue.length;
+    } else if(practice==='random'){ base.count=24; }
+    else if(practice==='speed'){ base.count=9999; base.speedSeconds=60; }
+    else if(practice==='perfect'){
+      const t=tableVal==='all'?randomFrom(tables):Number(tableVal); base.perfectTable=t; base.queue=shuffle(Array.from({length:12},(_,i)=>({type:'mult',a:t,b:i+1,answer:t*(i+1)}))); base.count=12;
+    } else if(practice==='full'){
+      base.queue=shuffle(DIFF_TABLES.mastery.flatMap(a=>Array.from({length:12},(_,i)=>({type:'mult',a,b:i+1,answer:a*(i+1)})))); base.count=132;
+    }
+  }
+  if(mode==='mode2'){ base.level=Number(document.getElementById('m2-level').value); base.count=Number(document.getElementById('m2-count').value); }
+  if(mode==='mode3'){ base.level=Number(document.getElementById('m3-level').value); base.count=Number(document.getElementById('m3-count').value); }
+  if(mode==='mode4'){ base.level=Number(document.getElementById('m4-level').value); base.count=Number(document.getElementById('m4-count').value); base.rapid=true; }
+  if(mode==='mode5'){ base.level=data.progressiveLevel; base.count=25; base.progressive=true; }
+  if(mode==='mode6'){ base.count=25; base.weakMode=true; }
+  if(mode==='mode7'){ base.level=Number(document.getElementById('m7-level').value); base.count=Number(document.getElementById('m7-count').value); }
+  if(mode==='mode8'){ base.level=Number(document.getElementById('m8-level').value); base.count=Number(document.getElementById('m8-count').value); base.test=true; }
+  if(mode==='mode9'){
+    base.count=Number(document.getElementById('m9-count').value); base.level=null; base.blindsTest=true;
+    const rounds=base.count/9;
+    base.queue=shuffle(Array.from({length:rounds},()=>[0,1,2,3,4,5,6,7,8]).flat().map(callers=>generateBlindsCallers(callers)));
+  }
+  session=base;
+  renderPreparedState();
+}
+function renderPreparedState(){
+  const host=trainerHost(session.mode); const input=host.querySelector('#answer-input');
+  host.querySelector('#problem-render').innerHTML='<div class="problem-label">Ready</div><div class="problem-main">Press Start</div>';
+  host.querySelector('#feedback').className='feedback'; host.querySelector('#feedback').innerHTML='';
+  host.querySelector('#session-progress').textContent=`0 / ${session.count>9000?'60 sec':session.count}`;
+  host.querySelector('#session-mode').textContent=modeName(session);
+  host.querySelector('#session-level').textContent=session.level?`Level ${session.level}`:'';
+  host.querySelector('#session-clock').textContent=session.speedSeconds?'60.0s':'';
+  host.querySelector('#problem-time').textContent='0.0s';
+  input.value=''; input.disabled=true;
+  host.querySelector('#control-start').disabled=false;
+  host.querySelector('#control-start').textContent='Start';
+  host.querySelector('#control-pause').disabled=true;
+  host.querySelector('#control-next').disabled=true;
+  host.querySelector('#control-done').style.display='none';
+  host.querySelector('#results').classList.remove('show');
+}
+function modeName(s){
+  if(s.mode==='mode1') return s.practice==='speed'?'Multiplication Speed':s.practice==='perfect'?'Perfect Table Test':s.practice==='full'?'Full 2–12 Test':'Multiplication';
+  return {mode2:'PLO ×3',mode3:'Triple + Trail',mode4:'Rapid Fire',mode5:'Progressive',mode6:'Weak Numbers',mode7:'Make 100',mode8:'Timed Dealer Test',mode9:'Blinds + Callers Test'}[s.mode]||'Training';
+}
+function startPreparedSession(){
+  if(!session) return;
+  const host=trainerHost(session.mode);
+  if(session.active && session.paused){ togglePause(); return; }
+  session.active=true; session.paused=false; session.sessionStarted=performance.now(); session.wallStartedAt=Date.now();
+  if(session.speedSeconds) session.speedEnd=performance.now()+session.speedSeconds*1000;
+  host.querySelector('#control-start').disabled=true;
+  host.querySelector('#control-pause').disabled=false;
+  host.querySelector('#control-next').disabled=false;
+  host.querySelector('#answer-input').disabled=false;
+  nextProblem();
+  startTick();
+}
+function nextProblem(){
+  if(!session || !session.active) return;
+  if(session.speedSeconds && performance.now()>=session.speedEnd){ finishSession(); return; }
+  if(!session.speedSeconds && session.index>=session.count && !(session.practice==='perfect' && session.queue.length)){ finishSession(); return; }
+  clearTimeout(autoNextTimer);
+  session.problem = getNextProblem();
+  if(!session.problem){ finishSession(); return; }
+  session.problemStarted=performance.now(); session.problemElapsedBeforePause=0; session.paused=false; session.answerLocked=false;
+  const host=trainerHost(session.mode); const input=host.querySelector('#answer-input');
+  host.querySelector('#feedback').className='feedback'; host.querySelector('#feedback').innerHTML='';
+  host.querySelector('#control-done').style.display='none';
+  host.querySelector('#control-pause').disabled=false; host.querySelector('#control-next').disabled=false;
+  input.disabled=false; input.value='';
+  renderProblem(session.problem,host.querySelector('#problem-render'));
+  updateSessionBadges();
+  try { input.focus({preventScroll:true}); } catch (_) { input.focus(); }
+}
+function getNextProblem(){
+  if(session.mode==='mode1'){
+    if(session.queue.length) return session.queue.shift();
+    return generateMult(session.tables);
+  }
+  if(session.mode==='mode2') return generateTriple(session.level,true);
+  if(session.mode==='mode3') return generatePot(session.level,true);
+  if(session.mode==='mode4') return generatePot(session.level,true);
+  if(session.mode==='mode5') return generatePot(session.level,true);
+  if(session.mode==='mode6') return generateWeak();
+  if(session.mode==='mode7') return generateAddition(session.level,true);
+  if(session.mode==='mode8'){
+    const r=Math.random(); if(r<.18) return generateTriple(session.level,true); if(r<.68) return generatePot(session.level,true); if(r<.88) return generateAddition(Math.min(3,Math.max(1,session.level-1)),true); return generateBlindsCallers();
+  }
+  if(session.mode==='mode9') return session.queue.length ? session.queue.shift() : null;
+}
+function renderProblem(p,el){
+  if(p.type==='mult') el.innerHTML=`<div class="problem-label">Multiplication</div><div class="problem-main">${p.a} × ${p.b}</div>`;
+  if(p.type==='triple') el.innerHTML=`<div class="problem-label">PLO ×3</div><div class="problem-main">${money(p.lastBet)} × 3</div>`;
+  if(p.type==='addition') el.innerHTML=`<div class="problem-label">Add quickly</div><div class="problem-main">${p.a} + ${p.b}</div>`;
+  if(p.type==='pot') el.innerHTML=`<div class="problem-stack"><div class="problem-line"><span>Last Bet</span><strong>${money(p.lastBet)}</strong></div><div class="problem-line"><span>Betting Trail</span><strong>${money(p.trail)}</strong></div></div><div class="pot-call">PLAYER SAYS: POT</div>`;
+  if(p.type==='callers') el.innerHTML=`<div class="problem-label">Blinds + Callers</div><div class="problem-main">${p.callers===0?'Blinds only':`Blinds + ${p.callers} ${p.callers===1?'caller':'callers'}`}</div><div class="pot-call">TOTAL?</div>`;
+}
+function currentProblemMs(){
+  if(!session || !session.problemStarted) return 0;
+  if(session.paused) return session.problemElapsedBeforePause;
+  return session.problemElapsedBeforePause + (performance.now()-session.problemStarted);
+}
+function submitAnswer(){
+  if(!session || !session.active || session.paused || session.answerLocked) return;
+  const host=trainerHost(session.mode); const input=host.querySelector('#answer-input');
+  const raw=input.value.trim().replace(/[$,\s]/g,'');
+  if(raw==='' || !/^-?\d+$/.test(raw)) return;
+  const value=Number(raw); const ms=currentProblemMs(); const p=session.problem; const correct=value===p.answer;
+  recordAnswer(p,correct,ms);
+  session.times.push(ms); session.attempts.push({correct,ms}); session.index++;
+  if(correct){ session.correct++; } else { session.wrong++; session.mistakes.push({...p,given:value,ms}); }
+  if(session.rapid){
+    session.rapidRecent.push({correct,ms}); if(session.rapidRecent.length>8) session.rapidRecent.shift(); adaptRapidLevel();
+  }
+  if(session.progressive) maybeAdvanceProgressive();
+  if(session.practice==='perfect'){
+    const key=factKey(p.a,p.b);
+    if(correct) session.perfectSeen.add(key); else session.queue.push({...p});
+    if(session.perfectSeen.size>=12){ showCorrectFeedback(p,ms); setTimeout(finishSession,data.settings.autoDelay); return; }
+  }
+  if(correct){ showCorrectFeedback(p,ms); autoNextTimer=setTimeout(nextProblem,data.settings.autoDelay); }
+  else { showWrongFeedback(p,value,ms); }
+  updateSessionBadges();
+}
+function showCorrectFeedback(p,ms){
+  const host=trainerHost(session.mode); const fb=host.querySelector('#feedback');
+  const speed=ms<=2000?'Excellent speed':ms<=5000?'Dealer-speed range':'Correct — keep working for under 5 seconds';
+  fb.className='feedback correct'; fb.innerHTML=`<h4>Correct — ${moneyIfNeeded(p,p.answer)}</h4><div class="steps">${speed} · ${(ms/1000).toFixed(2)}s</div>`;
+  // Keep the answer field focused after a correct response so the iPhone/Android
+  // numeric keyboard stays open between rapid-fire questions. answerLocked
+  // blocks duplicate submissions during the short auto-next delay.
+  session.answerLocked=true;
+  host.querySelector('#control-next').disabled=true;
+}
+function moneyIfNeeded(p,n){ return (p.type==='pot'||p.type==='triple'||p.type==='callers')?money(n):String(n); }
+function showWrongFeedback(p,given,ms){
+  session.problemElapsedBeforePause=ms; session.paused=true; session.answerLocked=true; session.pauseStarted=performance.now();
+  const host=trainerHost(session.mode); const fb=host.querySelector('#feedback'); const steps=explainProblem(p);
+  fb.className='feedback wrong'; fb.innerHTML=`<h4>Not correct. Review the pattern.</h4><div class="steps">${steps.map(x=>`<div>${esc(x)}</div>`).join('')}</div><div class="correct-answer">Correct answer: ${moneyIfNeeded(p,p.answer)}</div>`;
+  host.querySelector('#answer-input').disabled=true; host.querySelector('#control-pause').disabled=true; host.querySelector('#control-next').disabled=true; host.querySelector('#control-done').style.display='inline-block';
+}
+function explainProblem(p){
+  if(p.type==='mult') return [`${p.a} × ${p.b} = ${p.answer}`, `Say the fact out loud once, then answer it again mentally before continuing.`];
+  if(p.type==='triple') return DealerMathCore.tripleSteps(p.lastBet).map(x=>`$${x.replace(/(?<!\d)(\d+)(?!\d)/g,'$1')}`.replace('$5 ×','$5 ×'));
+  if(p.type==='addition') return DealerMathCore.additionSteps(p.a,p.b);
+  if(p.type==='pot') return DealerMathCore.potSteps(p.lastBet,p.trail);
+  if(p.type==='callers'){
+    if(p.callers===0) return [`Blinds only = $15.`, `That is your base fact to memorize.`];
+    const add=p.callers*5;
+    return [`Start with: Blinds only = $15.`, `${p.callers} ${p.callers===1?'caller adds':'callers add'} $${add}.`, `$15 + $${add} = $${p.answer}.`];
+  }
+  return [`Correct answer: ${p.answer}`];
+}
+function doneWrong(){
+  if(!session) return; const now=performance.now(); if(session.speedEnd && session.pauseStarted) session.speedEnd += now-session.pauseStarted; session.paused=false; session.answerLocked=false; session.pauseStarted=null; const host=trainerHost(session.mode); host.querySelector('#control-done').style.display='none'; host.querySelector('#control-pause').disabled=false; host.querySelector('#control-next').disabled=false; nextProblem();
+}
+function skipProblem(){
+  if(!session || !session.active || session.paused) return;
+  session.index++; session.mistakes.push({...session.problem,skipped:true}); nextProblem();
+}
+function togglePause(){
+  if(!session || !session.active) return; const host=trainerHost(session.mode); const now=performance.now();
+  if(!session.paused){ session.problemElapsedBeforePause=currentProblemMs(); session.paused=true; session.pauseStarted=now; host.querySelector('#answer-input').disabled=true; host.querySelector('#control-pause').textContent='Resume'; }
+  else { if(session.speedEnd && session.pauseStarted) session.speedEnd += now-session.pauseStarted; session.paused=false; session.answerLocked=false; session.pauseStarted=null; session.problemStarted=now; host.querySelector('#answer-input').disabled=false; host.querySelector('#control-pause').textContent='Pause'; try { host.querySelector('#answer-input').focus({preventScroll:true}); } catch (_) { host.querySelector('#answer-input').focus(); } }
+}
+function adaptRapidLevel(){
+  if(session.rapidRecent.length<5) return;
+  const acc=session.rapidRecent.filter(x=>x.correct).length/session.rapidRecent.length;
+  const avg=session.rapidRecent.reduce((s,x)=>s+x.ms,0)/session.rapidRecent.length;
+  if(acc>=.9 && avg<=4500 && session.level<5){ session.level++; session.rapidRecent=[]; }
+}
+function maybeAdvanceProgressive(){
+  if(session.attempts.length<10) return;
+  const recent=session.attempts.slice(-10);
+  const avg=recent.reduce((sum,x)=>sum+x.ms,0)/recent.length;
+  const approxAcc=recent.filter(x=>x.correct).length/recent.length;
+  if(approxAcc>=.9 && avg<=5000 && data.progressiveLevel<5){ data.progressiveLevel++; session.level=data.progressiveLevel; saveData(); session.attempts=[]; }
+}
+function updateSessionBadges(){
+  if(!session) return; const host=trainerHost(session.mode);
+  const denom=session.speedSeconds?'60 sec':session.count;
+  host.querySelector('#session-progress').textContent=session.speedSeconds?`${session.correct+session.wrong} answered / ${denom}`:`${Math.min(session.index,session.count)} / ${session.count}`;
+  host.querySelector('#session-level').textContent=session.level?`Level ${session.level}`:'';
+}
+function startTick(){
+  clearInterval(tickTimer); tickTimer=setInterval(()=>{
+    if(!session || !session.active) return; const host=trainerHost(session.mode);
+    host.querySelector('#problem-time').textContent=`${(currentProblemMs()/1000).toFixed(1)}s`;
+    if(session.speedSeconds){ const now=performance.now(); const remain=Math.max(0,session.paused ? session.speedEnd-session.pauseStarted : session.speedEnd-now); host.querySelector('#session-clock').textContent=`${(remain/1000).toFixed(1)}s`; if(remain<=0 && !session.paused) finishSession(); }
+  },100);
+}
+function clearTimers(){ clearInterval(tickTimer); clearTimeout(autoNextTimer); tickTimer=null; autoNextTimer=null; }
+function resetSession(reprepare=false){
+  clearTimers(); if(!session) return; const mode=session.mode; session.active=false; if(reprepare) prepareSession(mode);
+}
+function finishSession(){
+  if(!session || !session.active) return; clearTimers(); session.active=false;
+  const host=trainerHost(session.mode); host.querySelector('#answer-input').disabled=true; host.querySelector('#control-pause').disabled=true; host.querySelector('#control-next').disabled=true; host.querySelector('#control-done').style.display='none';
+  const answered=session.correct+session.wrong; const acc=answered?session.correct/answered:0; const avg=session.times.length?session.times.reduce((a,b)=>a+b,0)/session.times.length:0; const fastest=session.times.length?Math.min(...session.times):0; const slowest=session.times.length?Math.max(...session.times):0;
+  const grade=gradeSession(acc,avg); const recs=sessionRecommendations(session);
+  const results=host.querySelector('#results'); results.classList.add('show'); results.innerHTML=`<div class="eyebrow">Session complete</div><div class="result-grade">${grade}</div><div class="result-grid"><div class="result-card"><div class="rlabel">Accuracy</div><div class="rvalue">${Math.round(acc*100)}%</div></div><div class="result-card"><div class="rlabel">Correct</div><div class="rvalue">${session.correct}</div></div><div class="result-card"><div class="rlabel">Wrong</div><div class="rvalue">${session.wrong}</div></div><div class="result-card"><div class="rlabel">Avg time</div><div class="rvalue">${avg?(avg/1000).toFixed(2)+'s':'—'}</div></div><div class="result-card"><div class="rlabel">Fastest</div><div class="rvalue">${fastest?(fastest/1000).toFixed(2)+'s':'—'}</div></div><div class="result-card"><div class="rlabel">Slowest</div><div class="rvalue">${slowest?(slowest/1000).toFixed(2)+'s':'—'}</div></div><div class="result-card"><div class="rlabel">Target</div><div class="rvalue">2–5s</div></div><div class="result-card"><div class="rlabel">Level</div><div class="rvalue">${session.level||'—'}</div></div></div><div class="recommend"><h3>Practice next</h3>${recs.length?recs.map(r=>`<div class="weak-item"><span>${esc(r)}</span><span>review</span></div>`).join(''):'<div class="empty">Strong session. Continue mixed practice to keep recall automatic.</div>'}</div>`;
+  host.querySelector('#problem-render').innerHTML='<div class="problem-label">Complete</div><div class="problem-main">Session Finished</div>';
+  host.querySelector('#feedback').className='feedback';
+  host.querySelector('#control-start').disabled=false; host.querySelector('#control-start').textContent='Start Again';
+  saveData();
+  if(answered){
+    window.Poker101Account?.recordTrainingSession?.('mental-math',{
+      client_session_id:session.cloudSessionId,
+      mode:modeName(session),
+      total_questions:answered,
+      correct_answers:session.correct,
+      duration_ms:Math.max(0,Date.now()-(session.wallStartedAt||Date.now())),
+      avg_response_ms:avg||null,
+      metadata:{mode_key:session.mode,level:session.level,grade,wrong:session.wrong}
+    });
+  }
+}
+function gradeSession(acc,avg){
+  if(acc>=.98 && avg>0 && avg<=4000) return 'A+';
+  if(acc>=.95 && avg<=5000) return 'A';
+  if(acc>=.9 && avg<=6000) return 'B';
+  if(acc>=.8) return 'C';
+  if(acc>=.7) return 'D'; return 'Needs Work';
+}
+function sessionRecommendations(s){
+  const list=[];
+  s.mistakes.slice(-8).forEach(m=>{
+    if(m.type==='mult') list.push(`${m.a} × ${m.b}`);
+    if(m.type==='triple') list.push(`${money(m.lastBet)} × 3`);
+    if(m.type==='pot') list.push(`POT: ${money(m.lastBet)} × 3 + ${money(m.trail)}`);
+    if(m.type==='addition') list.push(`${m.a} + ${m.b}`);
+    if(m.type==='callers') list.push(m.callers===0?'Blinds only':`Blinds + ${m.callers} ${m.callers===1?'caller':'callers'}`);
+  });
+  return [...new Set(list)].slice(0,6);
+}
+
+function renderStats(){
+  const s=data.stats, total=s.correct+s.wrong;
+  document.getElementById('stat-correct').textContent=s.correct;
+  document.getElementById('stat-wrong').textContent=s.wrong;
+  document.getElementById('stat-accuracy').textContent=total?`${Math.round(100*s.correct/total)}%`:'—';
+  document.getElementById('stat-streak').textContent=s.currentStreak;
+  document.getElementById('stat-best-streak').textContent=s.bestStreak;
+  document.getElementById('stat-avg').textContent=s.timedAnswers?`${(s.totalMs/s.timedAnswers/1000).toFixed(2)}s`:'—';
+  document.getElementById('stat-fast').textContent=s.fastestMs!==null?`${(s.fastestMs/1000).toFixed(2)}s`:'—';
+  document.getElementById('stat-slow').textContent=s.slowestMs!==null?`${(s.slowestMs/1000).toFixed(2)}s`:'—';
+  document.getElementById('progressive-current').textContent=`Current: Level ${data.progressiveLevel}`;
+  document.getElementById('home-level-badge').textContent=`Dealer Level ${data.progressiveLevel}`;
+  renderWeakList();
+}
+function renderWeakList(){
+  const entries=[];
+  Object.entries(data.facts).forEach(([k,b])=>{ if(b.count) entries.push({label:k,score:weakness(b),detail:`${b.wrong} wrong`}); });
+  Object.entries(data.betStats).forEach(([k,b])=>{ if(b.count) entries.push({label:`$${k} × 3`,score:weakness(b),detail:`${b.wrong} wrong`}); });
+  Object.entries(data.trailStats).forEach(([k,b])=>{ if(b.count) entries.push({label:`Trail $${k}`,score:weakness(b),detail:`${b.slow} slow`}); });
+  Object.entries(data.callerStats).forEach(([k,b])=>{ if(b.count) entries.push({label:Number(k)===0?'Blinds only':`Blinds + ${k} ${Number(k)===1?'caller':'callers'}`,score:weakness(b),detail:`${b.wrong} wrong`}); });
+  entries.sort((a,b)=>b.score-a.score); const top=entries.slice(0,7); const el=document.getElementById('weak-list');
+  el.innerHTML=top.length?top.map(x=>`<div class="weak-item"><span>${esc(x.label)}</span><span>${esc(x.detail)}</span></div>`).join(''):'<div class="empty">Answer some problems to build your weak-number profile.</div>';
+}
+function renderTableProgress(){
+  const el=document.getElementById('table-progress'); const rows=[]; let weakest=null;
+  for(let t=2;t<=12;t++){
+    const pct=tablePercent(t); if(pct!==null && (!weakest || pct<weakest.pct)) weakest={t,pct};
+    rows.push(`<div class="progress-row"><strong>${t}s</strong><div class="bar"><div style="width:${pct===null?0:pct}%"></div></div><span>${pct===null?'—':pct+'%'}</span></div>`);
+  }
+  el.innerHTML=rows.join(''); document.getElementById('weakest-table-label').textContent=weakest?`Weakest: ${weakest.t}s — ${weakest.pct}%`:'Weakest: —';
+}
+function populateTables(){
+  const sel=document.getElementById('m1-table'); sel.innerHTML=Array.from({length:11},(_,i)=>`<option value="${i+2}">${i+2} Times Table</option>`).join('')+'<option value="all">ALL TABLES</option>';
+}
+function populateStudy(){
+  const grid=document.getElementById('study-mult-grid'); let html='';
+  for(let t=2;t<=12;t++){ html+=`<div class="mult-card"><h4>${t} Times Table</h4>${Array.from({length:12},(_,i)=>`<div>${t} × ${i+1} = ${t*(i+1)}</div>`).join('')}</div>`; }
+  grid.innerHTML=html;
+  const chart=document.getElementById('triple-chart'); chart.innerHTML=multiplesOf5(5,200).map(n=>`<tr><td>${money(n)}</td><td>${money(n*3)}</td></tr>`).join('');
+}
+function openSettings(){
+  document.getElementById('setting-slow').value=data.settings.slowSec; document.getElementById('setting-delay').value=data.settings.autoDelay; document.getElementById('settings-modal').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settings-modal').classList.remove('show'); }
+function saveSettings(){ data.settings.slowSec=Math.max(2,Math.min(15,Number(document.getElementById('setting-slow').value)||5)); data.settings.autoDelay=Math.max(150,Math.min(2500,Number(document.getElementById('setting-delay').value)||650)); saveData(); closeSettings(); }
+
+function initEvents(){
+  document.querySelectorAll('#nav button[data-screen]').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
+  document.querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click',()=>{ const mode=b.dataset.start; prepareSession(mode); startPreparedSession(); trainerHost(mode).scrollIntoView({behavior:'smooth',block:'start'}); }));
+  document.querySelectorAll('[data-study]').forEach(b=>b.addEventListener('click',()=>{ showScreen('study'); activateStudyTab(b.dataset.study); }));
+  document.querySelectorAll('[data-study-tab]').forEach(b=>b.addEventListener('click',()=>activateStudyTab(b.dataset.studyTab)));
+  document.getElementById('settings-btn').addEventListener('click',openSettings); document.getElementById('close-settings').addEventListener('click',closeSettings); document.getElementById('save-settings').addEventListener('click',saveSettings);
+  document.getElementById('settings-modal').addEventListener('click',e=>{ if(e.target.id==='settings-modal') closeSettings(); });
+  document.getElementById('erase-progress').addEventListener('click',()=>{ if(confirm('Erase all saved trainer progress on this computer?')){ data=defaultData(); saveData(); closeSettings(); } });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSettings(); });
+}
+function activateStudyTab(name){
+  document.querySelectorAll('.study-content').forEach(x=>x.classList.toggle('active',x.id===`study-${name}`));
+  document.querySelectorAll('[data-study-tab]').forEach(b=>{ b.classList.toggle('primary',b.dataset.studyTab===name); b.classList.toggle('ghost',b.dataset.studyTab!==name); });
+}
+
+function runInternalSelfTest(){
+  const checks=[
+    DealerMathCore.multiply(7,3)===21,
+    DealerMathCore.multiply(12,12)===144,
+    DealerMathCore.triple(75)===225,
+    DealerMathCore.triple(85)===255,
+    DealerMathCore.triple(165)===495,
+    DealerMathCore.potAmount(75,95)===320,
+    DealerMathCore.potAmount(65,85)===280,
+    DealerMathCore.potAmount(85,65)===320,
+    DealerMathCore.potAmount(125,95)===470,
+    DealerMathCore.potAmount(195,85)===670,
+    DealerMathCore.blindsCallersTotal(0)===15,
+    DealerMathCore.blindsCallersTotal(1)===20,
+    DealerMathCore.blindsCallersTotal(2)===25,
+    DealerMathCore.blindsCallersTotal(3)===30,
+    DealerMathCore.blindsCallersTotal(4)===35,
+    DealerMathCore.blindsCallersTotal(5)===40,
+    DealerMathCore.blindsCallersTotal(6)===45,
+    DealerMathCore.blindsCallersTotal(7)===50,
+    DealerMathCore.blindsCallersTotal(8)===55,
+    (195+85)===280,
+    (225+95)===320
+  ];
+  if(checks.some(x=>!x)) throw new Error('Dealer Math self-test failed.');
+  console.info(`Dealer Math self-test passed: ${checks.length}/${checks.length}`);
+}
+
+populateTables(); populateStudy(); initAllTrainers(); initEvents(); renderStats(); renderTableProgress(); runInternalSelfTest();
+</script>
+</body>
+</html>
