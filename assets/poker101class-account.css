@@ -300,3 +300,80 @@ dialog.account-center-dialog::backdrop{
     gap:10px;
   }
 }
+
+
+/* Separate authentication dialogs */
+dialog.auth-dialog{
+  width:min(450px,calc(100% - 32px));
+  max-height:calc(100dvh - 32px);
+  overflow:auto;
+}
+dialog#sign-up-dialog{width:min(470px,calc(100% - 32px))}
+dialog.auth-dialog-compact{width:min(430px,calc(100% - 32px))}
+.auth-dialog .auth-shell{padding:28px}
+.auth-dialog .auth-top{
+  align-items:flex-start;
+  margin-bottom:26px;
+}
+.auth-dialog .auth-top .kicker{
+  margin-bottom:6px;
+  font-size:11px;
+}
+.auth-dialog .auth-top h2{
+  font-size:34px;
+  line-height:1.08;
+}
+.auth-dialog .auth-form{
+  gap:16px;
+}
+.auth-dialog .auth-help{
+  margin:0;
+  line-height:1.55;
+}
+.auth-switch{
+  margin-top:2px;
+  padding-top:16px;
+  border-top:1px solid #ffffff12;
+  color:#98a4a4;
+  text-align:center;
+  font-size:12px;
+}
+.auth-switch button{
+  border:0;
+  background:transparent;
+  color:var(--gold);
+  padding:4px 5px;
+  cursor:pointer;
+  font:700 12px/1.2 system-ui;
+}
+.auth-switch button:hover{
+  color:#ead3ac;
+  text-decoration:underline;
+}
+.auth-message{
+  margin-top:0;
+}
+.auth-message:empty{
+  display:none;
+}
+.auth-dialog .auth-panel-copy{
+  margin:0 0 2px;
+}
+.auth-dialog .auth-panel-copy p{
+  font-size:13px;
+  line-height:1.6;
+}
+.auth-dialog .auth-close{
+  flex:0 0 42px;
+}
+@media(max-width:520px){
+  dialog.auth-dialog,
+  dialog#sign-up-dialog,
+  dialog.auth-dialog-compact{
+    width:calc(100% - 18px);
+    max-height:calc(100dvh - 18px);
+  }
+  .auth-dialog .auth-shell{padding:20px}
+  .auth-dialog .auth-top{margin-bottom:21px}
+  .auth-dialog .auth-top h2{font-size:30px}
+}
