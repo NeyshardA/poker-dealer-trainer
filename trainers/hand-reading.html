@@ -31,6 +31,15 @@
  .question{font-size:23px}.instruction{font-size:12px}.actions{position:sticky;bottom:8px;z-index:5}.actions .btn{min-width:0;flex:1;box-shadow:0 5px 18px #0008}
 }
 @media(max-width:360px){.player .card{width:35px;height:52px}.board .card{width:45px;height:65px}}
+
+.split-picks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 2px}
+.pick-box{background:#10191b;border:1px solid #354144;border-radius:9px;padding:12px}
+.pick-title{text-align:center;font:700 12px Arial,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#d2b078;margin-bottom:9px}
+.pick-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pick-btn{min-width:44px;min-height:42px;border:1px solid #465255;border-radius:7px;background:#182224;color:#fff;font-weight:700;cursor:pointer}
+.pick-btn.active{background:#d2b078;color:#101719;border-color:#d2b078}
+.pick-btn.none{font-size:11px;padding:0 9px}
+@media(max-width:520px){.split-picks{grid-template-columns:1fr}.pick-box{padding:9px}.pick-btn{min-width:41px}}
 </style>
 </head>
 <body class="trainer-page">
@@ -39,7 +48,7 @@
 <section class="hr-hero"><div><div class="eyebrow">Poker101Class • Dealer Skills</div><h1>Hand Reading Trainer</h1><p>Read real showdown situations, identify the winner, and learn exactly why. Built for fast dealer-level recognition on desktop and mobile.</p></div><div class="stats"><div class="statbox"><small>Score</small><b id="score">0/0</b></div><div class="statbox"><small>Streak</small><b id="streak">0</b></div><div class="statbox"><small>Time</small><b class="timer" id="timer">0.0s</b></div></div></section>
 <section class="panel">
 <div class="setup">
-<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold'em</option><option value="omaha8">Omaha 8-or-Better</option><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
+<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold'em</option><option value="omaha8">Omaha 8-or-Better</option><option value="bigo">Big O (5-Card Omaha 8)</option><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
 <div class="field"><label>Players</label><select id="playersSel"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div>
 <div class="field"><label>Difficulty</label><select id="difficulty"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="dealer">Dealer Speed</option></select></div>
 <div class="field"><label>Session</label><select id="sessionLen"><option value="10">10 hands</option><option value="20" selected>20 hands</option><option value="50">50 hands</option></select></div>
@@ -49,7 +58,7 @@
 <div id="communityWrap" class="board"><div class="board-label" id="boardLabel">Board</div><div class="cards" id="board"></div></div>
 <div class="question" id="question">Who wins?</div><div class="instruction" id="instruction">Tap a hand to select the winner.</div>
 <div class="players" id="players"></div>
-<div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
+<div id="splitPicks" class="split-picks hidden"><div class="pick-box"><div class="pick-title">High Winner</div><div class="pick-row" id="highPicks"></div></div><div class="pick-box"><div class="pick-title">Low Winner</div><div class="pick-row" id="lowPicks"></div></div></div><div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
 <div class="feedback" id="feedback"></div>
 </div>
 <div id="results" class="result-summary hidden"><h2>Session complete</h2><div class="big" id="finalScore"></div><p id="finalText"></p><button class="btn primary" id="againBtn">Train Again</button></div>
@@ -58,7 +67,7 @@
 <script>
 const SUITS=['♠','♥','♦','♣'], RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const rv=Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
-let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem'};
+let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem',selectedHigh:null,selectedLow:null};
 const $=id=>document.getElementById(id);
 function deck(){let d=[];for(const r of RANKS)for(const s of SUITS)d.push({r,s});return d.sort(()=>Math.random()-.5)}
 function cardHTML(c,small=false){return '<div class="card '+((c.s==='♥'||c.s==='♦')?'red':'')+'"><span>'+c.r+'</span><span class="suit">'+c.s+'</span></div>'}
@@ -101,7 +110,7 @@ function bestBadugi(cs){let best=null,bestCards=null;for(let k=1;k<=4;k++)for(co
 function generate(){
  let d=deck(),n=+$('playersSel').value,g=$('gameSel').value,board=[],players=[];state.game=g;
  if(g==='holdem'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,2));let ev=players.map(h=>bestHigh(h.concat(board)));return packageHand(board,players,ev,'high')}
- if(g==='omaha8'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,4));let ev=players.map(h=>bestOmaha(h,board));return packageO8(board,players,ev)}
+ if(g==='omaha8'||g==='bigo'){board=d.splice(0,5);let holeCount=g==='bigo'?5:4;for(let i=0;i<n;i++)players.push(d.splice(0,holeCount));let ev=players.map(h=>bestOmaha(h,board));return packageO8(board,players,ev)}
  if(g==='razz'||g==='stud8'){for(let i=0;i<n;i++)players.push(d.splice(0,7));let ev=players.map(h=>g==='razz'?bestRazz(h):bestHigh(h));return packageHand([],players,ev,g==='razz'?'low':'high')}
  if(g==='draw'||g==='deuce'){for(let i=0;i<n;i++)players.push(d.splice(0,5));let ev=players.map(h=>g==='draw'?bestHigh(h):deuceEval(h));return packageHand([],players,ev,g==='deuce'?'low':'high')}
  if(g==='badugi'){for(let i=0;i<n;i++)players.push(d.splice(0,4));let ev=players.map(bestBadugi);return packageHand([],players,ev,'badugi')}
@@ -117,24 +126,40 @@ function compareRazz(a,b){if(a[0]!==b[0])return b[0]-a[0];return cmpLow(a.slice(
 function packageO8(board,players,ev){
  let hi=0,hw=[0];for(let i=1;i<ev.length;i++){let c=cmp(ev[i].high.v,ev[hi].high.v);if(c>0){hi=i;hw=[i]}else if(c===0)hw.push(i)}
  let lows=ev.map((x,i)=>x.low?i:null).filter(x=>x!==null),lw=[];if(lows.length){let best=lows[0];lw=[best];for(const i of lows.slice(1)){let c=cmpLow(ev[i].low,ev[best].low);if(c>0){best=i;lw=[i]}else if(c===0)lw.push(i)}}
- return {board,players,ev,w:hw,type:'omaha8',lowW:lw}
+ return {board,players,ev,w:hw,type:state.game==='bigo'?'bigo':'omaha8',lowW:lw}
 }
 function renderHand(h){
- state.details=h;state.selected=null;$('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
+ state.details=h;state.selected=null;state.selectedHigh=null;state.selectedLow=null;
+ $('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
  $('communityWrap').classList.toggle('hidden',!h.board.length);$('board').innerHTML=h.board.map(cardHTML).join('');
- let q=state.game==='omaha8'?'Who wins the HIGH half?':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
- $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">Select</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
- document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
+ const split=state.game==='omaha8'||state.game==='bigo';
+ $('splitPicks').classList.toggle('hidden',!split);
+ let q=split?'Select the HIGH and LOW winners':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
+ $('instruction').textContent=split?'Choose one player for high and one player for low. Choose No Low when the board has no qualifying 8-or-better low.':'Tap a hand to select the winner.';
+ $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
+ if(split){
+   $('highPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="high" data-i="'+i+'">P'+(i+1)+'</button>').join('');
+   $('lowPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="low" data-i="'+i+'">P'+(i+1)+'</button>').join('')+'<button type="button" class="pick-btn none" data-pick="low" data-i="-1">No Low</button>';
+   document.querySelectorAll('.pick-btn').forEach(btn=>btn.onclick=()=>{
+     let type=btn.dataset.pick,val=+btn.dataset.i;
+     document.querySelectorAll('.pick-btn[data-pick="'+type+'"]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
+     if(type==='high')state.selectedHigh=val;else state.selectedLow=val;
+     $('submitBtn').disabled=state.selectedHigh===null||state.selectedLow===null;
+   });
+   document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{});
+ }else{
+   document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
+ }
  state.start=performance.now();
 }
 function explain(h){
  let winners=h.w.map(i=>'Player '+(i+1)).join(' & '),e=h.ev[h.w[0]],name=e.name||e.high?.name||'winning hand',cards=e.cards||e.high?.cards||[];
- let extra='';if(state.game==='omaha8'){name=e.high.name;cards=e.high.cards;extra=h.lowW.length?' The low half is won by '+h.lowW.map(i=>'Player '+(i+1)).join(' & ')+'.':' There is no qualifying 8-or-better low.'}
+ let extra='';if(state.game==='omaha8'||state.game==='bigo'){name=e.high.name;cards=e.high.cards;extra=h.lowW.length?' The low half is won by '+h.lowW.map(i=>'Player '+(i+1)).join(' & ')+'.':' There is no qualifying 8-or-better low.'}
  return '<h3>'+winners+' — '+name+'</h3><p><strong>Best hand:</strong></p><div class="best5">'+cards.map(cardHTML).join('')+'</div><p>'+ruleText(state.game,name)+extra+'</p>'
 }
 function ruleText(g,name){
  if(g==='holdem')return 'Texas Hold’em uses the best five-card poker hand from any combination of the two hole cards and five community cards. Playing the board is allowed.';
- if(g==='omaha8')return 'Omaha requires exactly two hole cards and exactly three board cards. High and qualifying 8-or-better low are evaluated separately.';
+ if(g==='omaha8')return 'Omaha requires exactly two hole cards and exactly three board cards. High and qualifying 8-or-better low are evaluated separately.'; if(g==='bigo')return 'Big O gives each player five hole cards, but each high and low hand must still use exactly two hole cards and exactly three board cards. High and qualifying 8-or-better low are evaluated separately.';
  if(g==='razz')return 'Razz is ace-to-five lowball: aces are low, straights and flushes do not count against the hand, and the lowest five-card hand wins.';
  if(g==='deuce')return '2-7 lowball ranks the lowest five-card hand, with aces high; straights, flushes and pairs count against the hand.';
  if(g==='badugi')return 'Badugi rewards the largest four-card hand with different suits and ranks; among equal card counts, the lowest hand wins and aces are low.';
@@ -142,8 +167,20 @@ function ruleText(g,name){
  return 'Standard high poker ranking applies: use the strongest five-card combination.'
 }
 function submit(){
- let h=state.details,ok=h.w.includes(state.selected);state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
- document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('correct');else if(i===state.selected)el.classList.add('wrong')});
+ let h=state.details,split=state.game==='omaha8'||state.game==='bigo',ok;
+ if(split){
+   const highOK=h.w.includes(state.selectedHigh);
+   const lowOK=h.lowW.length? h.lowW.includes(state.selectedLow) : state.selectedLow===-1;
+   ok=highOK&&lowOK;
+ }else ok=h.w.includes(state.selected);
+ state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
+ if(split){
+   document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i)||h.lowW.includes(i))el.classList.add('correct')});
+   document.querySelectorAll('.pick-btn').forEach(btn=>{
+     let i=+btn.dataset.i,type=btn.dataset.pick,correct=type==='high'?h.w.includes(i):(h.lowW.length?h.lowW.includes(i):i===-1);
+     if(correct)btn.classList.add('active');
+   });
+ }else document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('correct');else if(i===state.selected)el.classList.add('wrong')});
  $('score').textContent=state.correct+'/'+state.total;$('streak').textContent=state.streak;$('feedback').innerHTML=(ok?'<h3>Correct.</h3>':'<h3>Not quite.</h3>')+explain(h);$('feedback').classList.add('show');$('submitBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
 }
 function next(){state.hand++;if(state.hand>=state.max)return finish();renderHand(generate())}
