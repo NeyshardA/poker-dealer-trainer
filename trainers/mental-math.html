@@ -478,7 +478,7 @@ const LEVELS = {
 const defaultData = () => ({
   stats:{correct:0,wrong:0,currentStreak:0,bestStreak:0,totalMs:0,timedAnswers:0,fastestMs:null,slowestMs:null},
   tables:{}, facts:{}, betStats:{}, trailStats:{}, addStats:{}, callerStats:{}, progressiveLevel:1,
-  settings:{slowSec:5,autoDelay:650}
+  settings:{slowSec:5,autoDelay:650}, savedAt:null
 });
 let data = loadData();
 let session = null;
@@ -502,7 +502,7 @@ function mergeData(base, incoming){
   out.progressiveLevel = incoming.progressiveLevel || 1;
   return out;
 }
-function saveData(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){} renderStats(); renderTableProgress(); }
+function saveData(){ try { data.savedAt=Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){} renderStats(); renderTableProgress(); }
 function esc(s){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function money(n){ return `$${Number(n).toLocaleString()}`; }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
@@ -658,7 +658,7 @@ function startTrainerFromControl(mode){
 
 function prepareSession(mode){
   clearTimers();
-  const base={mode,active:false,paused:false,answerLocked:false,problem:null,index:0,correct:0,wrong:0,times:[],mistakes:[],queue:[],count:25,level:3,sessionStarted:0,problemStarted:0,problemElapsedBeforePause:0,speedEnd:null,perfectSeen:new Set(),rapidRecent:[],attempts:[],pauseStarted:null};
+  const base={mode,active:false,paused:false,answerLocked:false,problem:null,index:0,correct:0,wrong:0,times:[],mistakes:[],queue:[],count:25,level:3,sessionStarted:0,wallStartedAt:0,cloudSessionId:globalThis.crypto?.randomUUID?.()||('math-'+Date.now()+'-'+Math.random().toString(16).slice(2)),problemStarted:0,problemElapsedBeforePause:0,speedEnd:null,perfectSeen:new Set(),rapidRecent:[],attempts:[],pauseStarted:null};
   if(mode==='mode1'){
     const practice=document.getElementById('m1-practice').value;
     const tableVal=document.getElementById('m1-table').value;
@@ -717,7 +717,7 @@ function startPreparedSession(){
   if(!session) return;
   const host=trainerHost(session.mode);
   if(session.active && session.paused){ togglePause(); return; }
-  session.active=true; session.paused=false; session.sessionStarted=performance.now();
+  session.active=true; session.paused=false; session.sessionStarted=performance.now(); session.wallStartedAt=Date.now();
   if(session.speedSeconds) session.speedEnd=performance.now()+session.speedSeconds*1000;
   host.querySelector('#control-start').disabled=true;
   host.querySelector('#control-pause').disabled=false;
@@ -874,6 +874,17 @@ function finishSession(){
   host.querySelector('#feedback').className='feedback';
   host.querySelector('#control-start').disabled=false; host.querySelector('#control-start').textContent='Start Again';
   saveData();
+  if(answered){
+    window.Poker101Account?.recordTrainingSession?.('mental-math',{
+      client_session_id:session.cloudSessionId,
+      mode:modeName(session),
+      total_questions:answered,
+      correct_answers:session.correct,
+      duration_ms:Math.max(0,Date.now()-(session.wallStartedAt||Date.now())),
+      avg_response_ms:avg||null,
+      metadata:{mode_key:session.mode,level:session.level,grade,wrong:session.wrong}
+    });
+  }
 }
 function gradeSession(acc,avg){
   if(acc>=.98 && avg>0 && avg<=4000) return 'A+';
