@@ -68,6 +68,10 @@
   .players.five-card-hands .player .card{width:38px!important;min-width:38px!important;margin-left:-9px!important}
   .players.five-card-hands .player .card:first-child{margin-left:0!important}
 }
+
+.quit-btn{border-color:#6a4b4b!important;color:#e2b8b8!important;background:#211719!important}
+.quit-btn:hover{border-color:#a76565!important;background:#2a1b1e!important}
+@media(max-width:640px){.actions{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}.actions .btn{width:100%!important;min-height:48px}}
 </style>
 </head>
 <body class="trainer-page">
@@ -86,7 +90,7 @@
 <div id="communityWrap" class="board"><div class="board-label" id="boardLabel">Board</div><div class="cards" id="board"></div></div>
 <div class="question" id="question">Who wins?</div><div class="instruction" id="instruction">Tap a hand to select the winner.</div>
 <div class="players" id="players"></div>
-<div id="splitPicks" class="hidden"><div class="assignment-grid"><div class="assignment-head"><div>Player</div><div>High</div><div>Low</div></div><div id="assignmentRows"></div><div class="no-low-wrap"><button type="button" class="pick-btn none no-low-btn" id="noLowBtn">No Qualifying Low</button></div></div></div><div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
+<div id="splitPicks" class="hidden"><div class="assignment-grid"><div class="assignment-head"><div>Player</div><div>High</div><div>Low</div></div><div id="assignmentRows"></div><div class="no-low-wrap"><button type="button" class="pick-btn none no-low-btn" id="noLowBtn">No Qualifying Low</button></div></div></div><div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button><button class="btn quit-btn" id="quitBtn" type="button">Quit / Change Game</button></div>
 <div class="feedback" id="feedback"></div>
 </div>
 <div id="results" class="result-summary hidden"><h2>Session complete</h2><div class="big" id="finalScore"></div><p id="finalText"></p><button class="btn primary" id="againBtn">Train Again</button></div>
@@ -240,6 +244,14 @@ function submit(){
 function next(){state.hand++;if(state.hand>=state.max)return finish();renderHand(generate())}
 function start(){state={...state,correct:0,total:0,streak:0,hand:0,max:+$('sessionLen').value};$('score').textContent='0/0';$('streak').textContent='0';$('start').classList.add('hidden');$('results').classList.add('hidden');$('game').classList.add('active');clearInterval(state.timer);state.timer=setInterval(()=>{if(state.start)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s'},100);renderHand(generate())}
 function finish(){clearInterval(state.timer);$('game').classList.remove('active');$('results').classList.remove('hidden');let pct=Math.round(state.correct/state.total*100);$('finalScore').textContent=pct+'%';$('finalText').textContent=state.correct+' correct out of '+state.total+'. '+(pct>=90?'Excellent showdown recognition.':pct>=75?'Strong work — keep sharpening the close spots.':'Keep training. Accuracy first, then speed.')}
-$('gameSel').addEventListener('change',()=>{$('mixedField').classList.toggle('hidden',$('gameSel').value!=='mixed')});$('startBtn').onclick=start;$('submitBtn').onclick=submit;$('nextBtn').onclick=next;$('againBtn').onclick=()=>{$('results').classList.add('hidden');$('start').classList.remove('hidden')};
+function quitSession(){
+ clearInterval(state.timer);state.timer=null;state.start=0;state.locked=true;
+ $('timer').textContent='0.0s';
+ $('game').classList.remove('active');
+ $('results').classList.add('hidden');
+ $('start').classList.remove('hidden');
+ $('feedback').className='feedback';$('feedback').innerHTML='';
+}
+$('gameSel').addEventListener('change',()=>{$('mixedField').classList.toggle('hidden',$('gameSel').value!=='mixed')});$('startBtn').onclick=start;$('submitBtn').onclick=submit;$('nextBtn').onclick=next;$('quitBtn').onclick=quitSession;$('againBtn').onclick=()=>{$('results').classList.add('hidden');$('start').classList.remove('hidden')};
 </script>
 </body></html>
