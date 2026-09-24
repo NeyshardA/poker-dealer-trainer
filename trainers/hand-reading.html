@@ -48,7 +48,7 @@
 <section class="hr-hero"><div><div class="eyebrow">Poker101Class • Dealer Skills</div><h1>Hand Reading Trainer</h1><p>Read real showdown situations, identify the winner, and learn exactly why. Built for fast dealer-level recognition on desktop and mobile.</p></div><div class="stats"><div class="statbox"><small>Score</small><b id="score">0/0</b></div><div class="statbox"><small>Streak</small><b id="streak">0</b></div><div class="statbox"><small>Time</small><b class="timer" id="timer">0.0s</b></div></div></section>
 <section class="panel">
 <div class="setup">
-<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold'em</option><option value="bigo">Big O (5-Card Omaha 8)</option><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
+<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold’em</option><option value="bigo">Big O</option><option value="mixed">Mixed Games</option></select></div><div class="field hidden" id="mixedField"><label>Mixed Game</label><select id="mixedSel"><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
 <div class="field"><label>Players</label><select id="playersSel"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div>
 <div class="field"><label>Difficulty</label><select id="difficulty"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="dealer">Dealer Speed</option></select></div>
 <div class="field"><label>Session</label><select id="sessionLen"><option value="10">10 hands</option><option value="20" selected>20 hands</option><option value="50">50 hands</option></select></div>
@@ -108,7 +108,7 @@ function bestRazz(seven){let best=null,cards=null;for(const c of combos(seven,5)
 function deuceEval(cs){let e=eval5(cs);let vals=cs.map(c=>rv[c.r]).sort((a,b)=>b-a);let category=e.v[0];return {v:[-category,...vals.map(v=>-v)],cards:cs,name:category===0?(vals.join('-')+' Low'):'Paired/straight/flush low'}}
 function bestBadugi(cs){let best=null,bestCards=null;for(let k=1;k<=4;k++)for(const c of combos(cs,k)){if(new Set(c.map(x=>x.s)).size!==k||new Set(c.map(x=>x.r)).size!==k)continue;let vals=c.map(x=>rv[x.r]===14?1:rv[x.r]).sort((a,b)=>b-a);let v=[k,...vals.map(x=>-x)];if(!best||cmp(v,best)>0){best=v;bestCards=c}}return {v:best,cards:bestCards,name:(bestCards?.length||0)+'-card Badugi'}}
 function generate(){
- let d=deck(),n=+$('playersSel').value,g=$('gameSel').value,board=[],players=[];state.game=g;
+ let d=deck(),n=+$('playersSel').value,g=$('gameSel').value,board=[],players=[];if(g==='mixed')g=$('mixedSel').value;state.game=g;
  if(g==='holdem'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,2));let ev=players.map(h=>bestHigh(h.concat(board)));return packageHand(board,players,ev,'high')}
  if(g==='omaha8'||g==='bigo'){board=d.splice(0,5);let holeCount=g==='bigo'?5:4;for(let i=0;i<n;i++)players.push(d.splice(0,holeCount));let ev=players.map(h=>bestOmaha(h,board));return packageO8(board,players,ev)}
  if(g==='razz'||g==='stud8'){for(let i=0;i<n;i++)players.push(d.splice(0,7));let ev=players.map(h=>g==='razz'?bestRazz(h):bestHigh(h));return packageHand([],players,ev,g==='razz'?'low':'high')}
@@ -186,6 +186,6 @@ function submit(){
 function next(){state.hand++;if(state.hand>=state.max)return finish();renderHand(generate())}
 function start(){state={...state,correct:0,total:0,streak:0,hand:0,max:+$('sessionLen').value};$('score').textContent='0/0';$('streak').textContent='0';$('start').classList.add('hidden');$('results').classList.add('hidden');$('game').classList.add('active');clearInterval(state.timer);state.timer=setInterval(()=>{if(state.start)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s'},100);renderHand(generate())}
 function finish(){clearInterval(state.timer);$('game').classList.remove('active');$('results').classList.remove('hidden');let pct=Math.round(state.correct/state.total*100);$('finalScore').textContent=pct+'%';$('finalText').textContent=state.correct+' correct out of '+state.total+'. '+(pct>=90?'Excellent showdown recognition.':pct>=75?'Strong work — keep sharpening the close spots.':'Keep training. Accuracy first, then speed.')}
-$('startBtn').onclick=start;$('submitBtn').onclick=submit;$('nextBtn').onclick=next;$('againBtn').onclick=()=>{$('results').classList.add('hidden');$('start').classList.remove('hidden')};
+$('gameSel').addEventListener('change',()=>{$('mixedField').classList.toggle('hidden',$('gameSel').value!=='mixed')});$('startBtn').onclick=start;$('submitBtn').onclick=submit;$('nextBtn').onclick=next;$('againBtn').onclick=()=>{$('results').classList.add('hidden');$('start').classList.remove('hidden')};
 </script>
 </body></html>
