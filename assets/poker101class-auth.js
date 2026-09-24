@@ -107,7 +107,8 @@
     return safeParse(localStorage.getItem(syncMetaKey(trainerKey))) || {
       local_updated_at: 0,
       last_cloud_updated_at: 0,
-      dirty: false
+      dirty: false,
+      initialized: false
     };
   }
 
@@ -140,6 +141,7 @@
 
   function localTimestamp(trainerKey, raw) {
     const meta = readSyncMeta(trainerKey);
+    if (meta.initialized) return Number(meta.local_updated_at) || 0;
     return Number(meta.local_updated_at) || Number(raw?.savedAt) || 0;
   }
 
@@ -151,7 +153,7 @@
 
   function markLocalDirty(trainerKey) {
     const now = Date.now();
-    writeSyncMeta(trainerKey, { local_updated_at: now, dirty: true });
+    writeSyncMeta(trainerKey, { local_updated_at: now, dirty: true, initialized: true });
     if (!navigator.onLine) setSyncStatus('offline', 'Offline · will sync');
     else if (currentUser) setSyncStatus('syncing', 'Syncing…');
     else setSyncStatus('browser', 'Browser only');
@@ -227,13 +229,22 @@
     writeSyncMeta(trainerKey, {
       local_updated_at: Math.max(localUpdatedAt, storedTime),
       last_cloud_updated_at: storedTime || localUpdatedAt,
-      dirty: false
+      dirty: false,
+      initialized: true
     });
     setSyncStatus('saved', 'Saved to account');
     return { saved: true };
   }
 
-  function scheduleProgressSync(storageKey, value) {
+  function normalizedProgressSignature(value) {
+    const raw = safeParse(value);
+    if (!raw || typeof raw !== 'object') return String(value ?? '');
+    const clone = Array.isArray(raw) ? [...raw] : { ...raw };
+    if (!Array.isArray(clone)) delete clone.savedAt;
+    try { return JSON.stringify(clone); } catch { return String(value ?? ''); }
+  }
+
+  function scheduleProgressSync(storageKey, value, previousValue = null) {
     const current = trainerForPage();
     if (!current || suppressProgressSync) return;
     const [trainerKey, config] = current;
@@ -241,14 +252,29 @@
     const raw = safeParse(value);
     if (!raw) return;
 
+    const sameMeaningfulData = normalizedProgressSignature(previousValue) === normalizedProgressSignature(value);
+    if (sameMeaningfulData) {
+      const meta = readSyncMeta(trainerKey);
+      if (!meta.initialized) {
+        const previousRaw = safeParse(previousValue);
+        writeSyncMeta(trainerKey, {
+          local_updated_at: Number(previousRaw?.savedAt) || 0,
+          dirty: false,
+          initialized: true
+        });
+      }
+      return;
+    }
+
     const localUpdatedAt = markLocalDirty(trainerKey);
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => saveTrainerProgress(trainerKey, raw, { localUpdatedAt }), 650);
   }
 
   Storage.prototype.setItem = function(key, value) {
+    const previousValue = this === window.localStorage ? this.getItem(String(key)) : null;
     nativeSetItem.call(this, key, value);
-    if (this === window.localStorage) scheduleProgressSync(String(key), String(value));
+    if (this === window.localStorage) scheduleProgressSync(String(key), String(value), previousValue);
   };
 
   async function restoreOrSyncCurrentTrainer() {
@@ -298,7 +324,8 @@
       writeSyncMeta(trainerKey, {
         local_updated_at: cloudTime,
         last_cloud_updated_at: cloudTime,
-        dirty: false
+        dirty: false,
+        initialized: true
       });
       setSyncStatus('saved', 'Progress restored');
       const reloadKey = 'p101-restored-' + trainerKey + '-' + cloudTime;
@@ -345,7 +372,8 @@
       writeSyncMeta(trainerKey, {
         local_updated_at: cloudTime,
         last_cloud_updated_at: cloudTime,
-        dirty: false
+        dirty: false,
+        initialized: true
       });
       setSyncStatus('saved', 'Newer cloud progress restored');
       const reloadKey = 'p101-restored-' + trainerKey + '-' + cloudTime;
@@ -359,7 +387,8 @@
     writeSyncMeta(trainerKey, {
       local_updated_at: Math.max(effectiveLocalTime, cloudTime),
       last_cloud_updated_at: cloudTime,
-      dirty: false
+      dirty: false,
+      initialized: true
     });
     setSyncStatus('saved', 'Saved to account');
   }
@@ -378,9 +407,54 @@
     }
   }
 
+  function pendingSessionsKey() {
+    return currentUser ? 'p101-pending-sessions:' + currentUser.id : null;
+  }
+
+  function readPendingSessions() {
+    const key = pendingSessionsKey();
+    if (!key) return [];
+    const rows = safeParse(localStorage.getItem(key));
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  function writePendingSessions(rows) {
+    const key = pendingSessionsKey();
+    if (!key) return;
+    nativeSetItem.call(localStorage, key, JSON.stringify(rows.slice(-100)));
+  }
+
+  function queuePendingSession(payload) {
+    if (!currentUser) return;
+    const rows = readPendingSessions();
+    if (!rows.some(row => row.client_session_id === payload.client_session_id)) rows.push(payload);
+    writePendingSessions(rows);
+  }
+
+  async function persistSessionPayload(payload) {
+    const { error } = await client
+      .from('training_sessions')
+      .upsert(payload, { onConflict: 'user_id,client_session_id', ignoreDuplicates: true });
+
+    if (error) return { error };
+    return { saved: true };
+  }
+
+  async function flushPendingSessions() {
+    if (!currentUser || !navigator.onLine) return;
+    const rows = readPendingSessions();
+    if (!rows.length) return;
+
+    const remaining = [];
+    for (const payload of rows) {
+      const result = await persistSessionPayload(payload);
+      if (result.error) remaining.push(payload);
+    }
+    writePendingSessions(remaining);
+  }
+
   async function recordTrainingSession(trainerKey, details = {}) {
     if (!currentUser || !trainers[trainerKey]) return { skipped: true };
-    if (!navigator.onLine) return { offline: true };
 
     const totalQuestions = Math.max(0, Number(details.total_questions) || 0);
     const correctAnswers = Math.max(0, Math.min(totalQuestions, Number(details.correct_answers) || 0));
@@ -399,20 +473,26 @@
       metadata: details.metadata && typeof details.metadata === 'object' ? details.metadata : {}
     };
 
-    const { error } = await client
-      .from('training_sessions')
-      .upsert(payload, { onConflict: 'user_id,client_session_id', ignoreDuplicates: true });
+    if (!navigator.onLine) {
+      queuePendingSession(payload);
+      return { offline: true, queued: true };
+    }
 
-    if (error) {
-      console.error('Poker101Class session history save failed:', error.message);
-      return { error };
+    const result = await persistSessionPayload(payload);
+    if (result.error) {
+      queuePendingSession(payload);
+      console.error('Poker101Class session history save failed:', result.error.message);
+      return result;
     }
 
     return { saved: true, client_session_id: clientSessionId };
   }
 
   window.addEventListener('online', () => {
-    setTimeout(() => syncCurrentTrainerIfDirty(), 150);
+    setTimeout(async () => {
+      await syncCurrentTrainerIfDirty();
+      await flushPendingSessions();
+    }, 150);
   });
   window.addEventListener('offline', () => {
     if (trainerForPage()) setSyncStatus('offline', currentUser ? 'Offline · will sync' : 'Browser only');
@@ -871,7 +951,8 @@
     setAuthControls(currentUser);
     await Promise.all([
       renderMemberDashboard(),
-      restoreOrSyncCurrentTrainer()
+      restoreOrSyncCurrentTrainer(),
+      flushPendingSessions()
     ]);
   }
 
@@ -892,6 +973,7 @@
     showAuth,
     signOut,
     saveTrainerProgress,
+    recordTrainingSession,
     renderMemberDashboard
   };
 })();
