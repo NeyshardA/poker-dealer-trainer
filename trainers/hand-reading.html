@@ -67,7 +67,7 @@
 <script>
 const SUITS=['♠','♥','♦','♣'], RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const rv=Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
-let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem',selectedHigh:null,selectedLow:null};
+let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem',selectedHigh:[],selectedLow:[]};
 const $=id=>document.getElementById(id);
 function deck(){let d=[];for(const r of RANKS)for(const s of SUITS)d.push({r,s});return d.sort(()=>Math.random()-.5)}
 function cardHTML(c,small=false){return '<div class="card '+((c.s==='♥'||c.s==='♦')?'red':'')+'"><span>'+c.r+'</span><span class="suit">'+c.s+'</span></div>'}
@@ -129,22 +129,29 @@ function packageO8(board,players,ev){
  return {board,players,ev,w:hw,type:state.game==='bigo'?'bigo':'omaha8',lowW:lw}
 }
 function renderHand(h){
- state.details=h;state.selected=null;state.selectedHigh=null;state.selectedLow=null;
+ state.details=h;state.selected=null;state.selectedHigh=[];state.selectedLow=[];
  $('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
  $('communityWrap').classList.toggle('hidden',!h.board.length);$('board').innerHTML=h.board.map(cardHTML).join('');
  const split=state.game==='omaha8'||state.game==='bigo';
  $('splitPicks').classList.toggle('hidden',!split);
  let q=split?'Select the HIGH and LOW winners':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
- $('instruction').textContent=split?'Choose one player for high and one player for low. Choose No Low when the board has no qualifying 8-or-better low.':'Tap a hand to select the winner.';
+ $('instruction').textContent=split?'Select every player who ties for HIGH and every player who ties for LOW. You can choose multiple players on either side. Choose No Low only when there is no qualifying 8-or-better low.':'Tap a hand to select the winner.';
  $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
  if(split){
    $('highPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="high" data-i="'+i+'">P'+(i+1)+'</button>').join('');
    $('lowPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="low" data-i="'+i+'">P'+(i+1)+'</button>').join('')+'<button type="button" class="pick-btn none" data-pick="low" data-i="-1">No Low</button>';
    document.querySelectorAll('.pick-btn').forEach(btn=>btn.onclick=()=>{
-     let type=btn.dataset.pick,val=+btn.dataset.i;
-     document.querySelectorAll('.pick-btn[data-pick="'+type+'"]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
-     if(type==='high')state.selectedHigh=val;else state.selectedLow=val;
-     $('submitBtn').disabled=state.selectedHigh===null||state.selectedLow===null;
+     let type=btn.dataset.pick,val=+btn.dataset.i, arr=type==='high'?state.selectedHigh:state.selectedLow;
+     if(type==='low'&&val===-1){
+       state.selectedLow=state.selectedLow.length===1&&state.selectedLow[0]===-1?[]:[-1];
+       document.querySelectorAll('.pick-btn[data-pick="low"]').forEach(x=>x.classList.remove('active'));
+       if(state.selectedLow.length)btn.classList.add('active');
+     }else{
+       if(type==='low'&&state.selectedLow.includes(-1)){state.selectedLow=[];document.querySelector('.pick-btn[data-pick="low"][data-i="-1"]')?.classList.remove('active');arr=state.selectedLow}
+       let idx=arr.indexOf(val);if(idx>=0)arr.splice(idx,1);else arr.push(val);
+       btn.classList.toggle('active',arr.includes(val));
+     }
+     $('submitBtn').disabled=state.selectedHigh.length===0||state.selectedLow.length===0;
    });
    document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{});
  }else{
@@ -169,8 +176,10 @@ function ruleText(g,name){
 function submit(){
  let h=state.details,split=state.game==='omaha8'||state.game==='bigo',ok;
  if(split){
-   const highOK=h.w.includes(state.selectedHigh);
-   const lowOK=h.lowW.length? h.lowW.includes(state.selectedLow) : state.selectedLow===-1;
+   const sameSet=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
+   const highOK=sameSet(state.selectedHigh,h.w);
+   const expectedLow=h.lowW.length?h.lowW:[-1];
+   const lowOK=sameSet(state.selectedLow,expectedLow);
    ok=highOK&&lowOK;
  }else ok=h.w.includes(state.selected);
  state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
