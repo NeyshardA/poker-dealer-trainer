@@ -91,11 +91,87 @@
     return Number(summary?.questions || 0) > 0;
   }
 
-  async function saveTrainerProgress(trainerKey, raw) {
-    if (!currentUser || !trainers[trainerKey] || !raw) return;
+  const nativeSetItem = Storage.prototype.setItem;
+  const SYNC_META_PREFIX = 'p101-sync-meta:';
+  let deviceId = localStorage.getItem('p101-device-id');
+  if (!deviceId) {
+    deviceId = globalThis.crypto?.randomUUID?.() || 'device-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    nativeSetItem.call(localStorage, 'p101-device-id', deviceId);
+  }
+
+  function syncMetaKey(trainerKey) {
+    return SYNC_META_PREFIX + trainerKey;
+  }
+
+  function readSyncMeta(trainerKey) {
+    return safeParse(localStorage.getItem(syncMetaKey(trainerKey))) || {
+      local_updated_at: 0,
+      last_cloud_updated_at: 0,
+      dirty: false
+    };
+  }
+
+  function writeSyncMeta(trainerKey, patch) {
+    const next = { ...readSyncMeta(trainerKey), ...patch };
+    nativeSetItem.call(localStorage, syncMetaKey(trainerKey), JSON.stringify(next));
+    return next;
+  }
+
+  function ensureSyncStatus() {
+    const current = trainerForPage();
+    if (!current) return null;
+    let el = document.querySelector('.p101-cloud-status');
+    if (el) return el;
+    const host = document.querySelector('.p101-trainer-title');
+    if (!host) return null;
+    el = document.createElement('span');
+    el.className = 'p101-cloud-status';
+    el.setAttribute('aria-live', 'polite');
+    host.appendChild(el);
+    return el;
+  }
+
+  function setSyncStatus(state, text) {
+    const el = ensureSyncStatus();
+    if (!el) return;
+    el.dataset.state = state;
+    el.textContent = text;
+  }
+
+  function localTimestamp(trainerKey, raw) {
+    const meta = readSyncMeta(trainerKey);
+    return Number(meta.local_updated_at) || Number(raw?.savedAt) || 0;
+  }
+
+  function cloudTimestamp(row) {
+    const value = row?.last_activity_at || row?.updated_at;
+    const ms = value ? Date.parse(value) : 0;
+    return Number.isFinite(ms) ? ms : 0;
+  }
+
+  function markLocalDirty(trainerKey) {
+    const now = Date.now();
+    writeSyncMeta(trainerKey, { local_updated_at: now, dirty: true });
+    if (!navigator.onLine) setSyncStatus('offline', 'Offline · will sync');
+    else if (currentUser) setSyncStatus('syncing', 'Syncing…');
+    else setSyncStatus('browser', 'Browser only');
+    return now;
+  }
+
+  async function saveTrainerProgress(trainerKey, raw, options = {}) {
+    if (!currentUser || !trainers[trainerKey] || !raw) return { skipped: true };
     const config = trainers[trainerKey];
     const summary = config.summarize(raw);
-    if (!meaningful(summary)) return;
+    if (!meaningful(summary)) return { skipped: true };
+    if (!navigator.onLine) {
+      writeSyncMeta(trainerKey, { dirty: true });
+      setSyncStatus('offline', 'Offline · will sync');
+      return { offline: true };
+    }
+
+    const meta = readSyncMeta(trainerKey);
+    const localUpdatedAt = Number(options.localUpdatedAt) || localTimestamp(trainerKey, raw) || Date.now();
+    setSyncStatus('syncing', 'Syncing…');
 
     const payload = {
       user_id: currentUser.id,
@@ -104,16 +180,57 @@
         summary,
         raw,
         storage_key: config.storageKey,
-        schema_version: 1
+        schema_version: 2,
+        sync: {
+          client_updated_at: new Date(localUpdatedAt).toISOString(),
+          device_id: deviceId
+        }
       },
-      last_activity_at: new Date().toISOString()
+      last_activity_at: new Date(localUpdatedAt).toISOString()
     };
 
-    const { error } = await client
+    const { data, error } = await client
       .from('trainer_progress')
-      .upsert(payload, { onConflict: 'user_id,trainer_key' });
+      .upsert(payload, { onConflict: 'user_id,trainer_key' })
+      .select('metrics,last_activity_at,updated_at')
+      .single();
 
-    if (error) console.error('Poker101Class progress sync failed:', error.message);
+    if (error) {
+      writeSyncMeta(trainerKey, { dirty: true });
+      setSyncStatus('error', 'Sync problem');
+      console.error('Poker101Class progress sync failed:', error.message);
+      return { error };
+    }
+
+    const storedTime = cloudTimestamp(data);
+    if (storedTime > localUpdatedAt + 1000) {
+      const cloudRaw = data?.metrics?.raw;
+      if (cloudRaw && meaningful(data?.metrics?.summary)) {
+        suppressProgressSync = true;
+        nativeSetItem.call(localStorage, config.storageKey, JSON.stringify(cloudRaw));
+        suppressProgressSync = false;
+        writeSyncMeta(trainerKey, {
+          local_updated_at: storedTime,
+          last_cloud_updated_at: storedTime,
+          dirty: false
+        });
+        setSyncStatus('saved', 'Cloud version restored');
+        const reloadKey = 'p101-restored-' + trainerKey + '-' + storedTime;
+        if (!sessionStorage.getItem(reloadKey)) {
+          sessionStorage.setItem(reloadKey, '1');
+          location.reload();
+        }
+        return { restored: true };
+      }
+    }
+
+    writeSyncMeta(trainerKey, {
+      local_updated_at: Math.max(localUpdatedAt, storedTime),
+      last_cloud_updated_at: storedTime || localUpdatedAt,
+      dirty: false
+    });
+    setSyncStatus('saved', 'Saved to account');
+    return { saved: true };
   }
 
   function scheduleProgressSync(storageKey, value) {
@@ -124,24 +241,35 @@
     const raw = safeParse(value);
     if (!raw) return;
 
+    const localUpdatedAt = markLocalDirty(trainerKey);
     clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => saveTrainerProgress(trainerKey, raw), 500);
+    syncTimer = setTimeout(() => saveTrainerProgress(trainerKey, raw, { localUpdatedAt }), 650);
   }
 
-  const nativeSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function(key, value) {
     nativeSetItem.call(this, key, value);
     if (this === window.localStorage) scheduleProgressSync(String(key), String(value));
   };
 
   async function restoreOrSyncCurrentTrainer() {
-    if (!currentUser) return;
     const current = trainerForPage();
     if (!current) return;
-
     const [trainerKey, config] = current;
+
+    if (!currentUser) {
+      setSyncStatus('browser', 'Browser only');
+      return;
+    }
+    if (!navigator.onLine) {
+      setSyncStatus('offline', 'Offline · will sync');
+      return;
+    }
+
+    setSyncStatus('syncing', 'Checking cloud…');
+
     const localRaw = safeParse(localStorage.getItem(config.storageKey));
     const localSummary = config.summarize(localRaw || {});
+    const meta = readSyncMeta(trainerKey);
 
     const { data, error } = await client
       .from('trainer_progress')
@@ -151,29 +279,144 @@
       .maybeSingle();
 
     if (error) {
+      setSyncStatus('error', 'Sync problem');
       console.error('Poker101Class cloud progress load failed:', error.message);
-      return;
-    }
-
-    if (meaningful(localSummary)) {
-      await saveTrainerProgress(trainerKey, localRaw);
       return;
     }
 
     const cloudRaw = data?.metrics?.raw;
     const cloudSummary = data?.metrics?.summary;
-    if (cloudRaw && meaningful(cloudSummary)) {
+    const localHasProgress = meaningful(localSummary);
+    const cloudHasProgress = cloudRaw && meaningful(cloudSummary);
+    const localTime = localTimestamp(trainerKey, localRaw);
+    const cloudTime = cloudTimestamp(data);
+
+    if (!localHasProgress && cloudHasProgress) {
       suppressProgressSync = true;
       nativeSetItem.call(localStorage, config.storageKey, JSON.stringify(cloudRaw));
       suppressProgressSync = false;
-
-      const reloadKey = 'p101-restored-' + trainerKey;
+      writeSyncMeta(trainerKey, {
+        local_updated_at: cloudTime,
+        last_cloud_updated_at: cloudTime,
+        dirty: false
+      });
+      setSyncStatus('saved', 'Progress restored');
+      const reloadKey = 'p101-restored-' + trainerKey + '-' + cloudTime;
       if (!sessionStorage.getItem(reloadKey)) {
         sessionStorage.setItem(reloadKey, '1');
         location.reload();
       }
+      return;
+    }
+
+    if (localHasProgress && !cloudHasProgress) {
+      const inferred = localTime || Date.now();
+      writeSyncMeta(trainerKey, { local_updated_at: inferred, dirty: true });
+      await saveTrainerProgress(trainerKey, localRaw, { localUpdatedAt: inferred });
+      return;
+    }
+
+    if (!localHasProgress && !cloudHasProgress) {
+      writeSyncMeta(trainerKey, { dirty: false, last_cloud_updated_at: 0 });
+      setSyncStatus('saved', 'Account connected');
+      return;
+    }
+
+    const localQuestions = Number(localSummary?.questions) || 0;
+    const cloudQuestions = Number(cloudSummary?.questions) || 0;
+    let effectiveLocalTime = localTime;
+
+    // Legacy browser data may predate sync metadata. Preserve it when it
+    // clearly contains more accumulated work than the cloud copy.
+    if (!effectiveLocalTime && localQuestions > cloudQuestions) {
+      effectiveLocalTime = Date.now();
+      writeSyncMeta(trainerKey, { local_updated_at: effectiveLocalTime, dirty: true });
+    }
+
+    if ((meta.dirty && effectiveLocalTime >= cloudTime) || effectiveLocalTime > cloudTime) {
+      await saveTrainerProgress(trainerKey, localRaw, { localUpdatedAt: effectiveLocalTime || Date.now() });
+      return;
+    }
+
+    if (cloudTime > effectiveLocalTime) {
+      suppressProgressSync = true;
+      nativeSetItem.call(localStorage, config.storageKey, JSON.stringify(cloudRaw));
+      suppressProgressSync = false;
+      writeSyncMeta(trainerKey, {
+        local_updated_at: cloudTime,
+        last_cloud_updated_at: cloudTime,
+        dirty: false
+      });
+      setSyncStatus('saved', 'Newer cloud progress restored');
+      const reloadKey = 'p101-restored-' + trainerKey + '-' + cloudTime;
+      if (!sessionStorage.getItem(reloadKey)) {
+        sessionStorage.setItem(reloadKey, '1');
+        location.reload();
+      }
+      return;
+    }
+
+    writeSyncMeta(trainerKey, {
+      local_updated_at: Math.max(effectiveLocalTime, cloudTime),
+      last_cloud_updated_at: cloudTime,
+      dirty: false
+    });
+    setSyncStatus('saved', 'Saved to account');
+  }
+
+  async function syncCurrentTrainerIfDirty() {
+    if (!currentUser) return;
+    const current = trainerForPage();
+    if (!current) return;
+    const [trainerKey, config] = current;
+    const meta = readSyncMeta(trainerKey);
+    const raw = safeParse(localStorage.getItem(config.storageKey));
+    if (meta.dirty && raw && meaningful(config.summarize(raw))) {
+      await saveTrainerProgress(trainerKey, raw, { localUpdatedAt: meta.local_updated_at || Date.now() });
+    } else {
+      await restoreOrSyncCurrentTrainer();
     }
   }
+
+  async function recordTrainingSession(trainerKey, details = {}) {
+    if (!currentUser || !trainers[trainerKey]) return { skipped: true };
+    if (!navigator.onLine) return { offline: true };
+
+    const totalQuestions = Math.max(0, Number(details.total_questions) || 0);
+    const correctAnswers = Math.max(0, Math.min(totalQuestions, Number(details.correct_answers) || 0));
+    if (!totalQuestions) return { skipped: true };
+
+    const clientSessionId = String(details.client_session_id || globalThis.crypto?.randomUUID?.() || (trainerKey + '-' + Date.now() + '-' + Math.random().toString(16).slice(2)));
+    const payload = {
+      user_id: currentUser.id,
+      trainer_key: trainerKey,
+      client_session_id: clientSessionId,
+      mode: details.mode ? String(details.mode) : null,
+      total_questions: totalQuestions,
+      correct_answers: correctAnswers,
+      duration_ms: details.duration_ms == null ? null : Math.max(0, Math.round(Number(details.duration_ms) || 0)),
+      avg_response_ms: details.avg_response_ms == null ? null : Math.max(0, Number(details.avg_response_ms) || 0),
+      metadata: details.metadata && typeof details.metadata === 'object' ? details.metadata : {}
+    };
+
+    const { error } = await client
+      .from('training_sessions')
+      .upsert(payload, { onConflict: 'user_id,client_session_id', ignoreDuplicates: true });
+
+    if (error) {
+      console.error('Poker101Class session history save failed:', error.message);
+      return { error };
+    }
+
+    return { saved: true, client_session_id: clientSessionId };
+  }
+
+  window.addEventListener('online', () => {
+    setTimeout(() => syncCurrentTrainerIfDirty(), 150);
+  });
+  window.addEventListener('offline', () => {
+    if (trainerForPage()) setSyncStatus('offline', currentUser ? 'Offline · will sync' : 'Browser only');
+  });
 
   function getPreferredName(user) {
     return (
