@@ -9,6 +9,28 @@
 <style>
 *{box-sizing:border-box}body{margin:0}.hr-wrap{width:min(1180px,calc(100% - 32px));margin:32px auto 70px}.hr-hero{display:flex;justify-content:space-between;gap:28px;align-items:end;margin-bottom:24px}.hr-hero h1{font:400 clamp(34px,5vw,54px)/1 Georgia,serif;margin:5px 0 10px}.hr-hero p{color:#b9c2c3;max-width:680px;margin:0}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#d2b078}.stats{display:flex;gap:10px;flex-wrap:wrap}.statbox{min-width:94px;padding:10px 14px;border:1px solid #354144;background:#192123;border-radius:7px}.statbox small{display:block;color:#8f9b9d;font-size:10px;text-transform:uppercase;letter-spacing:1px}.statbox b{font:400 24px Georgia,serif;color:#ead3ac}.panel{background:#192123;border:1px solid #354144;border-radius:7px;padding:22px}.setup{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.field label{display:block;color:#9ca7a8;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.field select{width:100%;padding:12px;background:#0e1618;color:#fff;border:1px solid #3d494c;border-radius:7px}.btn{cursor:pointer;padding:12px 18px;border:1px solid #465255;background:#1b2527;color:#fff;border-radius:7px;font-weight:700}.btn.primary{background:#d2b078;color:#162023;border-color:#d2b078}.btn:disabled{opacity:.45;cursor:not-allowed}.game{display:none}.game.active{display:block}.board-label,.section-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#9ca7a8;text-align:center;margin-bottom:9px}.cards{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}.card{width:62px;height:86px;background:#fff!important;border-radius:7px;border:1px solid #c9c9c9;color:#111!important;display:flex;flex-direction:column;justify-content:space-between;padding:7px;font:700 20px/1 Georgia,serif;box-shadow:0 5px 12px #0004}.card.red{color:#d52b2b!important}.card .suit{text-align:right;font-size:25px}.board{padding:22px 10px;border-bottom:1px solid #ffffff12}.players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.player{position:relative;padding:16px;border:1px solid #354144;border-radius:7px;background:#11191b;cursor:pointer;transition:.15s}.player:hover{border-color:#d2b078}.player.selected{border-color:#d2b078;box-shadow:0 0 0 2px #d2b07833}.player.correct{border-color:#90b39b;background:#15241b}.player.wrong{border-color:#ef8a84;background:#28191a}.player-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.player-name{font:400 21px Georgia,serif}.player-tag{font-size:10px;color:#9ca7a8;text-transform:uppercase}.player .card{width:50px;height:70px;font-size:16px;padding:5px}.player .card .suit{font-size:20px}.question{text-align:center;font:400 27px Georgia,serif;margin:22px 0 13px}.instruction{text-align:center;color:#aeb8b9;font-size:13px}.actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}.feedback{display:none;margin-top:18px;padding:18px;border-left:3px solid #d2b078;background:#d2b0780d}.feedback.show{display:block}.feedback h3{margin:0 0 8px;font:400 24px Georgia,serif}.feedback p{margin:7px 0;color:#cbd2d2}.feedback strong{color:#ead3ac}.best5{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}.best5 .card{width:43px;height:60px;font-size:14px}.best5 .card .suit{font-size:17px}.mode-note{margin-top:10px;color:#8f9b9d;font-size:12px}.start-card{text-align:center;padding:42px 20px}.start-card h2{font:400 34px Georgia,serif;margin:0 0 10px}.start-card p{color:#b9c2c3;max-width:640px;margin:0 auto 20px}.timer{font-variant-numeric:tabular-nums}.result-summary{text-align:center;padding:35px}.result-summary h2{font:400 38px Georgia,serif}.result-summary .big{font:400 62px Georgia,serif;color:#ead3ac}.hidden{display:none!important}
 @media(max-width:760px){.hr-wrap{width:min(100% - 20px,1180px);margin-top:18px}.hr-hero{display:block}.stats{margin-top:16px}.setup{grid-template-columns:1fr 1fr}.players{grid-template-columns:1fr}.panel{padding:14px}.card{width:53px;height:75px}.player .card{width:47px;height:66px}.question{font-size:24px}}
+
+/* Compact Mixed-Nuts-inspired table layout */
+.hr-wrap{width:min(980px,calc(100% - 24px));margin:22px auto 60px}
+.hr-hero{margin-bottom:14px}.hr-hero p{max-width:560px}.panel{padding:16px}
+.game.active{display:block}.board{padding:15px 8px 18px}
+.players{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.player{padding:11px 8px 12px;text-align:center;min-width:0;border-radius:9px}
+.player-head{display:block;margin-bottom:8px}.player-name{display:block;font:700 14px/1.2 Arial,sans-serif;letter-spacing:.2px}
+.player-tag{display:block;margin-top:4px;font-size:9px}
+.player .cards{gap:3px;flex-wrap:nowrap}.player .card{width:45px;height:64px;font-size:16px;padding:5px}
+.player .card .suit{font-size:19px}.question{margin:16px 0 7px}.instruction{margin-bottom:4px}
+.actions .btn{min-width:180px}.feedback{border-radius:7px}
+@media(max-width:760px){
+ .hr-wrap{width:100%;margin:10px auto 40px;padding:0 8px}.hr-hero{padding:0 5px}.hr-hero h1{font-size:30px}.hr-hero p{font-size:13px}
+ .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.statbox{min-width:0;padding:8px}.statbox b{font-size:20px}
+ .panel{padding:10px}.setup{grid-template-columns:1fr 1fr;gap:8px}.field select{padding:10px 8px}
+ .board{padding:12px 2px 15px}.board .cards{gap:4px;flex-wrap:nowrap}.board .card{width:50px;height:70px;font-size:17px;padding:5px}.board .card .suit{font-size:21px}
+ .players{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .player{padding:9px 3px 10px}.player-name{font-size:13px}.player .cards{gap:2px}.player .card{width:39px;height:56px;font-size:14px;padding:4px}.player .card .suit{font-size:17px}
+ .question{font-size:23px}.instruction{font-size:12px}.actions{position:sticky;bottom:8px;z-index:5}.actions .btn{min-width:0;flex:1;box-shadow:0 5px 18px #0008}
+}
+@media(max-width:360px){.player .card{width:35px;height:52px}.board .card{width:45px;height:65px}}
 </style>
 </head>
 <body class="trainer-page">
@@ -25,7 +47,7 @@
 <div id="start" class="start-card"><h2>Ready to read the table?</h2><p>Choose your game and difficulty. Select the player with the winning hand. After every answer, the trainer shows the correct five-card hand and explains the result.</p><button class="btn primary" id="startBtn">Start Training</button><div class="mode-note">Texas Hold'em is fully randomized. Additional mixed-game evaluators are included for dealer practice.</div></div>
 <div id="game" class="game">
 <div id="communityWrap" class="board"><div class="board-label" id="boardLabel">Board</div><div class="cards" id="board"></div></div>
-<div class="question" id="question">Who wins the pot?</div><div class="instruction" id="instruction">Tap the winning player, then submit your answer.</div>
+<div class="question" id="question">Who wins?</div><div class="instruction" id="instruction">Tap a hand to select the winner.</div>
 <div class="players" id="players"></div>
 <div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
 <div class="feedback" id="feedback"></div>
@@ -100,7 +122,7 @@ function packageO8(board,players,ev){
 function renderHand(h){
  state.details=h;state.selected=null;$('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
  $('communityWrap').classList.toggle('hidden',!h.board.length);$('board').innerHTML=h.board.map(cardHTML).join('');
- let q=state.game==='omaha8'?'Who wins the HIGH half?':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins the pot?';$('question').textContent=q;
+ let q=state.game==='omaha8'?'Who wins the HIGH half?':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
  $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">Select</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
  document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
  state.start=performance.now();
