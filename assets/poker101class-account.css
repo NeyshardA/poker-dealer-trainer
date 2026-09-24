@@ -478,3 +478,21 @@ dialog.auth-dialog-compact{width:min(430px,calc(100% - 32px))}
     padding:14px;
   }
 }
+
+
+/* Authentication visibility and protected trainer links */
+[data-auth-guest][hidden],
+[data-auth-user][hidden]{
+  display:none!important;
+}
+
+.auth-signed-out a[data-p101-protected="true"]{
+  cursor:pointer;
+}
+
+@media(max-width:1150px){
+  .mobile-nav nav [data-auth-guest][hidden],
+  .mobile-nav nav [data-auth-user][hidden]{
+    display:none!important;
+  }
+}
