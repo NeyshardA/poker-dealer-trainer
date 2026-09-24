@@ -11,6 +11,7 @@
 
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null;
+  let currentProfile = null;
   let suppressProgressSync = false;
   let syncTimer = null;
 
@@ -174,11 +175,23 @@
     }
   }
 
+  function getPreferredName(user) {
+    return (
+      currentProfile?.display_name ||
+      user?.user_metadata?.display_name ||
+      user?.user_metadata?.nickname ||
+      user?.email?.split('@')[0] ||
+      'Account'
+    );
+  }
+
   function setAuthControls(user) {
     document.querySelectorAll('[data-auth-guest]').forEach(el => el.hidden = !!user);
     document.querySelectorAll('[data-auth-user]').forEach(el => el.hidden = !user);
-    document.querySelectorAll('[data-account-email]').forEach(el => {
-      el.textContent = user?.email || '';
+
+    const preferredName = user ? getPreferredName(user) : '';
+    document.querySelectorAll('[data-account-name]').forEach(el => {
+      el.textContent = preferredName;
     });
   }
 
@@ -214,7 +227,10 @@
 
     if (error) console.error('Poker101Class dashboard load failed:', error.message);
 
-    const displayName = profile?.display_name || currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'Dealer';
+    currentProfile = profile || null;
+    setAuthControls(currentUser);
+
+    const displayName = getPreferredName(currentUser);
     const welcome = document.getElementById('member-welcome');
     if (welcome) welcome.textContent = 'Welcome back, ' + displayName + '.';
 
@@ -377,6 +393,7 @@
 
   async function refreshAuthState(session) {
     currentUser = session?.user || null;
+    if (!currentUser) currentProfile = null;
     setAuthControls(currentUser);
     await Promise.all([
       renderMemberDashboard(),
