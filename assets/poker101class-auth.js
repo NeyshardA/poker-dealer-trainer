@@ -209,20 +209,14 @@
 
   async function renderMemberDashboard() {
     const section = document.getElementById('member-progress');
-    if (!section) return;
+    if (!section || !currentUser) return;
 
-    if (!currentUser) {
-      section.hidden = true;
-      return;
-    }
-
-    section.hidden = false;
-
-    const [{ data: profile }, { data: progress, error }] = await Promise.all([
+    const [{ data: profile }, { data: progress, error }, { data: entitlement }] = await Promise.all([
       client.from('profiles').select('display_name').eq('id', currentUser.id).maybeSingle(),
       client.from('trainer_progress')
         .select('trainer_key,metrics,last_activity_at,updated_at')
-        .eq('user_id', currentUser.id)
+        .eq('user_id', currentUser.id),
+      client.from('account_entitlements').select('plan,status,current_period_end').eq('user_id', currentUser.id).maybeSingle()
     ]);
 
     if (error) console.error('Poker101Class dashboard load failed:', error.message);
@@ -233,6 +227,16 @@
     const displayName = getPreferredName(currentUser);
     const welcome = document.getElementById('member-welcome');
     if (welcome) welcome.textContent = 'Welcome back, ' + displayName + '.';
+
+    const nameInput = document.getElementById('account-display-name');
+    const emailInput = document.getElementById('account-email');
+    if (nameInput) nameInput.value = displayName;
+    if (emailInput) emailInput.value = currentUser.email || '';
+
+    const plan = document.getElementById('membership-plan');
+    const status = document.getElementById('membership-status');
+    if (plan) plan.textContent = entitlement?.plan ? entitlement.plan.charAt(0).toUpperCase() + entitlement.plan.slice(1) : 'Free';
+    if (status) status.textContent = entitlement?.status ? entitlement.status.charAt(0).toUpperCase() + entitlement.status.slice(1) : 'Active';
 
     const rows = Array.isArray(progress) ? progress : [];
     const byKey = Object.fromEntries(rows.map(r => [r.trainer_key, r]));
@@ -282,6 +286,65 @@
       continueBtn.href = trainers[key].href;
       continueBtn.innerHTML = latest ? `Continue ${trainers[key].label} <span aria-hidden="true">↗</span>` : 'Start your first session <span aria-hidden="true">↗</span>';
     }
+  }
+
+  function accountDialog() {
+    return document.getElementById('account-center');
+  }
+
+  function switchAccountPanel(view = 'progress') {
+    document.querySelectorAll('[data-account-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.accountPanel !== view;
+    });
+    document.querySelectorAll('[data-account-tab]').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.accountTab === view);
+    });
+  }
+
+  async function openAccount(view = 'progress') {
+    if (!currentUser) {
+      showAuth('signin');
+      return;
+    }
+    switchAccountPanel(view);
+    await renderMemberDashboard();
+    const dlg = accountDialog();
+    if (dlg && !dlg.open) dlg.showModal();
+  }
+
+  function closeAccount() {
+    const dlg = accountDialog();
+    if (dlg?.open) dlg.close();
+  }
+
+  async function saveAccountSettings(form) {
+    if (!currentUser) return;
+    const fd = new FormData(form);
+    const displayName = String(fd.get('display_name') || '').trim();
+    const msg = document.getElementById('account-settings-message');
+    if (!displayName) {
+      if (msg) msg.textContent = 'Enter a display name.';
+      return;
+    }
+
+    if (msg) msg.textContent = 'Saving…';
+    const { data, error } = await client
+      .from('profiles')
+      .update({ display_name: displayName })
+      .eq('id', currentUser.id)
+      .select('display_name')
+      .single();
+
+    if (error) {
+      if (msg) msg.textContent = error.message;
+      return;
+    }
+
+    currentProfile = data || { display_name: displayName };
+    setAuthControls(currentUser);
+    const welcome = document.getElementById('member-welcome');
+    if (welcome) welcome.textContent = 'Welcome back, ' + getPreferredName(currentUser) + '.';
+    if (msg) msg.textContent = 'Display name updated.';
   }
 
   function dialog() { return document.getElementById('auth-dialog'); }
@@ -358,6 +421,8 @@
   }
 
   async function signOut() {
+    closeAccount();
+    document.querySelectorAll('.account-menu[open]').forEach(menu => menu.removeAttribute('open'));
     await client.auth.signOut();
   }
 
@@ -378,13 +443,38 @@
       });
     });
 
+    document.querySelectorAll('[data-account-view]').forEach(el => {
+      el.addEventListener('click', async e => {
+        e.preventDefault();
+        const menu = el.closest('.account-menu');
+        if (menu) menu.removeAttribute('open');
+        await openAccount(el.dataset.accountView || 'progress');
+      });
+    });
+    document.querySelectorAll('[data-account-tab]').forEach(el => {
+      el.addEventListener('click', () => switchAccountPanel(el.dataset.accountTab || 'progress'));
+    });
+
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
     if (signInForm) signInForm.addEventListener('submit', e => { e.preventDefault(); signIn(signInForm); });
     if (signUpForm) signUpForm.addEventListener('submit', e => { e.preventDefault(); signUp(signUpForm); });
 
+    const accountSettingsForm = document.getElementById('account-settings-form');
+    if (accountSettingsForm) accountSettingsForm.addEventListener('submit', e => {
+      e.preventDefault();
+      saveAccountSettings(accountSettingsForm);
+    });
+
     const close = document.getElementById('auth-close');
     if (close) close.addEventListener('click', closeAuth);
+
+    const accountClose = document.getElementById('account-center-close');
+    if (accountClose) accountClose.addEventListener('click', closeAccount);
+    const accountDlg = accountDialog();
+    if (accountDlg) accountDlg.addEventListener('click', e => {
+      if (e.target === accountDlg) closeAccount();
+    });
     const dlg = dialog();
     if (dlg) dlg.addEventListener('click', e => {
       if (e.target === dlg) closeAuth();
