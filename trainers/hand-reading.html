@@ -190,6 +190,9 @@ function renderHand(h){
    document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if(state.locked||$('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
  }
  state.start=performance.now();
+ clearInterval(state.timer);
+ $('timer').textContent='0.0s';
+ state.timer=setInterval(()=>{if(state.start&&!state.locked)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s'},100);
 }
 function explain(h){
  let winners=h.w.map(i=>'Player '+(i+1)).join(' & '),e=h.ev[h.w[0]],name=e.name||e.high?.name||'winning hand',cards=e.cards||e.high?.cards||[];
