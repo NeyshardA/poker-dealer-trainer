@@ -230,8 +230,17 @@
 
     const nameInput = document.getElementById('account-display-name');
     const emailInput = document.getElementById('account-email');
+    const verificationStatus = document.getElementById('email-verification-status');
+    const resendVerification = document.getElementById('resend-verification');
     if (nameInput) nameInput.value = displayName;
     if (emailInput) emailInput.value = currentUser.email || '';
+    const emailVerified = !!currentUser.email_confirmed_at;
+    if (verificationStatus) {
+      verificationStatus.textContent = emailVerified ? 'Verified' : 'Not verified';
+      verificationStatus.classList.toggle('verified', emailVerified);
+      verificationStatus.classList.toggle('unverified', !emailVerified);
+    }
+    if (resendVerification) resendVerification.hidden = emailVerified;
 
     const plan = document.getElementById('membership-plan');
     const status = document.getElementById('membership-status');
@@ -364,6 +373,8 @@
     document.querySelectorAll('[data-auth-tab]').forEach(tab => {
       tab.classList.toggle('active', tab.dataset.authTab === mode);
     });
+    const tabs = document.getElementById('auth-tabs');
+    if (tabs) tabs.hidden = !['signin','signup'].includes(mode);
     authMessage('');
     if (!dlg.open) dlg.showModal();
   }
@@ -420,6 +431,118 @@
     setTimeout(closeAuth, 400);
   }
 
+  async function requestPasswordReset(form) {
+    const fd = new FormData(form);
+    const email = String(fd.get('email') || '').trim();
+    if (!email) return;
+
+    authMessage('Sending reset link…');
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + location.pathname
+    });
+
+    if (error) {
+      authMessage(error.message, true);
+      return;
+    }
+
+    authMessage('If an account exists for that email, a password reset link has been sent.');
+    form.reset();
+  }
+
+  async function completeRecovery(form) {
+    const fd = new FormData(form);
+    const password = String(fd.get('password') || '');
+    const confirmPassword = String(fd.get('confirm_password') || '');
+
+    if (password.length < 8) {
+      authMessage('Your new password must be at least 8 characters.', true);
+      return;
+    }
+    if (password !== confirmPassword) {
+      authMessage('The passwords do not match.', true);
+      return;
+    }
+
+    authMessage('Updating your password…');
+    const { error } = await client.auth.updateUser({ password });
+
+    if (error) {
+      authMessage(error.message, true);
+      return;
+    }
+
+    form.reset();
+    authMessage('Password updated successfully. You are signed in.');
+    if (location.hash || location.search.includes('type=recovery')) {
+      history.replaceState({}, document.title, location.pathname);
+    }
+    setTimeout(closeAuth, 900);
+  }
+
+  async function changePassword(form) {
+    if (!currentUser?.email) return;
+
+    const fd = new FormData(form);
+    const currentPassword = String(fd.get('current_password') || '');
+    const newPassword = String(fd.get('new_password') || '');
+    const confirmPassword = String(fd.get('confirm_password') || '');
+    const msg = document.getElementById('password-settings-message');
+
+    if (newPassword.length < 8) {
+      if (msg) msg.textContent = 'Your new password must be at least 8 characters.';
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      if (msg) msg.textContent = 'The new passwords do not match.';
+      return;
+    }
+    if (currentPassword === newPassword) {
+      if (msg) msg.textContent = 'Choose a new password that is different from your current password.';
+      return;
+    }
+
+    if (msg) msg.textContent = 'Checking your current password…';
+    const { error: signInError } = await client.auth.signInWithPassword({
+      email: currentUser.email,
+      password: currentPassword
+    });
+
+    if (signInError) {
+      if (msg) msg.textContent = 'Your current password is incorrect.';
+      return;
+    }
+
+    if (msg) msg.textContent = 'Updating password…';
+    const { error } = await client.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      if (msg) msg.textContent = error.message;
+      return;
+    }
+
+    form.reset();
+    if (msg) msg.textContent = 'Password changed successfully.';
+  }
+
+  async function resendVerificationEmail() {
+    if (!currentUser?.email || currentUser.email_confirmed_at) return;
+    const button = document.getElementById('resend-verification');
+    const msg = document.getElementById('account-settings-message');
+
+    if (button) button.disabled = true;
+    if (msg) msg.textContent = 'Sending verification email…';
+
+    const { error } = await client.auth.resend({
+      type: 'signup',
+      email: currentUser.email,
+      options: { emailRedirectTo: location.origin + location.pathname }
+    });
+
+    if (button) button.disabled = false;
+    if (msg) msg.textContent = error ? error.message : 'Verification email sent.';
+  }
+
   async function signOut() {
     closeAccount();
     document.querySelectorAll('.account-menu[open]').forEach(menu => menu.removeAttribute('open'));
@@ -457,14 +580,25 @@
 
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    const recoveryPasswordForm = document.getElementById('recovery-password-form');
     if (signInForm) signInForm.addEventListener('submit', e => { e.preventDefault(); signIn(signInForm); });
     if (signUpForm) signUpForm.addEventListener('submit', e => { e.preventDefault(); signUp(signUpForm); });
+    if (forgotPasswordForm) forgotPasswordForm.addEventListener('submit', e => { e.preventDefault(); requestPasswordReset(forgotPasswordForm); });
+    if (recoveryPasswordForm) recoveryPasswordForm.addEventListener('submit', e => { e.preventDefault(); completeRecovery(recoveryPasswordForm); });
 
     const accountSettingsForm = document.getElementById('account-settings-form');
     if (accountSettingsForm) accountSettingsForm.addEventListener('submit', e => {
       e.preventDefault();
       saveAccountSettings(accountSettingsForm);
     });
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) changePasswordForm.addEventListener('submit', e => {
+      e.preventDefault();
+      changePassword(changePasswordForm);
+    });
+    const resendVerification = document.getElementById('resend-verification');
+    if (resendVerification) resendVerification.addEventListener('click', resendVerificationEmail);
 
     const close = document.getElementById('auth-close');
     if (close) close.addEventListener('click', closeAuth);
@@ -493,8 +627,11 @@
 
   wireHomepageAuth();
 
-  client.auth.onAuthStateChange((_event, session) => {
-    setTimeout(() => refreshAuthState(session), 0);
+  client.auth.onAuthStateChange((event, session) => {
+    setTimeout(async () => {
+      await refreshAuthState(session);
+      if (event === 'PASSWORD_RECOVERY') showAuth('recovery');
+    }, 0);
   });
 
   client.auth.getSession().then(({ data }) => refreshAuthState(data.session));
