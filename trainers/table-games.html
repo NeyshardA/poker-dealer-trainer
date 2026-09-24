@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#101719"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="format-detection" content="telephone=no"><title>Table Games Payout Trainer</title>
+<style>
+:root{color-scheme:dark;--bg:#14161a;--panel:#1d2025;--panel2:#25292f;--border:#353a43;--text:#f2f3f5;--muted:#a7adb8;--gold:#dec084;--teal:#9acdc4;--red:#ffafab;--green:#ace1b8;--radius:17px}*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}button,input,select{font:inherit;touch-action:manipulation}button{cursor:pointer;color:var(--text);background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:12px 16px;font-weight:750;min-height:48px}button:hover{border-color:var(--gold)}button:disabled{opacity:.48;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}a{color:var(--teal)}.primary{background:var(--gold);color:#242015;border-color:var(--gold)}.ghost{background:transparent}.danger{color:var(--red)}[hidden]{display:none!important}header{background:#191b20;border-bottom:1px solid var(--border);padding:calc(15px + env(safe-area-inset-top)) 22px 15px}.topbar{max-width:1220px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;flex:0 0 42px;height:42px;border:1px solid #826f4d;border-radius:12px;color:var(--gold);font-size:18px;font-weight:900}.brand h1{font-size:clamp(17px,2.2vw,23px);line-height:1.25;letter-spacing:-.4px;margin:0}.brand p{margin:3px 0 0;font-size:12px;color:var(--muted)}.save-state{font-size:12px;color:var(--muted);white-space:nowrap}.app{max-width:1220px;margin:auto;display:grid;grid-template-columns:205px minmax(0,1fr);gap:24px;padding:24px 22px 60px}.nav{align-self:start;position:sticky;top:18px;display:grid;gap:6px}.nav button{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid transparent;background:none;font-size:14px}.nav button.active{background:#302d25;border-color:#61543a;color:#f4dbab}.nav small{color:var(--gold);font-size:11px;letter-spacing:1px}.workspace{min-width:0}.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:18px}.eyebrow{color:var(--gold);font-weight:800;font-size:11px;letter-spacing:1.8px;text-transform:uppercase}h2{font-size:clamp(26px,4vw,35px);line-height:1.15;margin:10px 0 14px;letter-spacing:-.8px}h3{font-size:18px;margin:0 0 12px}p{margin:8px 0 16px}.muted,small{color:var(--muted)}.muted{font-size:14px}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.metric{background:#17191e;border:1px solid var(--border);border-radius:13px;padding:15px}.metric span{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}.metric b{display:block;font-size:28px;line-height:1.25;margin:8px 0 3px;font-variant-numeric:tabular-nums}.metric small{font-size:11px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-head h3{margin:0}.game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.game-card{text-align:left;padding:17px;background:#202329}.game-card b{display:block;font-size:15px}.game-card small{display:block;margin-top:6px;font-size:12px}.bar{height:6px;background:#343841;border-radius:9px;overflow:hidden}.bar span{display:block;height:100%;background:var(--teal)}.game-card .bar{margin-top:14px}.weak-item{padding:14px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:start;gap:12px}.weak-item:last-child{border-bottom:0}.weak-item strong{font-size:14px}.weak-item small{display:block;font-size:12px;margin-top:4px}.weak-item .odds{font-size:21px;color:var(--gold);white-space:nowrap}.empty{padding:18px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:14px}.field label{display:block;color:var(--muted);font-weight:700;font-size:12px;margin-bottom:7px}.field select,.field input{width:100%;padding:12px;background:#14171c;border:1px solid var(--border);border-radius:10px;color:var(--text);min-height:48px;min-width:0}.field select{cursor:pointer}.hint{font-size:12px;color:var(--muted);margin-top:8px}.notice{border-left:3px solid var(--gold);background:#2a2823;border-radius:0 10px 10px 0;padding:13px 16px;font-size:13px;line-height:1.6;margin:16px 0}.pill{display:inline-block;color:var(--teal);background:#283736;font-weight:700;font-size:11px;letter-spacing:.3px;border-radius:7px;padding:5px 9px;margin:0 5px 5px 0}.pill.warn{color:var(--gold);background:#393329}.study-game{background:var(--panel);border:1px solid var(--border);border-radius:15px;margin-bottom:16px;overflow:hidden}.study-game>summary{font-size:18px;font-weight:800;padding:18px;cursor:pointer}.sheet{padding:0 18px 20px}.wager{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}.wager h3{color:var(--gold);margin-bottom:5px}.wager p{font-size:13px}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;vertical-align:top;padding:11px 8px;border-bottom:1px solid #343842}th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}td:nth-child(2){color:var(--gold);font-weight:850;white-space:nowrap}td:last-child{font-size:12px;color:var(--muted)}.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:18px 0}.level-card{background:#15181c;padding:12px 9px;border-radius:10px;border:1px solid var(--border);font-size:11px;color:var(--muted)}.level-card b{display:block;font-size:16px;color:var(--gold);margin-bottom:3px}.training-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px}.training-top b{font-variant-numeric:tabular-nums}.training-progress{margin:14px 0 22px}.problem-label{color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:1.5px;margin:22px 0 8px}.question{font-weight:850;font-size:clamp(26px,4.3vw,40px);line-height:1.2;letter-spacing:-.8px;margin:8px 0 18px}.problem-stack{display:grid;margin:15px 0 20px}.problem-line{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}.problem-line span{font-size:12px;color:var(--muted)}.problem-line b{text-align:right;font-size:17px;max-width:78%}.choices{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:22px 0}.choice{min-height:70px;font-size:24px;background:#14171c;border-color:#454a55;padding:16px 12px}.choice.words{font-size:16px;line-height:1.4}.choice.correct{border:2px solid var(--green);background:#223b2b;color:#d5f5dc}.choice.incorrect{border:2px solid var(--red);background:#3d282b;color:#ffcfcc}.choice:disabled{opacity:1}.typed-answer{display:flex;gap:10px;align-items:end;margin:22px 0}.typed-answer .field{flex:1}.typed-answer input{font-size:26px;min-height:64px}.typed-answer button{min-height:64px}.feedback{border:1px solid #526449;border-left:4px solid var(--green);border-radius:12px;background:#202b24;padding:18px;margin:18px 0}.feedback.wrong{border-color:#74494c;border-left-color:var(--red);background:#302326}.feedback h3{font-size:20px}.feedback dl{display:grid;grid-template-columns:105px 1fr;gap:7px;font-size:13px;margin:12px 0}.feedback dt{color:#bac0c8}.feedback dd{margin:0;font-weight:700;overflow-wrap:anywhere}.feedback .answer{font-size:23px;color:var(--gold);font-weight:850}.feedback p{font-size:14px}.exam-recorded{background:#242b35;border:1px solid var(--border);border-radius:10px;padding:14px;margin:15px 0;color:var(--muted);font-size:14px}.training-buttons{border-top:1px solid var(--border);padding-top:18px}.paused{padding:40px 20px;text-align:center;border:1px dashed var(--border);border-radius:13px;margin:20px 0}.report-score{font-weight:900;color:var(--gold);font-size:60px;line-height:1.1;margin:18px 0}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.report-grid b{font-size:23px;display:block}.report-grid small{font-size:12px}.review{border-bottom:1px solid var(--border);padding:16px 0}.review summary{cursor:pointer;font-size:14px;font-weight:700;padding:8px 0}.danger-zone{border-top:1px solid var(--border);padding-top:20px;margin-top:24px}footer{font-size:11px;color:var(--muted);padding:8px 2px}.target{font-variant-numeric:tabular-nums;color:var(--gold)}@media(max-width:820px){.app{grid-template-columns:1fr;padding:14px 14px 36px;gap:14px}.nav{position:static;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.nav button{justify-content:center;text-align:center;padding:10px 4px;font-size:12px;min-height:49px}.nav small{display:none}.panel{padding:20px}.topbar{gap:10px}.save-state{display:none}.metric-grid{gap:8px}.metric{padding:12px}.metric b{font-size:25px}.level-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:480px){header{padding-left:14px;padding-right:14px}.brand h1{font-size:18px}.metric-grid{grid-template-columns:1fr 1fr}.grid,.game-grid{grid-template-columns:1fr}.panel{padding:18px}.choices{gap:9px}.choice{min-height:70px}.choice.words{font-size:15px}.level-grid{grid-template-columns:repeat(2,1fr)}.level-card:last-child{grid-column:1/-1}.typed-answer{flex-wrap:wrap}.typed-answer button{min-height:49px}.sheet{padding:0 12px 16px}td,th{padding:9px 5px}.feedback dl{grid-template-columns:90px 1fr}.report-grid b{font-size:20px}.problem-line b{font-size:16px}.question{font-size:29px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}@media print{header,.nav,#dashboard,#training,#settings,.study-controls,footer{display:none!important}.app{display:block;padding:0}#study{display:block!important}body,.panel,.study-game{background:white;color:black}td,td:last-child,td:nth-child(2),th,.muted{color:black}.wager{break-inside:avoid}}
+
+/* Poker101Class shared trainer visual system */
+:root{
+  color-scheme:dark;
+  --bg:#101719;
+  --panel:#192123;
+  --panel2:#1d2729;
+  --border:#354144;
+  --text:#f5f3ed;
+  --muted:#b9c2c3;
+  --gold:#d2b078;
+  --gold2:#ead3ac;
+  --teal:#b7c7c3;
+  --red:#ef8a84;
+  --green:#90b39b;
+  --radius:7px;
+  --serif:Georgia,'Times New Roman',serif
+}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif
+}
+h1,h2,h3,.question,.p101-trainer-title strong{
+  font-family:var(--serif);
+  font-weight:400
+}
+a{color:var(--gold2)}
+button{
+  background:#1b2527;
+  border-color:#465255;
+  border-radius:7px;
+  font-weight:700
+}
+button:hover{
+  background:#202b2d;
+  border-color:#d2b07880
+}
+.primary{
+  background:var(--gold);
+  color:#162023;
+  border-color:var(--gold)
+}
+.primary:hover{
+  background:#ead3ac;
+  border-color:#ead3ac
+}
+.ghost{background:transparent}
+.p101-header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:#101719;
+  border-bottom:1px solid #ffffff15;
+  padding:0;
+  box-shadow:none
+}
+.p101-topbar{
+  width:min(1280px,calc(100% - 96px));
+  max-width:none;
+  min-height:102px;
+  margin:auto;
+  padding:15px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px
+}
+.p101-brand{
+  display:block;
+  width:286px;
+  height:72px;
+  flex:0 0 auto
+}
+.p101-brand img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  mix-blend-mode:lighten;
+  background:transparent
+}
+.p101-divider{
+  width:1px;
+  height:40px;
+  flex:0 0 1px;
+  background:#c6a56c50
+}
+.p101-trainer-title{
+  display:grid;
+  gap:2px;
+  min-width:195px;
+  line-height:1.15
+}
+.p101-trainer-title>span{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.16em
+}
+.p101-trainer-title strong{
+  color:#f5f3ed;
+  font-size:19px;
+  white-space:nowrap
+}
+.p101-trainer-title small{
+  color:#899596;
+  font:600 10px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;
+  margin-top:2px
+}
+.p101-site-nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:27px
+}
+.p101-site-nav a{
+  color:#d2d7d5;
+  text-decoration:none;
+  padding:20px 0;
+  font-size:12px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  border-bottom:1px solid transparent
+}
+.p101-site-nav a:hover{color:var(--gold)}
+.p101-site-nav a.active,.p101-site-nav a[aria-current="page"]{
+  color:var(--gold);
+  border-bottom-color:var(--gold)
+}
+.p101-mobile-nav{
+  display:none;
+  position:relative;
+  margin-left:auto
+}
+.p101-mobile-nav summary{
+  list-style:none;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid #d2b07855;
+  border-radius:6px;
+  color:var(--gold);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:800
+}
+.p101-mobile-nav summary::-webkit-details-marker{display:none}
+.p101-mobile-nav nav{
+  position:absolute;
+  right:0;
+  top:50px;
+  width:210px;
+  padding:8px;
+  border:1px solid #465255;
+  border-radius:7px;
+  background:#192123;
+  box-shadow:0 20px 45px rgba(0,0,0,.45)
+}
+.p101-mobile-nav nav a{
+  display:block;
+  color:#dce4e2;
+  text-decoration:none;
+  padding:11px 12px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700
+}
+.p101-mobile-nav nav a:hover,.p101-mobile-nav nav a[aria-current="page"]{
+  color:var(--gold);
+  background:#d2b07810
+}
+.app{
+  width:min(1280px,calc(100% - 96px));
+  max-width:none;
+  grid-template-columns:245px minmax(0,1fr);
+  gap:22px;
+  padding:32px 0 46px
+}
+.nav{
+  top:124px;
+  padding:12px;
+  background:#161e20;
+  border:1px solid var(--border);
+  border-radius:7px
+}
+.nav button{
+  color:#d8dddc;
+  border-radius:7px;
+  min-height:44px;
+  padding:10px 12px
+}
+.nav button:hover{background:#ffffff05}
+.nav button.active{
+  background:#d2b07812;
+  border-color:#d2b07840;
+  color:#fff
+}
+.nav small{color:var(--gold)}
+.panel,.study-game{
+  background:var(--panel);
+  border-color:var(--border);
+  border-radius:7px;
+  box-shadow:none
+}
+.panel{padding:24px}
+.eyebrow{
+  color:var(--gold);
+  letter-spacing:1.8px
+}
+h2{
+  color:#f5f3ed;
+  font-size:clamp(30px,3vw,42px);
+  line-height:1.1;
+  letter-spacing:-.5px
+}
+h3{
+  color:#f5f3ed;
+  letter-spacing:-.25px
+}
+.muted,small,.hint{color:var(--muted)}
+.metric,.game-card,.level-card,.empty{
+  background:#ffffff04;
+  border-color:#ffffff12;
+  border-radius:7px
+}
+.metric b{
+  color:var(--gold2);
+  font-family:var(--serif);
+  font-weight:400
+}
+.game-card{background:#151d1f}
+.game-card:hover{
+  border-color:#d2b07870;
+  background:#192325
+}
+.game-card b{
+  color:#f5f3ed;
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:400
+}
+.bar{background:#0d1416}
+.bar span{background:var(--gold)}
+.weak-item{border-bottom-color:#ffffff12}
+.weak-item .odds{color:var(--gold2)}
+.field label{color:#9ca7a8}
+.field select,.field input{
+  background:#0e1618;
+  border-color:#3d494c;
+  border-radius:7px;
+  color:#fff
+}
+.field select:focus,.field input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px #d2b07818;
+  outline:none
+}
+.notice{
+  border-left-color:var(--gold);
+  background:#d2b0780d;
+  border-radius:0 7px 7px 0
+}
+.pill{
+  color:#d7dfdd;
+  background:#ffffff08;
+  border:1px solid #ffffff10;
+  border-radius:999px
+}
+.pill.warn{
+  color:var(--gold2);
+  background:#d2b07810
+}
+.study-game>summary{
+  color:#f5f3ed;
+  font-family:var(--serif);
+  font-weight:400
+}
+.wager{border-top-color:#ffffff12}
+.wager h3{color:var(--gold2)}
+th,td{border-bottom-color:#ffffff12}
+th{color:#9ca7a8}
+td:nth-child(2){color:var(--gold2)}
+.level-card b{color:var(--gold2)}
+.training-progress{background:#0d1416}
+.problem-label{color:#9ca7a8}
+.question{
+  color:#f5f3ed;
+  font-weight:400;
+  letter-spacing:-.5px
+}
+.problem-line{border-bottom-color:#ffffff12}
+.choice{
+  background:#151d1f;
+  border-color:#465255;
+  border-radius:7px
+}
+.choice:hover{border-color:#d2b07880}
+.choice.correct{
+  border-color:#90b39b;
+  background:#1d2c24;
+  color:#e3f1e7
+}
+.choice.incorrect{
+  border-color:#ef8a84;
+  background:#302022;
+  color:#ffd4d1
+}
+.feedback{
+  border-color:#d2b07838;
+  border-left-color:var(--gold);
+  background:#d2b0780d;
+  border-radius:7px
+}
+.feedback.wrong{
+  border-color:#ef8a8445;
+  border-left-color:var(--red);
+  background:#ef8a8410
+}
+.feedback .answer,.report-score,.target{color:var(--gold2)}
+.exam-recorded{
+  background:#151d1f;
+  border-color:#465255;
+  border-radius:7px
+}
+.paused{
+  border-color:#465255;
+  border-radius:7px
+}
+.training-buttons,.danger-zone{border-top-color:#ffffff12}
+.review{border-bottom-color:#ffffff12}
+footer{
+  border-top:1px solid #ffffff13;
+  color:#a1adad;
+  padding:20px 0
+}
+@media(max-width:1150px){
+  .p101-topbar,.app{width:calc(100% - 56px)}
+  .app{grid-template-columns:220px minmax(0,1fr)}
+  .p101-site-nav{gap:18px}
+}
+@media(max-width:920px){
+  .p101-site-nav{display:none}
+  .p101-mobile-nav{display:block}
+}
+@media(max-width:820px){
+  .p101-topbar{
+    width:calc(100% - 28px);
+    min-height:84px;
+    padding:8px 0;
+    gap:10px
+  }
+  .p101-brand{
+    width:min(220px,calc(100vw - 250px));
+    min-width:150px;
+    height:60px
+  }
+  .p101-divider{height:32px}
+  .p101-trainer-title{min-width:0}
+  .p101-trainer-title strong{font-size:15px}
+  .p101-trainer-title>span{font-size:9px}
+  .app{
+    width:calc(100% - 20px);
+    grid-template-columns:1fr;
+    padding:10px 0 24px
+  }
+  .nav{
+    position:sticky;
+    top:84px;
+    z-index:18;
+    grid-template-columns:repeat(4,minmax(max-content,1fr));
+    overflow-x:auto;
+    white-space:nowrap;
+    padding:7px;
+    gap:6px
+  }
+  .nav button{min-width:100px}
+}
+@media(max-width:560px){
+  .p101-topbar{
+    width:calc(100% - 18px);
+    gap:8px
+  }
+  .p101-brand{
+    width:145px;
+    min-width:145px;
+    height:48px
+  }
+  .p101-divider{display:none}
+  .p101-trainer-title>span{display:none}
+  .p101-trainer-title strong{
+    font-size:12px;
+    max-width:100px;
+    white-space:normal;
+    line-height:1.15
+  }
+  .p101-trainer-title small{display:none}
+  .app{width:calc(100% - 14px)}
+  .panel{padding:18px}
+  h2{font-size:30px}
+}
+
+</style></head><body>
+<header class="p101-header"><div class="topbar p101-topbar">
+<a class="p101-brand" href="../index.html" aria-label="Poker101Class training hub"><img src="../assets/poker101class-logo-18.webp" alt="Poker101Class" width="1942" height="809" decoding="async"></a>
+<span class="p101-divider" aria-hidden="true"></span>
+<div class="p101-trainer-title"><span>Trainer 01</span><strong>Table Games Payouts</strong><small id="saveState">Local progress</small></div>
+<nav class="p101-site-nav" aria-label="Poker101Class trainers"><a href="../index.html">Home</a><a href="table-games.html" class="active" aria-current="page">Table Games</a><a href="mental-math.html">Mental Math</a><a href="mixed-games.html">Mixed Games</a></nav>
+<details class="p101-mobile-nav"><summary aria-label="Open Poker101Class navigation">Menu <span aria-hidden="true">☰</span></summary><nav aria-label="Poker101Class mobile navigation"><a href="../index.html">Home</a><a href="table-games.html" aria-current="page">Table Games</a><a href="mental-math.html">Mental Math</a><a href="mixed-games.html">Mixed Games</a></nav></details>
+</div></header>
+<div class="app"><nav class="nav" aria-label="Main navigation"><button data-view="dashboard" class="active" aria-current="page"><small>01</small>Dashboard</button><button data-view="study"><small>02</small>Study</button><button data-view="training"><small>03</small>Train</button><button data-view="settings"><small>04</small>Settings</button></nav><main class="workspace">
+<div id="startup" class="notice">The trainer has not started. File previews can block interactive HTML. Open your GitHub Pages URL in Safari, or open this file in a full browser on a computer.</div>
+<section id="dashboard"><div class="panel"><div class="eyebrow">Your training desk</div><h2>Make the odds automatic.</h2><p class="muted">Short drills. Exact feedback. Extra practice where you need it.</p><div class="metric-grid" id="metrics"></div><div class="actions"><button class="primary" id="quickRecall">Start odds recall</button><button id="quickWeak">Train weak payouts</button><button id="quickExam">Timed dealer test</button></div></div>
+<div class="panel"><div class="section-head"><h3>Seven games. One routine.</h3><span class="muted" id="coverage"></span></div><p class="hint">Progress = odds recalled correctly within your speed target three times in a row. All levels remain available.</p><div class="game-grid" id="gameCards"></div></div>
+<div class="grid"><div class="panel"><div class="section-head"><h3>Weak payouts</h3><span class="pill">Adaptive</span></div><div id="weakList"></div></div><div class="panel"><h3>Recent sessions</h3><div id="recentSessions"></div></div></div></section>
+<section id="study" hidden><div class="panel"><div class="eyebrow">Study / cheat sheets</div><h2>Find the wager. Learn the rule.</h2><div class="grid study-controls"><div class="field"><label for="studyGame">Game</label><select id="studyGame"></select></div><div class="field"><label for="studySearch">Find a wager or hand</label><input id="studySearch" type="search" placeholder="Trips, full house, Queens Up…"></div></div><div class="notice"><b>Winnings ≠ total returned.</b> $15 at 3:1 earns $45 in winnings. Including the original $15 wager, the player receives $60.</div><p class="hint">Transcribed from your uploaded guides. Pending source conflicts are marked and excluded from grading. “Trips” means three of a kind, not three separate pairs.</p></div><div id="studySheets"></div></section>
+<section id="training" hidden><div id="setup" class="panel"><div class="eyebrow">Choose your drill</div><h2>Recall first. Calculate next.</h2><div class="grid"><div class="field"><label for="mode">Training mode</label><select id="mode"><option value="odds">Odds Recall</option><option value="reverse">Reverse Recall</option><option value="qualify">Qualification</option><option value="math">Payout Math</option><option value="weak">Weak Payout Training</option><option value="mixed">Mixed Practice</option><option value="exam">Timed Dealer Test</option></select></div><div class="field"><label for="level">Difficulty</label><select id="level"><option value="1">Level 1 · Common hands & payouts</option><option value="2">Level 2 · Add bonus outcomes</option><option value="3">Level 3 · Full individual-game paytable</option><option value="4">Level 4 · Rare & high-paying hands</option><option value="5">Level 5 · All games, all modes</option></select></div><div class="field"><label for="game">Game</label><select id="game"></select></div><div class="field"><label for="length">Session size</label><select id="length"><option value="10">10 questions</option><option value="20">20 questions</option><option value="30">30 questions</option></select></div><div class="field"><label for="style">Answer controls</label><select id="style"><option value="tap">Large answer buttons</option><option value="type">Type odds and dollar answers</option></select></div><div class="field" id="examField" hidden><label for="examLimit">Dealer test · limit per question</label><select id="examLimit"><option value="30">30 seconds</option><option value="20">20 seconds</option><option value="15">15 seconds</option></select></div></div>
+<p id="modeHelp" class="notice"></p><div class="level-grid"><div class="level-card"><b>Level 1</b>Common pairs, trips, straights & flushes</div><div class="level-card"><b>Level 2</b>Common + additional bonus outcomes</div><div class="level-card"><b>Level 3</b>Complete standard table for one game</div><div class="level-card"><b>Level 4</b>Full houses, quads, straight flushes & top hands</div><div class="level-card"><b>Level 5</b>Every game and mode mixed randomly</div></div><p id="mathReadiness" class="hint" hidden></p><p id="poolInfo" class="hint"></p><div class="actions"><button class="primary" id="start">Start session</button></div><p id="setupError" role="status"></p></div>
+<div id="quiz" class="panel" hidden><div class="training-top"><b id="questionNumber"></b><span id="sessionScore"></span><b id="timer" class="target"></b></div><div class="bar training-progress"><span id="quizBar"></span></div><div id="questionBadges"></div><div id="pausePanel" class="paused" hidden><h3>Session paused</h3><p class="muted">Your response clock is stopped.</p><button class="primary" id="resume">Resume question</button></div><div id="questionArea"><div class="problem-label" id="questionLabel"></div><div class="problem-stack" id="questionFields"></div><h2 class="question" id="questionText"></h2><p id="questionContext" class="muted"></p><div class="choices" id="answers"></div><form class="typed-answer" id="typedForm" hidden><div class="field"><label for="typedAnswer">Your answer</label><input id="typedAnswer" autocomplete="off" inputmode="decimal" placeholder="3:1"></div><button class="primary" type="submit">Check answer</button></form><p id="answerError" role="status"></p><div id="feedback" role="status" hidden></div></div><div class="actions training-buttons"><button class="primary" id="next" hidden>Next question</button><button id="pause">Pause</button><button class="ghost" id="end">End session</button></div></div>
+<div id="report" class="panel" hidden><div class="eyebrow">End-of-session report</div><h2 id="reportTitle"></h2><div id="reportScore" class="report-score"></div><p id="reportStatus" class="muted"></p><div id="reportMetrics" class="report-grid"></div><div class="actions"><button class="primary" id="retry">Retry missed & slow</button><button id="newSession">New session</button><button id="reportStudy">Study weak game</button></div><div id="recommendations" class="notice"></div><div class="grid"><div><h3>Weakest payouts / rules</h3><div id="reportWeak"></div></div><div><h3>Weakest games</h3><div id="reportGames"></div></div><h3 style="margin-top:22px">Answer review</h3><div id="reportAnswers"></div></div></section>
+<section id="settings" hidden><div class="panel"><div class="eyebrow">Practice preferences</div><h2>Your pace. Your progress.</h2><div class="grid"><div class="field"><label for="slowTarget">Recall speed target</label><select id="slowTarget"><option value="5">5 seconds</option><option value="8">8 seconds</option><option value="10">10 seconds</option><option value="15">15 seconds</option></select><p class="hint">Math gets twice this target. Correct answers above the target are flagged for speed practice. This is a training target, not a room rule.</p></div><div class="field"><label for="timerVisible">Practice timer</label><select id="timerVisible"><option value="yes">Show response time</option><option value="no">Hide clock while practicing</option></select><p class="hint">Response time is recorded either way. Dealer tests always show their countdown.</p></div></div><p id="settingsSaved" class="hint" role="status"></p><h3>How progress works</h3><p class="muted">Each submitted answer is saved on this browser. Weak practice prioritizes mistakes and slow answers, including related wagers and games. Three fast, correct odds/reverse recalls in a row mark a payout confident. Switching devices or browsers starts a separate record.</p><div id="legacyInfo" class="hint"></div><details><summary>Source notes and pending rules</summary><div id="pendingNotes"></div></details><div class="danger-zone"><h3>Reset this trainer</h3><p class="muted">Clear this version’s statistics and session history on this browser. Earlier trainer files keep their own records.</p><button class="danger" id="reset">Reset progress</button></div></div></section>
+<footer>Based on the eight paytable images you reviewed. No generic casino paytables. Practice software; source conflicts stay marked. v4.0 · Single-file edition</footer>
+</main></div>
+<script>
+'use strict';
+const SOURCE={"tables":[{"id":"t0","game":"Ultimate Texas Hold’em","bet":"Blind","rule":"Player beats the DP. A tie pushes; a losing hand loses.","rows":[{"hand":"Royal Flush","odds":"500:1"},{"hand":"Straight Flush","odds":"50:1"},{"hand":"Quads","odds":"10:1"},{"hand":"Full House","odds":"3:1"},{"hand":"Flush","odds":"3:2"},{"hand":"Straight","odds":"1:1"},{"hand":"Trips","odds":"Push"}]},{"id":"t1","game":"Ultimate Texas Hold’em","bet":"Trips","rule":"Trips or better; pays regardless of the result against the DP.","rows":[{"hand":"Royal Flush","odds":"100:1"},{"hand":"Straight Flush","odds":"50:1"},{"hand":"Quads","odds":"25:1"},{"hand":"Full House","odds":"8:1"},{"hand":"Flush","odds":"6:1"},{"hand":"Straight","odds":"4:1"},{"hand":"Trips","odds":"3:1"}]},{"id":"t2","game":"Ultimate Texas Hold’em","bet":"Ultimate Pairs","rule":"Use only the player's two hole cards; independent of the main hand.","rows":[{"hand":"A-A","odds":"30:1"},{"hand":"A-K suited","odds":"25:1"},{"hand":"A-Q or A-J suited","odds":"20:1"},{"hand":"A-K unsuited","odds":"15:1"},{"hand":"K-K, Q-Q, or J-J","odds":"10:1"},{"hand":"A-Q or A-J unsuited","odds":"5:1"},{"hand":"10-10 through 2-2","odds":"3:1"}]},{"id":"t3","game":"Ultimate Texas Hold’em","bet":"Two-Way Bad Beat","rule":"This is the LOSING hand. Both hands must have trips or better. A tie loses.","rows":[{"hand":"Straight Flush","odds":"10,000:1"},{"hand":"Quads","odds":"500:1"},{"hand":"Full House","odds":"40:1"},{"hand":"Flush","odds":"25:1"},{"hand":"Straight","odds":"20:1"},{"hand":"Trips","odds":"9:1"}]},{"id":"t4","game":"Ultimate Texas Hold’em","bet":"$2 Jackpot","rule":"Fixed dollar award for a qualifying $2 wager; not odds to multiply.","rows":[{"hand":"Royal on the flop","odds":"$100,000"},{"hand":"Royal Flush","odds":"$10,000"},{"hand":"Straight Flush","odds":"$1,000"},{"hand":"Quads","odds":"$100"}]},{"id":"t5","game":"Three Card Poker","bet":"Ante Bonus","rule":"Straight or higher, regardless of the result against the DP. Calculate using the Ante.","rows":[{"hand":"Mini Royal","odds":"10:1"},{"hand":"Straight Flush","odds":"5:1"},{"hand":"Trips","odds":"4:1"},{"hand":"Straight","odds":"1:1"}]},{"id":"t6","game":"Three Card Poker","bet":"Pair Plus","rule":"Pair or higher, regardless of the result against the DP.","rows":[{"hand":"Mini Royal","odds":"200:1"},{"hand":"Straight Flush","odds":"40:1"},{"hand":"Trips","odds":"30:1"},{"hand":"Straight","odds":"6:1"},{"hand":"Flush","odds":"3:1"},{"hand":"Pair","odds":"1:1"}]},{"id":"t7","game":"Three Card Poker","bet":"6 Card Bonus","rule":"Best five of player + DP's six cards; trips or better. Still in action after a fold.","rows":[{"hand":"Royal Flush","odds":"1,000:1"},{"hand":"Straight Flush","odds":"200:1"},{"hand":"Quads","odds":"50:1"},{"hand":"Full House","odds":"25:1"},{"hand":"Flush","odds":"15:1"},{"hand":"Straight","odds":"10:1"},{"hand":"Trips","odds":"5:1"}]},{"id":"t8","game":"Three Card Poker","bet":"Two-Way Bad Beat","rule":"This is the LOSING hand. Both hands must have at least a pair. A tie loses.","rows":[{"hand":"Straight Flush","odds":"10,000:1"},{"hand":"Trips","odds":"3,000:1"},{"hand":"Straight","odds":"100:1"},{"hand":"Flush","odds":"50:1"},{"hand":"Pair","odds":"5:1"}]},{"id":"t9","game":"Three Card Poker","bet":"$2 Jackpot","rule":"Fixed dollar award for a qualifying $2 wager. Top prize: suited 9 through Ace.","rows":[{"hand":"6-card Royal","odds":"$100,000"},{"hand":"5-card Royal","odds":"$10,000"},{"hand":"Mini Royal","odds":"$1,000"},{"hand":"Straight Flush or Trips","odds":"$100"}]},{"id":"t10","game":"Wild Card Stud","bet":"Bonus — wild hand","rule":"Trips or better; a wild card substitutes to complete the hand. Independent of main result.","rows":[{"hand":"5 Wilds","odds":"2,000:1"},{"hand":"Royal Flush","odds":"90:1"},{"hand":"Five of a Kind","odds":"70:1"},{"hand":"Straight Flush","odds":"25:1"},{"hand":"Quads","odds":"6:1"},{"hand":"Full House","odds":"5:1"},{"hand":"Flush","odds":"4:1"},{"hand":"Straight","odds":"3:1"},{"hand":"Trips","odds":"1:1"}]},{"id":"t11","game":"Wild Card Stud","bet":"Bonus — natural hand","rule":"Trips or better without wild substitution; a 2 can play as its natural rank in a straight or flush.","rows":[{"hand":"Royal Flush","odds":"1,000:1"},{"hand":"Straight Flush","odds":"200:1"},{"hand":"Quads","odds":"60:1"},{"hand":"Full House","odds":"30:1"},{"hand":"Flush","odds":"25:1"},{"hand":"Straight","odds":"20:1"},{"hand":"Trips","odds":"6:1"}]},{"id":"t12","game":"Wild Card Stud","bet":"Blind","rule":"Player beats the DP. Trips or lower pushes on a win; ties push.","rows":[{"hand":"5 Wilds","odds":"2,000:1"},{"hand":"Royal Flush","odds":"100:1"},{"hand":"Five of a Kind","odds":"40:1"},{"hand":"Straight Flush","odds":"25:1"},{"hand":"Quads","odds":"5:1"},{"hand":"Full House","odds":"4:1"},{"hand":"Flush","odds":"3:1"},{"hand":"Straight","odds":"2:1"},{"hand":"Trips or less","odds":"Push"}]},{"id":"t13","game":"Wild Card Stud","bet":"Two-Way Bad Beat","rule":"This is the LOSING hand. Both hands must have trips or better. A tie loses.","rows":[{"hand":"Royal Flush","odds":"10,000:1"},{"hand":"Five of a Kind","odds":"10,000:1"},{"hand":"Straight Flush","odds":"5,000:1"},{"hand":"Quads","odds":"500:1"},{"hand":"Full House","odds":"400:1"},{"hand":"Flush","odds":"300:1"},{"hand":"Straight","odds":"100:1"},{"hand":"Trips","odds":"9:1"}]},{"id":"t14","game":"Crazy 4 Poker","bet":"Super Bonus","rule":"Straight or better pays the table regardless of the result against the DP.","rows":[{"hand":"Four Aces","odds":"200:1"},{"hand":"Quads","odds":"30:1"},{"hand":"Straight Flush","odds":"15:1"},{"hand":"Trips","odds":"2:1"},{"hand":"Flush","odds":"3:2"},{"hand":"Straight","odds":"1:1"}]},{"id":"t15","game":"Crazy 4 Poker","bet":"Queens Up","rule":"Four-card hand of a pair of Queens or better; independent of the main result.","rows":[{"hand":"Quads","odds":"50:1"},{"hand":"Straight Flush","odds":"30:1"},{"hand":"Trips","odds":"9:1"},{"hand":"Flush","odds":"4:1"},{"hand":"Straight","odds":"3:1"},{"hand":"Two Pair","odds":"2:1"},{"hand":"Pair of Queens or better","odds":"1:1"}]},{"id":"t16","game":"I Luv Suits","bet":"Flush Rush","rule":"Four or more suited cards; independent of the main result.","rows":[{"hand":"7-card Flush","odds":"300:1"},{"hand":"6-card Flush","odds":"100:1"},{"hand":"5-card Flush","odds":"10:1"},{"hand":"4-card Flush","odds":"1:1"}]},{"id":"t17","game":"I Luv Suits","bet":"Super Flush Rush","rule":"Three or more consecutive suited cards; independent of the main result.","rows":[{"hand":"7-card Straight Flush","odds":"8,000:1"},{"hand":"6-card Straight Flush","odds":"1,000:1"},{"hand":"5-card Straight Flush","odds":"100:1"},{"hand":"4-card Straight Flush","odds":"60:1"},{"hand":"3-card Straight Flush","odds":"7:1"}]},{"id":"t18","game":"Run ’Em Twice","bet":"1st / 2nd Run","rule":"Settle each run independently: Jacks or better pays; pair of 6s–10s pushes; lower loses.","rows":[{"hand":"Royal Flush","odds":"500:1"},{"hand":"Straight Flush","odds":"100:1"},{"hand":"Quads","odds":"40:1"},{"hand":"Full House","odds":"12:1"},{"hand":"Flush","odds":"8:1"},{"hand":"Straight","odds":"5:1"},{"hand":"Trips","odds":"3:1"},{"hand":"Two Pair","odds":"2:1"},{"hand":"Jacks or better","odds":"1:1"},{"hand":"Pair of 6s–10s","odds":"Push"}]},{"id":"t19","game":"Run ’Em Twice","bet":"5-Card Bonus","rule":"Use only the five community cards. Pair of 6s or better pays.","rows":[{"hand":"Royal Flush","odds":"250:1"},{"hand":"Straight Flush","odds":"100:1"},{"hand":"Quads","odds":"40:1"},{"hand":"Full House","odds":"15:1"},{"hand":"Flush","odds":"10:1"},{"hand":"Straight","odds":"6:1"},{"hand":"Trips","odds":"4:1"},{"hand":"Two Pair","odds":"3:1"},{"hand":"Pair of 6s or better","odds":"1:1"}]},{"id":"t20","game":"Run ’Em Twice","bet":"Ultimate Pairs","rule":"Use only the player's two hole cards; independent of the main result.","rows":[{"hand":"A-A","odds":"30:1"},{"hand":"A-K suited","odds":"25:1"},{"hand":"A-Q or A-J suited","odds":"20:1"},{"hand":"A-K unsuited","odds":"15:1"},{"hand":"K-K, Q-Q, or J-J","odds":"10:1"},{"hand":"A-Q or A-J unsuited","odds":"5:1"},{"hand":"Pairs 2s through 10s","odds":"3:1"}]},{"id":"t21","game":"Face Up Pai Gow","bet":"Fortune Bonus","rule":"Qualifying combination in the original seven cards; independent of base result and hand setting.","rows":[{"hand":"7-card Straight Flush, no Joker","odds":"5,000:1"},{"hand":"Royal Flush + Royal Match","odds":"2,000:1"},{"hand":"7-card Straight Flush with Joker","odds":"1,000:1"},{"hand":"Five Aces","odds":"400:1"},{"hand":"Royal Flush","odds":"150:1"},{"hand":"Straight Flush","odds":"50:1"},{"hand":"Quads","odds":"25:1"},{"hand":"Full House","odds":"5:1"},{"hand":"Flush","odds":"4:1"},{"hand":"Trips","odds":"3:1"},{"hand":"Straight","odds":"2:1"}]},{"id":"t22","game":"Face Up Pai Gow","bet":"Ace High Bonus","rule":"DP must have Ace-high Pai Gow. Use the applicable single payout tier.","rows":[{"hand":"DP + player both Ace-high Pai Gow","odds":"25:1"},{"hand":"DP Ace-high Pai Gow with Joker","odds":"15:1"},{"hand":"DP Ace-high Pai Gow without Joker","odds":"5:1"}]}],"rules":{"t0":"Straight or better AND beat the DP. Below a straight: push on a win. Tie: push. Loss: lose.","t1":"Three of a kind or better. Pair, two pair, and high card lose. Beating the DP is not required.","t2":"Only the two hole cards: any pair, A-K, A-Q, or A-J. Suited and unsuited Ace combinations have different odds.","t3":"The lower / losing five-card hand must be trips or better; a tied comparison loses this wager.","t4":"Quads or better on the $2 Jackpot. Top award specifically requires the royal on the flop. Listed amounts are fixed dollars.","t5":"Three-card straight or better. This bonus is paid on the Ante, independent of the comparison with the DP.","t6":"Three-card pair or higher, regardless of the main result. The uploaded guides both list Straight Flush 40:1 and Flush 3:1.","t7":"Best five of the six combined player + DP cards: trips or better. Still in action after folding.","t8":"The lower / losing three-card hand must be at least a pair. Ties lose.","t9":"Fixed-dollar table transcribed from the uploaded guide. Trips at $100 conflicts with the neighboring “Straight Flush or higher” rule and is pending confirmation. Jackpot card-use details are not fully supplied.","t10":"Trips or better with wild substitution. Use the wild column; do not use the larger natural payout.","t11":"Trips or better without wild substitution. A 2 used as an ordinary 2 in a straight or flush can still be natural.","t12":"Straight or better AND beat the DP. A winning hand of trips or less pushes; a tie pushes. Losing-Blind treatment is not explicit and is not graded.","t13":"The lower / losing hand must be trips or better. Ties lose. Pay the losing hand’s category, not the winner’s.","t14":"Straight or better pays this table. Below a straight: push on a player win or tie, lose on a player loss.","t15":"Best four-card hand: pair of Queens or better. A lower single pair or high card loses. Independent of the DP result.","t16":"Four or more cards of one suit. Use the highest qualifying card count; the cards need not be consecutive.","t17":"Three or more consecutive cards of one suit. Can pay along with Flush Rush if both wagers qualify.","t18":"Jacks or better pays; pair of 6s–10s pushes; lower loses. Each run is independent. If either run wins, Center pays the highest winning odds of the two. Other Center settlements are pending.","t19":"Pair of 6s or better in the five community cards only. The player’s hole cards do not count.","t20":"Only the two hole cards: any pair, A-K, A-Q, or A-J. Same Ultimate Pairs table as UTH.","t21":"The printed table includes Three of a Kind at 3:1, conflicting with “Straight or higher” wording. That outcome is pending. Other listed combinations pay regardless of the main result and remain payable when the hand is set differently.","t22":"The DP must have Ace-high Pai Gow (no pair or qualifying poker combination). Use 25:1 if both player and DP have Ace-high Pai Gow; otherwise use the DP’s Joker/no-Joker tier."},"gameRules":{"Ultimate Texas Hold’em":"DP qualifies with a pair or better. No qualification: Ante pushes; Play and bonus wagers stay in action. Against a qualifying DP: winning Ante and Play pay 1:1, ties push, losses lose. Blind pays a straight or better only when the player wins; a winning hand below a straight pushes the Blind.","Three Card Poker":"DP qualifies with Queen-high or better. No qualification: Ante pays 1:1 and Play pushes. With a qualifying DP, winning Ante and Play pay 1:1, ties push, losses lose. For three-card wagers, straight beats flush and trips beat straight. The 6 Card Bonus uses standard five-card rankings.","Wild Card Stud":"DP qualifies with a pair. If DP does not qualify, Bet pushes; Call/Raise and bonuses remain in action. The guide uses inconsistent Ante/Play versus Bet/Call-Raise labels for base-wager settlement, so that mapping is pending. All four 2s and one Joker are wild. A 2 may act as an ordinary 2 in a natural straight or flush.","Crazy 4 Poker":"DP qualifies with King-high or better. No qualification: Ante pushes and Play pays 1:1. With a qualifying DP, winning Ante and Play pay 1:1; ties push. Use the best four of five cards. Super Bonus pays a straight or better even if the player loses; below a straight it pushes on a win or tie and loses on a loss. Round fractional payouts up to the nearest $1, as shown in the guide.","I Luv Suits":"DP qualifies with at least a 9-high three-card flush. No qualification: Ante pays 1:1 and Play pushes. With a qualifying DP, winning Ante and Play pay 1:1; ties push. Compare number of suited cards first, then card ranks. Straight-flush sequences matter for Super Flush Rush, not as a separate base-game rank. Both optional bonuses can pay on the same hand.","Run ’Em Twice":"No DP hand. Each Ante pays 1:1 with Jacks or better and pushes with a pair of 6s–10s; lower-hand Ante settlement is not explicit. Each Run uses the player’s two cards and its three-card community line. If either Run wins, Center pays the higher winning odds. Other Center settlements are pending. The 5-Card Bonus uses community cards only.","Face Up Pai Gow":"No minimum DP qualifying hand. Base wager pays 1:1 for winning both High and Low, pushes when one wins and one loses, and loses when both lose. Copies count as losses. DP Ace-high Pai Gow makes the base wager push; bonuses stay in action. Joker acts as an Ace or completes a straight, flush, or straight flush. Fortune is evaluated from the original seven cards, independent of the chosen split."},"scenarios":[{"id":"s0","game":"Ultimate Texas Hold’em","bet":"Trips","level":1,"prompt":"The best five-card hand is one pair. Does the Trips wager pay, push or lose?","answer":"Lose","explanation":"Trips requires three of a kind or better. A single pair is below that minimum; the DP result cannot rescue this side bet.","kind":"qualify"},{"id":"s1","game":"Ultimate Texas Hold’em","bet":"Trips","level":1,"prompt":"The seven cards contain three separate pairs. The best five-card hand is two pair. What happens to Trips?","answer":"Lose","explanation":"Only five cards make the poker hand. Three separate pairs are not three of a kind. The best hand is two pair, below the Trips minimum.","kind":"qualify"},{"id":"s2","game":"Ultimate Texas Hold’em","bet":"Trips","level":1,"prompt":"The player loses to the DP with three of a kind. Does Trips pay, push or lose?","answer":"Pay","explanation":"The Trips side bet is independent of the main hand. Three of a kind qualifies and pays 3:1 even when the player loses to the DP.","kind":"qualify"},{"id":"s3","game":"Ultimate Texas Hold’em","bet":"Blind","level":1,"prompt":"The player beats the DP with two pair. What happens to the Blind?","answer":"Push","explanation":"The Blind requires a straight or better to earn a payout. A winning two-pair hand is below that threshold, so the wager is returned without winnings.","kind":"qualify"},{"id":"s4","game":"Ultimate Texas Hold’em","bet":"Blind","level":2,"prompt":"The player has a flush but loses to the DP’s full house. What happens to the Blind?","answer":"Lose","explanation":"The Blind requires both a straight-or-better hand and a win against the DP. A losing flush does not earn the 3:2 payout.","kind":"qualify"},{"id":"s5","game":"Ultimate Texas Hold’em","bet":"Ante","level":1,"prompt":"The DP has only high card and does not qualify. What happens to the Ante?","answer":"Push","explanation":"UTH DP qualification is a pair or better. With no qualification, the Ante pushes; Play and bonuses remain in action.","kind":"qualify"},{"id":"s6","game":"Three Card Poker","bet":"Pair Plus","level":1,"prompt":"The player has a pair and loses to the DP. Does Pair Plus pay, push or lose?","answer":"Pay","explanation":"Pair Plus needs a pair or better, regardless of the comparison. A pair pays 1:1.","kind":"qualify"},{"id":"s7","game":"Three Card Poker","bet":"Ante Bonus","level":1,"prompt":"The player has a pair. Is an Ante Bonus earned?","answer":"No","explanation":"Ante Bonus starts at a three-card straight. A pair does not earn this bonus, though the main Ante has its own settlement.","kind":"qualify"},{"id":"s8","game":"Three Card Poker","bet":"6 Card Bonus","level":1,"prompt":"The best five of the six combined cards is two pair. What happens to 6 Card Bonus?","answer":"Lose","explanation":"The minimum is three of a kind. Two pair is below the qualifying hand.","kind":"qualify"},{"id":"s9","game":"Three Card Poker","bet":"Play","level":1,"prompt":"The DP has Jack-high and does not qualify. What happens to Play?","answer":"Push","explanation":"Three Card Poker requires Queen-high or better from the DP. On no qualification, Play pushes and Ante pays 1:1.","kind":"qualify"},{"id":"s10","game":"Wild Card Stud","bet":"Bonus — wild hand","level":1,"prompt":"The player uses a wild card to make three of a kind and loses to the DP. Does the Bonus pay?","answer":"Yes","explanation":"Three of a kind qualifies regardless of the main outcome. Because wild substitution was used, it pays 1:1 from the wild column, not the natural 6:1.","kind":"qualify"},{"id":"s11","game":"Wild Card Stud","bet":"Blind","level":1,"prompt":"The player wins against the DP with three of a kind. What happens to the Blind?","answer":"Push","explanation":"The Wild Card Stud Blind starts paying at a straight. A winning trips-or-lower hand pushes.","kind":"qualify"},{"id":"s12","game":"Wild Card Stud","bet":"Bonus — natural hand","level":2,"prompt":"The player’s flush contains the 2 of that suit, used as an ordinary 2. Can it qualify as natural?","answer":"Yes","explanation":"A 2 may count as its own rank rather than substitute for another card. The guide explicitly permits a natural flush in that case; a natural flush Bonus pays 25:1.","kind":"qualify"},{"id":"s13","game":"Crazy 4 Poker","bet":"Queens Up","level":1,"prompt":"The best four-card hand is a pair of Jacks. What happens to Queens Up?","answer":"Lose","explanation":"Queens Up begins at a pair of Queens. A single pair of Jacks is below the minimum.","kind":"qualify"},{"id":"s14","game":"Crazy 4 Poker","bet":"Queens Up","level":1,"prompt":"The best four-card hand is two pair, both pairs below Queens. Does Queens Up pay?","answer":"Yes","explanation":"Two pair ranks above any single pair, so it qualifies even when both pairs are below Queens. Queens Up pays 2:1 for two pair.","kind":"qualify"},{"id":"s15","game":"Crazy 4 Poker","bet":"Super Bonus","level":1,"prompt":"The player beats the DP with one pair. What happens to Super Bonus?","answer":"Push","explanation":"The hand is below a straight. Super Bonus pushes when a below-straight hand wins or ties; it loses if that hand loses.","kind":"qualify"},{"id":"s16","game":"Crazy 4 Poker","bet":"Super Bonus","level":2,"prompt":"The player has a four-card straight but loses to the DP. Does Super Bonus pay?","answer":"Yes","explanation":"A straight or better earns the Super Bonus table payout regardless of the main result. A straight pays 1:1.","kind":"qualify"},{"id":"s17","game":"I Luv Suits","bet":"Flush Rush","level":2,"prompt":"The player’s longest suit has three cards. Does Flush Rush pay, push or lose?","answer":"Lose","explanation":"Flush Rush begins at four suited cards. Three suited cards are not enough. This is separate from Super Flush Rush.","kind":"qualify"},{"id":"s18","game":"I Luv Suits","bet":"Super Flush Rush","level":4,"prompt":"The player has exactly three consecutive suited cards. Does Super Flush Rush pay?","answer":"Yes","explanation":"This wager starts at a three-card straight flush, which pays 7:1. Flush Rush has a different minimum: four suited cards.","kind":"qualify"},{"id":"s19","game":"I Luv Suits","bet":"Both bonuses","level":4,"prompt":"A player has exactly five suited cards, with a longest straight flush of exactly three cards, and wagered on both bonuses. Can both pay?","answer":"Yes","explanation":"Flush Rush pays 10:1 for the five-card flush, and Super Flush Rush pays 7:1 for the three-card straight flush. Evaluate each wager separately.","kind":"qualify"},{"id":"s20","game":"Run ’Em Twice","bet":"1st / 2nd Run","level":1,"prompt":"A run ends with only a pair of 8s. Does that Run wager pay, push or lose?","answer":"Push","explanation":"A pair of 6s through 10s pushes. Jacks or better earns a payout, while less than a pair of 6s loses.","kind":"qualify"},{"id":"s21","game":"Run ’Em Twice","bet":"5-Card Bonus","level":1,"prompt":"The community cards make a pair of 5s. The player’s hole cards make a stronger hand. Does 5-Card Bonus pay?","answer":"No","explanation":"This bonus uses only the five community cards and needs at least a pair of 6s. Hole cards cannot make it qualify.","kind":"qualify"},{"id":"s24","game":"Face Up Pai Gow","bet":"Ace High Bonus","level":4,"prompt":"The DP has a pair, while only the player has Ace-high Pai Gow. Does Ace High Bonus pay?","answer":"No","explanation":"The DP must have Ace-high Pai Gow. The player having it alone is not sufficient.","kind":"qualify"},{"id":"s25","game":"Ultimate Texas Hold’em","bet":"Two-Way Bad Beat","level":1,"prompt":"The player and DP tie. Does the Two-Way Bad Beat wager pay, push or lose?","answer":"Lose","explanation":"The guide specifies that a tie loses this bonus wager. There is no lower losing hand to determine a bad-beat payout.","kind":"qualify"},{"id":"s26","game":"Three Card Poker","bet":"Two-Way Bad Beat","level":1,"prompt":"The player and DP tie. Does the Two-Way Bad Beat wager pay, push or lose?","answer":"Lose","explanation":"The guide specifies that a tie loses this bonus wager. There is no lower losing hand to determine a bad-beat payout.","kind":"qualify"},{"id":"s27","game":"Wild Card Stud","bet":"Two-Way Bad Beat","level":1,"prompt":"The player and DP tie. Does the Two-Way Bad Beat wager pay, push or lose?","answer":"Lose","explanation":"The guide specifies that a tie loses this bonus wager. There is no lower losing hand to determine a bad-beat payout.","kind":"qualify"}],"why":"function whyHand(t,h){\n const n=t.game==='Crazy 4 Poker'?4:t.game==='Three Card Poker'&&t.bet!=='6 Card Bonus'?3:5;\n if(h==='Straight Flush or Trips')return 'Either a three-card straight flush or three cards of the same rank; both share this fixed award in the uploaded table.';\n if(/DP.*Ace.high|both Ace.high/i.test(h))return 'DP has Ace-high Pai Gow; select this tier according to the player’s hand and Joker condition.';\n if(/royal on the flop/i.test(h))return 'The player already has the royal using hole cards and the three-card flop.';\n if(/6.card royal/i.test(h))return '9, 10, J, Q, K, A all in one suit.';\n if(/mini royal/i.test(h))return 'A, K, Q of one suit in the three-card hand.';\n if(/royal match/i.test(h))return 'Royal flush plus an additional suited King and Queen.';\n if(/royal/i.test(h))return '10, J, Q, K, A of one suit.';\n if(/5 wild/i.test(h))return 'All four 2s plus the Joker.';\n if(/five aces/i.test(h))return 'Four Aces plus the Joker acting as an Ace.';\n if(/five of a kind/i.test(h))return 'Five cards treated as the same rank using wild substitution.';\n if(/four aces/i.test(h))return 'All four Aces in the four-card hand.';\n if(/straight flush/i.test(h)){const count=h.match(/^(\\d)-card/i);return `${count?count[1]:n} consecutive cards of one suit${/no Joker/i.test(h)?', without the Joker':/with Joker/i.test(h)?', including the Joker':''}.`}\n if(/quads/i.test(h))return 'Four cards of the same rank.';\n if(/full house/i.test(h))return 'Three cards of one rank plus two cards of another rank.';\n if(/flush/i.test(h)){const count=h.match(/^(\\d)-card/i);return `${count?count[1]:n} cards of one suit; a straight flush uses its higher applicable tier.`}\n if(/straight/i.test(h))return `${n} consecutive ranks; a straight flush uses its higher applicable tier.`;\n if(/trips or less/i.test(h))return 'Three of a kind or any lower-ranked hand; the player must win for this push condition.';\n if(/^trips$/i.test(h))return 'Three cards of one rank. This is three of a kind, not three separate pairs.';\n if(/two pair/i.test(h))return 'Two cards of one rank plus two cards of another rank.';\n if(t.bet==='Ultimate Pairs')return /unsuited/i.test(h)?'The named Ace combination in different suits.':/suited/i.test(h)?'The named Ace combination in the same suit.':'The listed matching ranks in the two hole cards.';\n if(/6s.*10s/i.test(h))return 'One pair ranked 6, 7, 8, 9 or 10; no higher hand.';\n if(/jacks/i.test(h))return 'One pair of Jacks, Queens, Kings or Aces; stronger hands use their own rows.';\n if(/queens/i.test(h))return 'One pair of Queens, Kings or Aces; stronger hands use their own rows.';\n if(/6s or better/i.test(h))return 'One pair ranked 6 through Ace; stronger hands use their own rows.';\n if(/pair/i.test(h))return 'Two cards of the same rank; stronger combinations use the appropriate higher row.';\n return 'Match the exact cards or condition in this row.';\n}\n"};
+const TABLES=SOURCE.tables, GAMES=[...new Set(TABLES.map(t=>t.game))];
+const RULES=SOURCE.rules, GAME_RULES=SOURCE.gameRules;
+const PENDING=[
+ 'Three Card Poker Jackpot: the $100 row includes trips while the prose says straight flush or higher. That row is not graded. Jackpot card-use details are not fully supplied.',
+ 'Pai Gow Fortune: three of a kind is printed at 3:1 but conflicts with straight-or-higher wording. That row and minimum-hand questions for Fortune are not graded.',
+ 'Run ’Em Twice: nonwinning Center settlement and below-pair-of-6s Ante settlement are not explicit and are not graded.',
+ 'Wild Card Stud: base-wager names differ between diagram and prose. Unclear base settlement and losing-Blind treatment are not graded.',
+ 'UTH 3:2 fractional-dollar rounding is not supplied. Math uses even stakes for that payout. Crazy 4 uses only its own printed round-up rule.',
+ 'House Way, folding exceptions, multiple-hand handling, rake and tips are incomplete in these images and are outside graded practice.'
+];
+const SHORT=['UTH','Three Card','Wild Card','Crazy 4','I Luv Suits','Run ’Em Twice','Pai Gow'];
+const MODE_LABEL={odds:'Odds Recall',reverse:'Reverse Recall',qualify:'Qualification',math:'Payout Math',weak:'Weak Payout Training',mixed:'Mixed Practice',exam:'Timed Dealer Test',game:'Game identification',wager:'Wager identification'};
+const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const ratio=s=>{const [a,b]=s.replaceAll(',','').split(':').map(Number);return a/b};
+const displayHand=h=>h.replace(/^Trips$/,'Three of a Kind').replace(/^Quads$/,'Four of a Kind').replace(/^Trips or less$/,'Three of a Kind or lower');
+const pendingRow=(t,r)=>(t.id==='t9'&&r.hand==='Straight Flush or Trips')||(t.id==='t21'&&r.hand==='Trips');
+const rowKey=(t,i)=>t.id+':'+i;
+const ROWS=TABLES.flatMap(t=>t.rows.map((r,i)=>({...r,game:t.game,wager:t.bet,table:t,key:rowKey(t,i),pending:pendingRow(t,r)})));
+const ACTIVE_ROWS=ROWS.filter(r=>!r.pending);
+function strength(h){if(/royal|5 wild/i.test(h))return 5;if(/straight flush|five of a kind|five aces|four aces|[67]-card flush|DP.*Ace.high/i.test(h))return 4;if(/quads|full house/i.test(h))return 3;if(/straight|flush/i.test(h))return 2;return 1}
+function eligibleRow(r,level){if(r.pending)return false;const rank=strength(r.hand);if(level===1)return rank<=2&&!/Bad Beat|Jackpot|Ace High|Ultimate Pairs/.test(r.wager)&&r.table.id!=='t17';if(level===2)return rank<=2&&!r.odds.startsWith('$');if(level===3)return !r.odds.startsWith('$');if(level===4)return rank>=3||r.odds.startsWith('$');return true}
+function blankStat(){return {n:0,c:0,ms:0,slow:0,fastRun:0,recallRun:0,recallN:0,recallC:0,lastAt:0}}
+function blankDB(){return {schema:4,totals:{n:0,c:0,ms:0,streak:0,best:0},topics:{},games:{},wagers:{},sessions:[],settings:{target:8,showTimer:true},savedAt:null}}
+function validStat(s){return s&&['n','c','ms','slow','fastRun','recallRun','recallN','recallC','lastAt'].every(k=>typeof s[k]==='number'&&Number.isFinite(s[k])&&s[k]>=0)&&s.c<=s.n}
+function readDB(){try{const parsed=JSON.parse(localStorage.getItem('table-games-payout-v4'));if(!parsed||parsed.schema!==4)return blankDB();if(!parsed.totals||!['n','c','ms','streak','best'].every(k=>Number.isFinite(parsed.totals[k])&&parsed.totals[k]>=0)||parsed.totals.c>parsed.totals.n)return blankDB();const d=blankDB();d.totals=parsed.totals;for(const name of ['topics','games','wagers'])for(const [k,v] of Object.entries(parsed[name]||{}))if(validStat(v)&&!['__proto__','constructor','prototype'].includes(k))d[name][k]=v;d.sessions=Array.isArray(parsed.sessions)?parsed.sessions.filter(s=>Number.isFinite(s.n)&&s.n>=0&&Number.isFinite(s.c)&&s.c>=0&&s.c<=s.n).slice(-40):[];if([5,8,10,15].includes(parsed.settings?.target))d.settings.target=parsed.settings.target;d.settings.showTimer=parsed.settings?.showTimer!==false;d.savedAt=parsed.savedAt;return d}catch{return blankDB()}}
+let db=readDB(),storageOK=true,currentView='dashboard',session=null,lastReport=null;
+function saveDB(){try{db.savedAt=Date.now();localStorage.setItem('table-games-payout-v4',JSON.stringify(db));storageOK=true}catch{storageOK=false}$('saveState').textContent=storageOK?'Progress saved on this browser':'Progress available this session only';$('settingsSaved').textContent=storageOK?'Preferences and answers save automatically.':'This viewer blocks local storage. Practice works, but progress will not survive closing it.'}
+function weakness(s){if(!s?.n||s.fastRun>=3)return 0;return ((s.n-s.c)/s.n*5+s.slow/s.n*2+0.15)*Math.min(2,1+s.n/10)}
+function weakRows(limit=6){return ACTIVE_ROWS.map(r=>({row:r,stat:db.topics[r.key],score:weakness(db.topics[r.key])})).filter(x=>x.score>0&&((x.stat.n>x.stat.c)||x.stat.slow)).sort((a,b)=>b.score-a.score).slice(0,limit)}
+function confident(r){return (db.topics[r.key]?.recallRun||0)>=3}
+const targetFor=kind=>db.settings.target*1000*(kind==='math'?2:1);
+function updateStat(s,correct,ms,slow,recall){s.n++;s.c+=Number(correct);s.ms+=ms;s.slow+=Number(slow);s.fastRun=correct&&!slow?s.fastRun+1:0;s.lastAt=Date.now();if(recall){s.recallN++;s.recallC+=Number(correct);s.recallRun=correct&&!slow?s.recallRun+1:0}return s}
+function record(q,correct,ms){const slow=ms>targetFor(q.kind);const recall=['odds','reverse'].includes(q.kind);for(const key of q.keys)db.topics[key]=updateStat(db.topics[key]||blankStat(),correct,ms,slow,recall);db.games[q.game]=updateStat(db.games[q.game]||blankStat(),correct,ms,slow,recall);const wk=q.game+' / '+q.wager;db.wagers[wk]=updateStat(db.wagers[wk]||blankStat(),correct,ms,slow,recall);db.totals.n++;db.totals.c+=Number(correct);db.totals.ms+=ms;db.totals.streak=correct?db.totals.streak+1:0;db.totals.best=Math.max(db.totals.best,db.totals.streak);saveDB();return slow}
+function contextFor(r){if(r.wager==='Two-Way Bad Beat')return 'This is the lower, losing hand. The other hand is higher; there is no tie.';if(r.wager==='Blind')return 'The player beats the DP.';if(r.table.id==='t10')return 'The hand uses wild substitution.';if(r.table.id==='t11')return 'The hand is natural: no wild substitution.';if(r.wager==='Ultimate Pairs')return 'Use only the player’s two hole cards.';if(r.wager==='5-Card Bonus')return 'Use only the five community cards.';if(r.wager==='6 Card Bonus')return 'Use the best five of the player’s and DP’s six cards.';if(r.odds.startsWith('$'))return 'Recall the printed fixed award for this named jackpot category. Card-use edge cases are not tested.';return 'Use the highest applicable printed payout category.'}
+function rowQuestion(r,kind){const base={id:kind+'|'+r.key,kind,keys:[r.key],game:r.game,wager:r.wager,hand:displayHand(r.hand),payout:r.odds,rule:RULES[r.table.id],context:contextFor(r),row:r,detail:`The uploaded ${r.game} guide lists ${r.odds} for ${displayHand(r.hand)} on ${r.wager}.`};if(kind==='odds')return {...base,prompt:r.odds.startsWith('$')?'What is the fixed award?':'Payout odds?',correct:r.odds};if(kind==='math'){const stakes=r.odds==='3:2'&&r.game!=='Crazy 4 Poker'?[10,20,30]:[5,10,15,20,25];const stake=pick(stakes),raw=stake*ratio(r.odds),win=r.game==='Crazy 4 Poker'?Math.ceil(raw):raw;return {...base,stake,win,prompt:'How much are the winnings?',correct:money(win),detail:`${money(stake)} × ${r.odds.replace(':',' ÷ ')} = ${money(raw)}.${raw!==win?' The Crazy 4 guide rounds up to '+money(win)+'.':''} Pay ${money(win)} in winnings. The original ${money(stake)} wager is separate; total returned is ${money(win+stake)}.`}}
+ return base}
+const MINIMUMS=[['t0','Straight and beat the DP'],['t1','Three of a Kind'],['t2','Any pair, A-K, A-Q or A-J'],['t3','Losing hand of Three of a Kind or higher'],['t5','Straight'],['t6','Pair'],['t7','Three of a Kind'],['t8','Losing hand of a Pair or higher'],['t10','Three of a Kind'],['t11','Three of a Kind'],['t12','Straight and beat the DP'],['t13','Losing hand of Three of a Kind or higher'],['t14','Straight'],['t15','Pair of Queens'],['t16','4-card Flush'],['t17','3-card Straight Flush'],['t18','Pair of Jacks'],['t19','Pair of 6s'],['t20','Any pair, A-K, A-Q or A-J'],['t22','DP has Ace-high Pai Gow']];
+function scenarioMeta(s){const t=TABLES.find(t=>t.game===s.game&&t.bet===s.bet);const stated=s.explanation.match(/[\d,]+:[\d]+/g);const payout=stated?[...new Set(stated)].join(' and '):s.answer==='Push'?'Push · no winnings':['No','Lose'].includes(s.answer)?'No payout for this condition':'See qualification rule';return {table:t,keys:['rule:'+s.id],hand:s.prompt,payout,rule:t?RULES[t.id]:GAME_RULES[s.game]}}
+function allowedScenario(s,level){if(level===4)return s.level>=3;if(level<=2)return s.level<=level;return true}
+function selectedGames(config){if(config.level===5||config.mode==='exam')return GAMES;return config.game==='All games'?GAMES:[config.game]}
+function descriptors(config){const games=selectedGames(config),out=[];let kinds=config.mode==='exam'||config.level===5?['odds','reverse','qualify','math','game','wager']:['mixed','weak'].includes(config.mode)?['odds','reverse','qualify','math']:[config.mode];const chosen=ACTIVE_ROWS.filter(r=>games.includes(r.game)&&eligibleRow(r,config.mode==='exam'?5:config.level));for(const r of chosen){if(kinds.includes('odds'))out.push({kind:'odds',row:r,id:'odds|'+r.key,keys:[r.key],game:r.game,wager:r.wager});if(kinds.includes('math')&&r.odds.includes(':'))out.push({kind:'math',row:r,id:'math|'+r.key,keys:[r.key],game:r.game,wager:r.wager})}
+ if(kinds.includes('reverse'))for(const t of TABLES.filter(t=>games.includes(t.game))){for(const odds of [...new Set(t.rows.map(r=>r.odds))]){const group=ROWS.filter(r=>r.table.id===t.id&&r.odds===odds);if(group.some(r=>r.pending)||!group.some(r=>chosen.some(x=>x.key===r.key)))continue;out.push({kind:'reverse',id:'reverse|'+t.id+'|'+odds,keys:group.map(r=>r.key),game:t.game,wager:t.bet,table:t,rows:group,payout:odds})}}
+ if(kinds.includes('qualify')){for(const s of SOURCE.scenarios.filter(s=>games.includes(s.game)&&allowedScenario(s,config.mode==='exam'?5:config.level))){const m=scenarioMeta(s);out.push({kind:'qualify',id:'qualify|'+s.id,keys:m.keys,game:s.game,wager:s.bet,scenario:s,meta:m})}for(const [id,minimum] of MINIMUMS){const t=TABLES.find(t=>t.id===id);if(!games.includes(t.game))continue;if(config.level<=2&&config.mode!=='exam'&&!chosen.some(r=>r.table.id===id))continue;if(config.level===4&&config.mode!=='exam'&&!['t17','t22'].includes(id))continue;out.push({kind:'qualify',id:'minimum|'+id,keys:['rule:minimum|'+id],game:t.game,wager:t.bet,table:t,minimum})}}
+ if(kinds.includes('wager')){const seen=new Set();for(const r of chosen){const key=r.game+'|'+r.hand+'|'+r.odds;if(seen.has(key))continue;seen.add(key);const group=ACTIVE_ROWS.filter(x=>x.game===r.game&&x.hand===r.hand&&x.odds===r.odds);out.push({kind:'wager',id:'wager|'+key,keys:group.map(x=>x.key),game:r.game,wager:group.map(x=>x.wager).join(' or '),rows:group,row:r})}}
+ if(kinds.includes('game')){const clues=[['Equal Ante and Blind, a Trips side bet, and five community cards.',0],['Pair Plus and a 6 Card Bonus, with three cards dealt to both player and DP.',1],['Four 2s and one Joker are fully wild, with natural and wild Bonus payout columns.',2],['Mandatory Ante and Super Bonus, plus optional Queens Up.',3],['Flush Rush and Super Flush Rush, with flush-card count used for the main comparison.',4],['Two Antes, two Run wagers, a Center wager, and no DP hand.',5],['Fortune and Ace High bonuses, with High and Low hands.',6]];for(const [clue,index] of clues)if(games.includes(GAMES[index]))out.push({kind:'game',id:'game|'+index,keys:['game-rule:'+index],game:GAMES[index],wager:'Game identification',clue})}
+ return out}
+function makeQuestion(d){if(['odds','math'].includes(d.kind))return rowQuestion(d.row,d.kind);if(d.kind==='reverse'){const answer=d.rows.map(r=>displayHand(r.hand)).join(' OR ');return {...d,hand:answer,prompt:'Which hand or condition earns this payout?',correct:answer,context:'If more than one listed hand shares these odds, choose the option containing all of them.',rule:RULES[d.table.id],detail:`In this wager’s printed table, ${d.payout} corresponds to ${answer}. All matching rows are grouped into one answer.`}}
+ if(d.kind==='qualify'){if(d.minimum)return {...d,hand:d.minimum,payout:'Minimum qualifying condition',prompt:'What is the minimum condition for a payout?',correct:d.minimum,context:'A push does not count as a payout.',rule:RULES[d.table.id],detail:`The printed ${d.wager} rule starts paying at: ${d.minimum}.`};const s=d.scenario;return {...d,hand:d.meta.hand,payout:d.meta.payout,prompt:s.prompt,correct:s.answer,context:'Evaluate only the wager named above.',rule:d.meta.rule,detail:s.explanation}}
+ if(d.kind==='game')return {...d,hand:'Game features',payout:'See the named game’s paytables',prompt:'Which game is this?',context:d.clue,correct:d.game,rule:GAME_RULES[d.game],detail:`These features identify ${d.game} in the uploaded guide.`};
+ return {...d,hand:displayHand(d.row.hand),payout:d.row.odds,prompt:'Which wager or wagers list this payout?',correct:[...new Set(d.rows.map(r=>r.wager))].join(' OR '),context:'Choose the complete matching wager set for this game and named hand.',rule:d.rows.map(r=>r.wager+': '+RULES[r.table.id]).join(' '),detail:`For ${displayHand(d.row.hand)} at ${d.row.odds}, the matching wager${d.rows.length>1?'s are':' is'} ${[...new Set(d.rows.map(r=>r.wager))].join(' and ')}. Apply each wager’s qualification separately.`}}
+function choiceSet(q){let wrong=[];if(q.kind==='game')wrong=GAMES;if(q.kind==='wager')wrong=TABLES.filter(t=>t.game===q.game).map(t=>t.bet).concat(['Ante','Play','None of these wagers']);if(q.kind==='reverse'){const valid=new Set(q.rows.map(r=>displayHand(r.hand)));wrong=q.table.rows.map(r=>displayHand(r.hand)).filter(h=>!valid.has(h)).concat(['No listed hand','Only high card','A pair below the minimum','All hands qualify'])}
+ if(q.kind==='qualify'){if(q.minimum)wrong=MINIMUMS.map(x=>x[1]).concat(['High card','Two Pair','No minimum condition']);else if(['Yes','No'].includes(q.correct))return shuffle(['Yes','No']);else wrong=['Pay','Push','Lose']}
+ if(q.kind==='odds')wrong=q.row.table.rows.map(r=>r.odds).concat(['1:1','2:1','3:1','4:1','5:1','6:1','10:1','3:2','Push','Lose']);
+ if(q.kind==='math'||q.correct.startsWith('$')){const n=Number(q.correct.replace(/[$,]/g,''));wrong=[money(n+(q.stake||100)),money(Math.max(0,n-(q.stake||100))),money(n*2),money(n/2),money(0),money(n+10)]}
+ const clean=[...new Set(wrong)].filter(x=>x!==q.correct);return shuffle([q.correct,...shuffle(clean).slice(0,3)])}
+function difficultyWeight(d){const rowW=Math.max(0,...d.keys.map(k=>weakness(db.topics[k])));return 1+rowW*4+weakness(db.games[d.game])*.6+weakness(db.wagers[d.game+' / '+d.wager])*.6}
+function weightedDraw(items){const total=items.reduce((s,d)=>s+difficultyWeight(d),0);let ticket=Math.random()*total;for(const d of items){ticket-=difficultyWeight(d);if(ticket<=0)return d}return items[items.length-1]}
+function planSession(pool,size,config){const result=[],remaining=[...pool];if(!remaining.length)return result;const limit=size;if(config.mode==='exam'){for(const kind of ['game','wager','qualify','odds','reverse','math']){const subset=remaining.filter(d=>d.kind===kind);if(subset.length){const d=pick(subset);result.push(d);remaining.splice(remaining.indexOf(d),1)}}}
+ while(result.length<limit){const candidates=remaining.length?remaining:pool.filter(d=>!result.slice(-3).some(x=>x.id===d.id));const available=candidates.length?candidates:pool;const d=config.mode==='exam'?pick(available):weightedDraw(available);result.push(d);const i=remaining.indexOf(d);if(i>=0)remaining.splice(i,1)}return config.mode==='exam'?shuffle(result):result}
+function configFromUI(){const mode=$('mode').value,level=Number($('level').value);return {mode,level,game:mode==='exam'||level===5?'All games':$('game').value,size:Number($('length').value),style:$('style').value,limit:Number($('examLimit').value)*1000}}
+function setupHelp(){const mode=$('mode').value,level=Number($('level').value);$('game').disabled=mode==='exam'||level===5;if($('game').disabled)$('game').value='All games';if(level===3&&mode!=='exam'&&$('game').value==='All games')$('game').value=GAMES[0];for(const o of $('game').options)o.disabled=o.value==='All games'&&level===3&&mode!=='exam';$('examField').hidden=mode!=='exam';$('level').disabled=mode==='exam';const descriptions={odds:'Game + wager + hand → payout odds. Fast recognition comes first.',reverse:'Game + wager + payout → the matching hand or condition. Shared odds are grouped into one answer.',qualify:'Practice whether hands qualify, what minimum is required, and when a wager pays, pushes or loses.',math:'The ratio is supplied. Calculate winnings only; feedback separates the original wager and total returned.',weak:'Prioritizes your incorrect or slow topics, plus related wagers and games. Known weak topics repeat more often.',mixed:'Mix odds, reverse recall, qualification and payout calculations.',exam:'A timed all-game test including game and wager identification, qualification, odds, reverse recall and math. Answers are reviewed at the end; unanswered countdowns count as misses.'};$('modeHelp').textContent=level===5&&mode!=='exam'?'Level 5 mixes every game, wager and training mode regardless of the mode selector.':descriptions[mode];const cfg=configFromUI(),p=descriptors(cfg);$('poolInfo').textContent=p.length+' question topics available. '+(cfg.mode==='exam'?'All six question types are included.':cfg.mode==='weak'?'Slow answers count as weak even when correct.':'');$('start').disabled=!p.length;$('setupError').textContent=p.length?'':'No source-supported questions match this selection. Choose another level or mode.';
+ const rec=Object.values(db.topics).reduce((a,s)=>({n:a.n+s.recallN,c:a.c+s.recallC}),{n:0,c:0});$('mathReadiness').hidden=mode!=='math';$('mathReadiness').textContent=`Suggested before math: at least 20 odds/reverse topic attempts at 80% accuracy. Your record: ${rec.n} attempts, ${rec.n?Math.round(100*rec.c/rec.n):0}%. You can practice math at any time.`}
+function showView(name){if(session&&!session.done&&session.config.mode==='exam'&&name!=='training'){pauseSession();return}if(session&&!session.done&&name!=='training')pauseSession();currentView=name;for(const id of ['dashboard','study','training','settings'])$(id).hidden=id!==name;document.querySelectorAll('[data-view]').forEach(b=>{const active=b.dataset.view===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});if(name==='dashboard')renderDashboard();if(name==='study')renderStudy();if(name==='training'&&!sessionActive())setupHelp();if(name==='settings')renderSettings()}
+function sessionActive(){return session&&!session.done}
+function launchMode(mode,game){if(sessionActive()){showView('training');return}$('mode').value=mode;if(game){$('game').value=game;if(Number($('level').value)===5)$('level').value='1'}$('setup').hidden=false;$('report').hidden=true;setupHelp();showView('training')}
+function startSession(retry){const config=retry?{...lastReport.config,mode:'weak'}:configFromUI();const all=descriptors(config);let ds=all;if(config.mode==='weak'&&!retry){const strict=ds.filter(d=>d.keys.some(k=>weakness(db.topics[k])>0&&(db.topics[k].n>db.topics[k].c||db.topics[k].slow)));if(strict.length)ds=strict}const queue=retry?retry.map(q=>({...q})):planSession(ds,config.size,config).map(makeQuestion);if(!queue.length){$('setupError').textContent='No questions available. Try a different level.';return}session={config,queue,index:0,answers:[],done:false,answered:false,paused:false,elapsed:0,tickStart:performance.now(),started:Date.now()};$('setup').hidden=true;$('report').hidden=true;$('quiz').hidden=false;showView('training');renderQuestion();setExamNavigation()}
+function setExamNavigation(){document.querySelectorAll('[data-view]').forEach(b=>b.disabled=!!(sessionActive()&&session.config.mode==='exam'&&b.dataset.view!=='training'))}
+function currentQuestion(){return session?.queue[session.index]}
+function answerElapsed(){return session.elapsed+(session.paused||session.answered?0:performance.now()-session.tickStart)}
+function fieldsHTML(q){const fields=[];if(q.kind!=='game')fields.push(['Game',q.game]);if(!['game','wager'].includes(q.kind))fields.push(['Wager',q.wager]);if(!['game','reverse','qualify'].includes(q.kind))fields.push(['Hand',q.hand]);if(['reverse','math','wager'].includes(q.kind))fields.push([q.payout.startsWith('$')?'Award':'Payout',q.payout]);if(q.stake)fields.push(['Wager amount',money(q.stake)]);return fields.map(([k,v])=>`<div class="problem-line"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
+function renderQuestion(){const q=currentQuestion();session.answered=false;session.paused=false;session.elapsed=0;session.tickStart=performance.now();$('questionNumber').textContent=`Question ${session.index+1} / ${session.queue.length}`;$('sessionScore').textContent=session.config.mode==='exam'?`${session.answers.length} recorded`:`${session.answers.filter(a=>a.correct).length} correct`;$('quizBar').style.width=session.index/session.queue.length*100+'%';$('questionBadges').innerHTML=`<span class="pill">${esc(MODE_LABEL[q.kind])}</span><span class="pill">${session.config.mode==='exam'?'Dealer test':'Level '+session.config.level}</span>`;$('questionLabel').textContent=q.kind==='math'?'Winnings only':q.kind==='odds'?'Recall the payout':'Recall the rule';$('questionFields').innerHTML=fieldsHTML(q);$('questionText').textContent=q.prompt;$('questionContext').textContent=q.context||'';$('pausePanel').hidden=true;$('questionArea').hidden=false;$('feedback').hidden=true;$('feedback').innerHTML='';$('next').hidden=true;$('pause').disabled=false;$('pause').textContent='Pause';$('answerError').textContent='';const typed=session.config.style==='type'&&['math','odds'].includes(q.kind);$('typedForm').hidden=!typed;$('answers').hidden=typed;$('typedAnswer').value='';$('typedAnswer').disabled=false;$('typedForm').querySelector('button').disabled=false;$('typedAnswer').placeholder=q.correct.startsWith('$')?'e.g. 45':q.correct==='Push'?'Push':'e.g. 3:1 or 3';$('typedAnswer').inputMode=q.correct.startsWith('$')?'decimal':'text';$('answers').innerHTML='';const choices=choiceSet(q);for(const label of choices){const b=document.createElement('button');b.className='choice'+(label.length>9?' words':'');b.type='button';b.textContent=label;b.onclick=()=>submit(label);$('answers').append(b)}updateClock();}
+function normalize(value,q){let s=String(value).trim().toLowerCase().replaceAll(',','');if(q.correct.startsWith('$')){s=s.replace(/^\$\s*/,'');return /^\d+(\.\d+)?$/.test(s)?String(Number(s)):s}s=s.replace(/\s+/g,'').replace(/to/g,':');if(q.correct.includes(':')){if(/^\d+(\.\d+)?$/.test(s))return Number(s)===ratio(q.correct)?q.correct.toLowerCase():s+':1';if(/^\d+(\.\d+)?:\d+(\.\d+)?$/.test(s))return ratio(s)===ratio(q.correct)?q.correct.toLowerCase():s}return s}
+function feedbackHTML(q,a){return `<h3>${a.correct?'Correct':a.value==='Time expired'?'Time expired':'Let’s correct that'}</h3><dl><dt>Your answer</dt><dd>${esc(a.value)}</dd><dt>Correct answer</dt><dd>${esc(q.correct)}</dd><dt>Game</dt><dd>${esc(q.game)}</dd><dt>Wager</dt><dd>${esc(q.wager)}</dd><dt>Hand / condition</dt><dd>${esc(q.hand)}</dd><dt>Payout odds</dt><dd>${esc(q.payout)}</dd></dl><p>${esc(q.detail)}</p><p><b>Qualification rule:</b> ${esc(q.rule)}</p><p class="hint">${(a.ms/1000).toFixed(1)}s${a.slow?' · Over your speed target; added to speed practice.':''}</p>`}
+function submit(value,timeout=false){if(!sessionActive()||session.answered||session.paused)return;const q=currentQuestion();if(!String(value).trim()){$('answerError').textContent='Enter an answer first.';return}const elapsed=answerElapsed();if(!timeout&&session.config.mode==='exam'&&elapsed>=session.config.limit){submit('Time expired',true);return}session.elapsed=timeout?session.config.limit:elapsed;session.answered=true;const correct=!timeout&&normalize(value,q)===normalize(q.correct,q);const slow=record(q,correct,session.elapsed);const a={q,value,correct,ms:session.elapsed,slow};session.answers.push(a);$('typedAnswer').disabled=true;$('typedForm').querySelector('button').disabled=true;for(const b of $('answers').children){b.disabled=true;if(session.config.mode!=='exam'){if(b.textContent===q.correct)b.classList.add('correct');else if(b.textContent===value)b.classList.add('incorrect')}}const exam=session.config.mode==='exam';$('feedback').className=exam?'exam-recorded':'feedback'+(correct?'':' wrong');$('feedback').innerHTML=exam?'Answer recorded. Full explanations appear in your report.':feedbackHTML(q,a);$('feedback').hidden=false;$('next').hidden=false;$('next').textContent=session.index===session.queue.length-1?'See report':'Next question';$('pause').disabled=true;$('sessionScore').textContent=exam?`${session.answers.length} recorded`:`${session.answers.filter(x=>x.correct).length} correct`;updateClock();$('next').focus({preventScroll:true});$('feedback').scrollIntoView({block:'nearest',behavior:'auto'})}
+function pauseSession(){if(!sessionActive()||session.paused||session.answered)return;session.elapsed=answerElapsed();session.paused=true;$('pausePanel').hidden=false;$('questionArea').hidden=true;$('pause').textContent='Paused';updateClock()}
+function resumeSession(){if(!sessionActive()||!session.paused)return;session.paused=false;session.tickStart=performance.now();$('pausePanel').hidden=true;$('questionArea').hidden=false;$('pause').textContent='Pause';updateClock()}
+function updateClock(){if(!sessionActive())return;const elapsed=answerElapsed(),exam=session.config.mode==='exam';$('timer').textContent=session.paused?'Paused':exam?Math.max(0,(session.config.limit-elapsed)/1000).toFixed(1)+'s left':db.settings.showTimer?(elapsed/1000).toFixed(1)+'s':'';if(exam&&!session.answered&&!session.paused&&elapsed>=session.config.limit)submit('Time expired',true)}
+function nextQuestion(){if(!sessionActive()||!session.answered)return;if(session.index===session.queue.length-1){finishSession();return}session.index++;renderQuestion()}
+function finishSession(){if(!sessionActive())return;session.done=true;lastReport={config:session.config,answers:session.answers,planned:session.queue.length,at:Date.now()};const a=session.answers;if(a.length){db.sessions.push({at:Date.now(),mode:session.config.mode,level:session.config.level,game:session.config.game,n:a.length,c:a.filter(x=>x.correct).length,ms:a.reduce((s,x)=>s+x.ms,0),planned:session.queue.length});db.sessions=db.sessions.slice(-40);saveDB()}setExamNavigation();$('quiz').hidden=true;$('report').hidden=false;renderReport()}
+function groupReport(answers,key){const groups={};for(const a of answers){const k=key(a);groups[k]??={name:k,n:0,c:0,ms:0,slow:0};groups[k].n++;groups[k].c+=Number(a.correct);groups[k].ms+=a.ms;groups[k].slow+=Number(a.slow)}return Object.values(groups).sort((a,b)=>(a.c/a.n-b.c/b.n)||(b.slow/b.n-a.slow/a.n)||(b.ms/b.n-a.ms/a.n))}
+function renderReport(){const r=lastReport,a=r.answers,n=a.length,c=a.filter(x=>x.correct).length,slow=a.filter(x=>x.slow).length,ms=a.reduce((s,x)=>s+x.ms,0);$('reportTitle').textContent=MODE_LABEL[r.config.mode]+' · '+(r.config.mode==='exam'?'All games':'Level '+r.config.level);$('reportScore').textContent=n?Math.round(c/n*100)+'%':'No answers';$('reportStatus').textContent=`${n} of ${r.planned} questions answered${n<r.planned?' · Partial session; unattempted questions are not scored.':'.'} Accuracy is based on submitted answers, including timeouts.`;$('reportMetrics').innerHTML=`<div><b>${c}/${n}</b><small>Correct</small></div><div><b>${n?(ms/n/1000).toFixed(1)+'s':'—'}</b><small>Average response</small></div><div><b>${slow}</b><small>Over speed target</small></div>`;const misses=a.filter(x=>!x.correct||x.slow);$('retry').disabled=!misses.length;const byGame=groupReport(a,x=>x.q.game),byPayout=groupReport(misses,x=>x.q.game+' · '+x.q.wager+' · '+x.q.hand);$('reportWeak').innerHTML=byPayout.length?byPayout.slice(0,5).map(g=>`<div class="weak-item"><div><strong>${esc(g.name)}</strong><small>${g.n-g.c} missed · ${g.slow} slow · ${(g.ms/g.n/1000).toFixed(1)}s average</small></div></div>`).join(''):'<div class="empty">No missed or slow answers in this session.</div>';$('reportGames').innerHTML=byGame.length?byGame.map(g=>`<div class="weak-item"><div><strong>${esc(g.name)}</strong><small>${g.c}/${g.n} correct · ${(g.ms/g.n/1000).toFixed(1)}s average · ${g.slow} slow</small></div></div>`).join(''):'<div class="empty">Answer a question to build a report.</div>';
+ let advice='Start an odds recall session to build your record.';if(n&&misses.length){const weakGame=byGame[0].name,weakMode=groupReport(misses,x=>MODE_LABEL[x.q.kind])[0]?.name;advice=`Study ${weakGame}, then retry ${weakMode||'the missed questions'}. ${slow?'Use short speed drills for the slow answers. ':''}The weak-payout mode will prioritize these areas.`}else if(n)advice='All submitted answers were correct and within target. Try Reverse Recall or move to a broader level before adding payout math.';$('recommendations').textContent=advice;$('reportStudy').disabled=!n;$('reportAnswers').innerHTML=a.map((x,i)=>`<details class="review"><summary>${i+1}. ${x.correct?'Correct':'Missed'}${x.slow?' · Slow':''} · ${esc(MODE_LABEL[x.q.kind])} · ${esc(x.q.game)}</summary><div class="feedback${x.correct?'':' wrong'}">${feedbackHTML(x.q,x)}</div></details>`).join('')}
+function weakListHTML(items){return items.map(({row:r,stat:s})=>`<div class="weak-item"><div><strong>${esc(displayHand(r.hand))}</strong><small>${esc(r.game)} · ${esc(r.wager)}</small><small>${s.n-s.c} missed · ${s.slow} slow · ${(s.ms/s.n/1000).toFixed(1)}s avg</small></div><b class="odds">${esc(r.odds)}</b></div>`).join('')}
+function renderDashboard(){const t=db.totals;$('metrics').innerHTML=[['Accuracy',t.n?Math.round(100*t.c/t.n)+'%':'—',t.n+' answers'],['Avg response',t.n?(t.ms/t.n/1000).toFixed(1)+'s':'—','All graded answers'],['Current streak',String(t.streak),'Best: '+t.best],['Confident payouts',String(ACTIVE_ROWS.filter(confident).length),ACTIVE_ROWS.length+' gradable rows']].map(([k,v,s])=>`<div class="metric"><span>${k}</span><b>${v}</b><small>${s}</small></div>`).join('');$('coverage').textContent=ACTIVE_ROWS.filter(r=>db.topics[r.key]?.n).length+'/'+ACTIVE_ROWS.length+' practiced';$('gameCards').innerHTML='';GAMES.forEach((game,i)=>{const rows=ACTIVE_ROWS.filter(r=>r.game===game),done=rows.filter(confident).length,s=db.games[game];const b=document.createElement('button');b.className='game-card';b.innerHTML=`<b>${esc(game)}</b><small>${rows.length} gradable payouts · ${s?.n?Math.round(100*s.c/s.n)+'% accuracy':'Not practiced'}</small><div class="bar"><span style="width:${100*done/rows.length}%"></span></div><small>${done}/${rows.length} confident</small>`;b.onclick=()=>launchMode('odds',game);$('gameCards').append(b)});const weak=weakRows();$('weakList').innerHTML=weak.length?weakListHTML(weak):'<div class="empty">No weak payouts yet. Mistakes and slow answers will appear here after practice.</div>';$('recentSessions').innerHTML=db.sessions.length?db.sessions.slice(-5).reverse().map(s=>`<div class="weak-item"><div><strong>${esc(MODE_LABEL[s.mode]||s.mode)}</strong><small>${s.n?Math.round(100*s.c/s.n):0}% · ${s.n} answers · ${s.n?(s.ms/s.n/1000).toFixed(1):0}s avg${s.n<s.planned?' · Partial':''}</small></div><small>${new Date(s.at).toLocaleDateString()}</small></div>`).join(''):'<div class="empty">Your session reports will appear here. Answers save immediately, even before a session ends.</div>'}
+function renderStudy(){const selected=$('studyGame').value,term=$('studySearch').value.trim().toLowerCase();$('studySheets').innerHTML=GAMES.filter(g=>selected==='All games'||g===selected).map(g=>{const tables=TABLES.filter(t=>t.game===g&&(!term||[g,t.bet,RULES[t.id],...t.rows.map(r=>r.hand)].join(' ').toLowerCase().includes(term)));if(!tables.length)return '';return `<details class="study-game" ${selected!=='All games'||term?'open':''}><summary>${esc(g)}</summary><div class="sheet"><div class="notice">${esc(GAME_RULES[g])}</div>${tables.map(t=>`<div class="wager"><h3>${esc(t.bet)}</h3><p><b>Qualification:</b> ${esc(RULES[t.id])}</p><div class="table-scroll"><table><thead><tr><th>Hand / condition</th><th>Payout</th><th>Study note</th></tr></thead><tbody>${t.rows.map((r,i)=>`<tr><td>${esc(displayHand(r.hand))}</td><td>${esc(r.odds)}</td><td>${pendingRow(t,r)?'<span class="pill warn">Pending · not graded</span>':r.odds.startsWith('$')?'Fixed dollars, not odds':r.odds==='Push'?'No winnings; wager returned':esc(t.bet==='Two-Way Bad Beat'?'Use the losing hand':t.id==='t10'?'Wild substitution':t.id==='t11'?'Natural hand':t.bet==='Blind'?'Player must beat DP':t.bet==='Ultimate Pairs'?'Two hole cards only':t.bet==='5-Card Bonus'?'Community cards only':t.bet==='6 Card Bonus'?'Best five of combined six cards':whyHand(t,r.hand))}</td></tr>`).join('')}</tbody></table></div></div>`).join('')}</div></details>`}).join('')||'<div class="panel empty">No matching wager or hand. Clear your search or select another game.</div>'}
+function renderSettings(){$('slowTarget').value=String(db.settings.target);$('timerVisible').value=db.settings.showTimer?'yes':'no';$('pendingNotes').innerHTML=PENDING.map(n=>'<p class="hint">'+esc(n)+'</p>').join('');try{const old=JSON.parse(localStorage.getItem('od-payout-lab-v3'));$('legacyInfo').textContent=old?.total?`Earlier trainer: ${old.total} answers recorded. Its aggregate record is retained separately; this version starts detailed payout tracking.`:''}catch{} }
+function initialize(){for(const id of ['game','studyGame'])$(id).innerHTML='<option>All games</option>'+GAMES.map(g=>`<option>${esc(g)}</option>`).join('');$('game').value=GAMES[0];$('studyGame').value=GAMES[0];document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('quickRecall').onclick=()=>launchMode('odds');$('quickWeak').onclick=()=>launchMode('weak');$('quickExam').onclick=()=>launchMode('exam');for(const id of ['mode','level','game'])$(id).onchange=setupHelp;$('studyGame').onchange=renderStudy;$('studySearch').oninput=renderStudy;$('start').onclick=()=>startSession();$('typedForm').onsubmit=e=>{e.preventDefault();submit($('typedAnswer').value)};$('next').onclick=nextQuestion;$('pause').onclick=pauseSession;$('resume').onclick=resumeSession;$('end').onclick=finishSession;$('retry').onclick=()=>startSession(lastReport.answers.filter(x=>!x.correct||x.slow).map(x=>x.q));$('newSession').onclick=()=>{$('report').hidden=true;$('setup').hidden=false;setupHelp()};$('reportStudy').onclick=()=>{const games=groupReport(lastReport.answers,x=>x.q.game);if(games.length)$('studyGame').value=games[0].name;showView('study')};$('slowTarget').onchange=()=>{db.settings.target=Number($('slowTarget').value);saveDB()};$('timerVisible').onchange=()=>{db.settings.showTimer=$('timerVisible').value==='yes';saveDB()};$('reset').onclick=()=>{if(confirm('Clear this trainer’s saved progress on this browser?')){db=blankDB();saveDB();renderSettings();renderDashboard()}};document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseSession()});setInterval(updateClock,100);saveDB();renderDashboard();renderStudy();renderSettings();setupHelp();$('startup').hidden=true}
+function whyHand(t,h){
+ const n=t.game==='Crazy 4 Poker'?4:t.game==='Three Card Poker'&&t.bet!=='6 Card Bonus'?3:5;
+ if(h==='Straight Flush or Trips')return 'Either a three-card straight flush or three cards of the same rank; both share this fixed award in the uploaded table.';
+ if(/DP.*Ace.high|both Ace.high/i.test(h))return 'DP has Ace-high Pai Gow; select this tier according to the player’s hand and Joker condition.';
+ if(/royal on the flop/i.test(h))return 'The player already has the royal using hole cards and the three-card flop.';
+ if(/6.card royal/i.test(h))return '9, 10, J, Q, K, A all in one suit.';
+ if(/mini royal/i.test(h))return 'A, K, Q of one suit in the three-card hand.';
+ if(/royal match/i.test(h))return 'Royal flush plus an additional suited King and Queen.';
+ if(/royal/i.test(h))return '10, J, Q, K, A of one suit.';
+ if(/5 wild/i.test(h))return 'All four 2s plus the Joker.';
+ if(/five aces/i.test(h))return 'Four Aces plus the Joker acting as an Ace.';
+ if(/five of a kind/i.test(h))return 'Five cards treated as the same rank using wild substitution.';
+ if(/four aces/i.test(h))return 'All four Aces in the four-card hand.';
+ if(/straight flush/i.test(h)){const count=h.match(/^(\d)-card/i);return `${count?count[1]:n} consecutive cards of one suit${/no Joker/i.test(h)?', without the Joker':/with Joker/i.test(h)?', including the Joker':''}.`}
+ if(/quads/i.test(h))return 'Four cards of the same rank.';
+ if(/full house/i.test(h))return 'Three cards of one rank plus two cards of another rank.';
+ if(/flush/i.test(h)){const count=h.match(/^(\d)-card/i);return `${count?count[1]:n} cards of one suit; a straight flush uses its higher applicable tier.`}
+ if(/straight/i.test(h))return `${n} consecutive ranks; a straight flush uses its higher applicable tier.`;
+ if(/trips or less/i.test(h))return 'Three of a kind or any lower-ranked hand; the player must win for this push condition.';
+ if(/^trips$/i.test(h))return 'Three cards of one rank. This is three of a kind, not three separate pairs.';
+ if(/two pair/i.test(h))return 'Two cards of one rank plus two cards of another rank.';
+ if(t.bet==='Ultimate Pairs')return /unsuited/i.test(h)?'The named Ace combination in different suits.':/suited/i.test(h)?'The named Ace combination in the same suit.':'The listed matching ranks in the two hole cards.';
+ if(/6s.*10s/i.test(h))return 'One pair ranked 6, 7, 8, 9 or 10; no higher hand.';
+ if(/jacks/i.test(h))return 'One pair of Jacks, Queens, Kings or Aces; stronger hands use their own rows.';
+ if(/queens/i.test(h))return 'One pair of Queens, Kings or Aces; stronger hands use their own rows.';
+ if(/6s or better/i.test(h))return 'One pair ranked 6 through Ace; stronger hands use their own rows.';
+ if(/pair/i.test(h))return 'Two cards of the same rank; stronger combinations use the appropriate higher row.';
+ return 'Match the exact cards or condition in this row.';
+}
+initialize();
+</script></body></html>
