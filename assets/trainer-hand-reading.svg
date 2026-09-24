@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172522"/><stop offset="1" stop-color="#070b0c"/></linearGradient><radialGradient id="felt"><stop stop-color="#24483c"/><stop offset="1" stop-color="#101b19"/></radialGradient><filter id="s"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-opacity=".5"/></filter></defs>
+<rect width="1254" height="1254" fill="url(#bg)"/><ellipse cx="627" cy="520" rx="560" ry="350" fill="url(#felt)" stroke="#a98a55" stroke-width="5" opacity=".95"/>
+<g opacity=".18" fill="none" stroke="#d7bf8d" stroke-width="3"><ellipse cx="627" cy="520" rx="470" ry="280"/><ellipse cx="627" cy="520" rx="390" ry="215"/></g>
+<g filter="url(#s)" font-family="Georgia,serif" font-weight="700" text-anchor="middle">
+<g transform="translate(240 330) rotate(-8)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#171717">A</text><text x="35" y="98" font-size="42" fill="#171717">♠</text></g>
+<g transform="translate(395 300) rotate(-3)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#b32828">K</text><text x="35" y="98" font-size="42" fill="#b32828">♥</text></g>
+<g transform="translate(552 300) rotate(2)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#171717">Q</text><text x="35" y="98" font-size="42" fill="#171717">♣</text></g>
+<g transform="translate(709 320) rotate(6)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#b32828">J</text><text x="35" y="98" font-size="42" fill="#b32828">♦</text></g>
+<g transform="translate(862 355) rotate(10)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="38" y="55" font-size="42" fill="#171717">10</text><text x="35" y="98" font-size="42" fill="#171717">♠</text></g></g>
+<g opacity=".92"><circle cx="250" cy="735" r="82" fill="#4b1f26" stroke="#d0b37d" stroke-width="10"/><circle cx="250" cy="735" r="55" fill="none" stroke="#d0b37d" stroke-width="5" stroke-dasharray="10 12"/><circle cx="1000" cy="700" r="78" fill="#172f27" stroke="#d0b37d" stroke-width="10"/><circle cx="1000" cy="700" r="52" fill="none" stroke="#d0b37d" stroke-width="5" stroke-dasharray="10 12"/></g>
+<rect y="820" width="1254" height="434" fill="url(#bg)" opacity=".72"/>
+</svg>
