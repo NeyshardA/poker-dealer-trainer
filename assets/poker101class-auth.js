@@ -356,32 +356,40 @@
     if (msg) msg.textContent = 'Display name updated.';
   }
 
-  function dialog() { return document.getElementById('auth-dialog'); }
-  function authMessage(text, isError = false) {
-    const el = document.getElementById('auth-message');
+  const authDialogIds = {
+    signin: 'sign-in-dialog',
+    signup: 'sign-up-dialog',
+    forgot: 'forgot-password-dialog',
+    recovery: 'recovery-password-dialog'
+  };
+  let activeAuthMode = 'signin';
+
+  function authDialog(mode = activeAuthMode) {
+    return document.getElementById(authDialogIds[mode] || authDialogIds.signin);
+  }
+
+  function authMessage(text, isError = false, mode = activeAuthMode) {
+    const el = document.querySelector(`[data-auth-message="${mode}"]`);
     if (!el) return;
     el.textContent = text || '';
     el.classList.toggle('error', !!isError);
   }
 
-  function showAuth(mode = 'signin') {
-    const dlg = dialog();
-    if (!dlg) return;
-    document.querySelectorAll('[data-auth-panel]').forEach(panel => {
-      panel.hidden = panel.dataset.authPanel !== mode;
+  function closeAuth(exceptMode = null) {
+    Object.keys(authDialogIds).forEach(mode => {
+      if (mode === exceptMode) return;
+      const dlg = authDialog(mode);
+      if (dlg?.open) dlg.close();
     });
-    document.querySelectorAll('[data-auth-tab]').forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.authTab === mode);
-    });
-    const tabs = document.getElementById('auth-tabs');
-    if (tabs) tabs.hidden = !['signin','signup'].includes(mode);
-    authMessage('');
-    if (!dlg.open) dlg.showModal();
   }
 
-  function closeAuth() {
-    const dlg = dialog();
-    if (dlg?.open) dlg.close();
+  function showAuth(mode = 'signin') {
+    if (!authDialogIds[mode]) mode = 'signin';
+    closeAuth(mode);
+    activeAuthMode = mode;
+    authMessage('', false, mode);
+    const dlg = authDialog(mode);
+    if (dlg && !dlg.open) dlg.showModal();
   }
 
   async function signUp(form) {
@@ -390,7 +398,7 @@
     const email = String(fd.get('email') || '').trim();
     const password = String(fd.get('password') || '');
 
-    authMessage('Creating your account…');
+    authMessage('Creating your account…', false, 'signup');
 
     const { data, error } = await client.auth.signUp({
       email,
@@ -402,15 +410,15 @@
     });
 
     if (error) {
-      authMessage(error.message, true);
+      authMessage(error.message, true, 'signup');
       return;
     }
 
     if (data.session) {
-      authMessage('Account created. You are signed in.');
-      setTimeout(closeAuth, 600);
+      authMessage('Account created. You are signed in.', false, 'signup');
+      setTimeout(() => closeAuth(), 600);
     } else {
-      authMessage('Account created. Check your email to confirm it, then come back and sign in.');
+      authMessage('Account created. Check your email to confirm it, then come back and sign in.', false, 'signup');
     }
   }
 
@@ -419,16 +427,16 @@
     const email = String(fd.get('email') || '').trim();
     const password = String(fd.get('password') || '');
 
-    authMessage('Signing you in…');
+    authMessage('Signing you in…', false, 'signin');
 
     const { error } = await client.auth.signInWithPassword({ email, password });
     if (error) {
-      authMessage(error.message, true);
+      authMessage(error.message, true, 'signin');
       return;
     }
 
-    authMessage('Signed in.');
-    setTimeout(closeAuth, 400);
+    authMessage('Signed in.', false, 'signin');
+    setTimeout(() => closeAuth(), 400);
   }
 
   async function requestPasswordReset(form) {
@@ -436,17 +444,17 @@
     const email = String(fd.get('email') || '').trim();
     if (!email) return;
 
-    authMessage('Sending reset link…');
+    authMessage('Sending reset link…', false, 'forgot');
     const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: location.origin + location.pathname
     });
 
     if (error) {
-      authMessage(error.message, true);
+      authMessage(error.message, true, 'forgot');
       return;
     }
 
-    authMessage('If an account exists for that email, a password reset link has been sent.');
+    authMessage('If an account exists for that email, a password reset link has been sent.', false, 'forgot');
     form.reset();
   }
 
@@ -456,28 +464,28 @@
     const confirmPassword = String(fd.get('confirm_password') || '');
 
     if (password.length < 8) {
-      authMessage('Your new password must be at least 8 characters.', true);
+      authMessage('Your new password must be at least 8 characters.', true, 'recovery');
       return;
     }
     if (password !== confirmPassword) {
-      authMessage('The passwords do not match.', true);
+      authMessage('The passwords do not match.', true, 'recovery');
       return;
     }
 
-    authMessage('Updating your password…');
+    authMessage('Updating your password…', false, 'recovery');
     const { error } = await client.auth.updateUser({ password });
 
     if (error) {
-      authMessage(error.message, true);
+      authMessage(error.message, true, 'recovery');
       return;
     }
 
     form.reset();
-    authMessage('Password updated successfully. You are signed in.');
+    authMessage('Password updated successfully. You are signed in.', false, 'recovery');
     if (location.hash || location.search.includes('type=recovery')) {
       history.replaceState({}, document.title, location.pathname);
     }
-    setTimeout(closeAuth, 900);
+    setTimeout(() => closeAuth(), 900);
   }
 
   async function changePassword(form) {
@@ -556,9 +564,6 @@
         showAuth(el.dataset.openAuth || 'signin');
       });
     });
-    document.querySelectorAll('[data-auth-tab]').forEach(el => {
-      el.addEventListener('click', () => showAuth(el.dataset.authTab));
-    });
     document.querySelectorAll('[data-sign-out]').forEach(el => {
       el.addEventListener('click', async e => {
         e.preventDefault();
@@ -600,18 +605,20 @@
     const resendVerification = document.getElementById('resend-verification');
     if (resendVerification) resendVerification.addEventListener('click', resendVerificationEmail);
 
-    const close = document.getElementById('auth-close');
-    if (close) close.addEventListener('click', closeAuth);
-
     const accountClose = document.getElementById('account-center-close');
     if (accountClose) accountClose.addEventListener('click', closeAccount);
     const accountDlg = accountDialog();
     if (accountDlg) accountDlg.addEventListener('click', e => {
       if (e.target === accountDlg) closeAccount();
     });
-    const dlg = dialog();
-    if (dlg) dlg.addEventListener('click', e => {
-      if (e.target === dlg) closeAuth();
+    document.querySelectorAll('[data-auth-close]').forEach(button => {
+      button.addEventListener('click', () => closeAuth());
+    });
+    Object.keys(authDialogIds).forEach(mode => {
+      const dlg = authDialog(mode);
+      if (dlg) dlg.addEventListener('click', e => {
+        if (e.target === dlg) closeAuth();
+      });
     });
   }
 
