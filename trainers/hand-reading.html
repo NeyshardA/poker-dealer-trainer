@@ -40,6 +40,16 @@
 .pick-btn.active{background:#d2b078;color:#101719;border-color:#d2b078}
 .pick-btn.none{font-size:11px;padding:0 9px}
 @media(max-width:520px){.split-picks{grid-template-columns:1fr}.pick-box{padding:9px}.pick-btn{min-width:41px}}
+
+.assignment-grid{margin:14px auto 4px;max-width:620px;border:1px solid #354144;border-radius:9px;overflow:hidden;background:#10191b}
+.assignment-head,.assignment-row{display:grid;grid-template-columns:1.25fr 1fr 1fr;align-items:center}
+.assignment-head{background:#182224;color:#d2b078;font:700 11px Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase}
+.assignment-head>div,.assignment-row>div{padding:9px 8px;text-align:center}
+.assignment-row{border-top:1px solid #2e393b}.assignment-name{text-align:left!important;color:#fff;font-weight:700}
+.assign-box{width:42px;height:42px;margin:auto;border:1px solid #536164;border-radius:7px;background:#172123;color:#fff;font-size:18px;cursor:pointer}
+.assign-box.active{background:#d2b078;border-color:#d2b078;color:#101719}.assign-box:after{content:"";}.assign-box.active:after{content:"✓"}
+.no-low-wrap{padding:9px;border-top:1px solid #2e393b;text-align:center}.no-low-btn{min-height:40px;padding:0 14px}
+@media(max-width:520px){.assignment-grid{max-width:100%}.assignment-head>div,.assignment-row>div{padding:7px 4px}.assign-box{width:40px;height:40px}}
 </style>
 </head>
 <body class="trainer-page">
@@ -58,7 +68,7 @@
 <div id="communityWrap" class="board"><div class="board-label" id="boardLabel">Board</div><div class="cards" id="board"></div></div>
 <div class="question" id="question">Who wins?</div><div class="instruction" id="instruction">Tap a hand to select the winner.</div>
 <div class="players" id="players"></div>
-<div id="splitPicks" class="split-picks hidden"><div class="pick-box"><div class="pick-title">High Winner</div><div class="pick-row" id="highPicks"></div></div><div class="pick-box"><div class="pick-title">Low Winner</div><div class="pick-row" id="lowPicks"></div></div></div><div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
+<div id="splitPicks" class="hidden"><div class="assignment-grid"><div class="assignment-head"><div>Player</div><div>High</div><div>Low</div></div><div id="assignmentRows"></div><div class="no-low-wrap"><button type="button" class="pick-btn none no-low-btn" id="noLowBtn">No Qualifying Low</button></div></div></div><div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
 <div class="feedback" id="feedback"></div>
 </div>
 <div id="results" class="result-summary hidden"><h2>Session complete</h2><div class="big" id="finalScore"></div><p id="finalText"></p><button class="btn primary" id="againBtn">Train Again</button></div>
@@ -135,24 +145,24 @@ function renderHand(h){
  const split=state.game==='omaha8'||state.game==='bigo';
  $('splitPicks').classList.toggle('hidden',!split);
  let q=split?'Select the HIGH and LOW winners':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins?';$('question').textContent=q;
- $('instruction').textContent=split?'Select every player who ties for HIGH and every player who ties for LOW. You can choose multiple players on either side. Choose No Low only when there is no qualifying 8-or-better low.':'Tap a hand to select the winner.';
+ $('instruction').textContent=split?'Use the boxes below to mark who has HIGH and who has LOW. Mark every tied winner.':'Tap a hand to select the winner.';
  $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
  if(split){
-   $('highPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="high" data-i="'+i+'">P'+(i+1)+'</button>').join('');
-   $('lowPicks').innerHTML=h.players.map((_,i)=>'<button type="button" class="pick-btn" data-pick="low" data-i="'+i+'">P'+(i+1)+'</button>').join('')+'<button type="button" class="pick-btn none" data-pick="low" data-i="-1">No Low</button>';
-   document.querySelectorAll('.pick-btn').forEach(btn=>btn.onclick=()=>{
-     let type=btn.dataset.pick,val=+btn.dataset.i, arr=type==='high'?state.selectedHigh:state.selectedLow;
-     if(type==='low'&&val===-1){
-       state.selectedLow=state.selectedLow.length===1&&state.selectedLow[0]===-1?[]:[-1];
-       document.querySelectorAll('.pick-btn[data-pick="low"]').forEach(x=>x.classList.remove('active'));
-       if(state.selectedLow.length)btn.classList.add('active');
-     }else{
-       if(type==='low'&&state.selectedLow.includes(-1)){state.selectedLow=[];document.querySelector('.pick-btn[data-pick="low"][data-i="-1"]')?.classList.remove('active');arr=state.selectedLow}
-       let idx=arr.indexOf(val);if(idx>=0)arr.splice(idx,1);else arr.push(val);
-       btn.classList.toggle('active',arr.includes(val));
-     }
+   $('assignmentRows').innerHTML=h.players.map((_,i)=>'<div class="assignment-row"><div class="assignment-name">Player '+(i+1)+'</div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' high" data-pick="high" data-i="'+i+'"></button></div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' low" data-pick="low" data-i="'+i+'"></button></div></div>').join('');
+   document.querySelectorAll('.assign-box').forEach(btn=>btn.onclick=()=>{
+     let type=btn.dataset.pick,val=+btn.dataset.i,arr=type==='high'?state.selectedHigh:state.selectedLow;
+     if(type==='low'&&state.selectedLow.includes(-1)){state.selectedLow=[];$('noLowBtn').classList.remove('active');arr=state.selectedLow}
+     let idx=arr.indexOf(val);if(idx>=0)arr.splice(idx,1);else arr.push(val);
+     btn.classList.toggle('active',arr.includes(val));
      $('submitBtn').disabled=state.selectedHigh.length===0||state.selectedLow.length===0;
    });
+   $('noLowBtn').onclick=()=>{
+     const on=state.selectedLow.length===1&&state.selectedLow[0]===-1;
+     state.selectedLow=on?[]:[-1];
+     document.querySelectorAll('.assign-box[data-pick="low"]').forEach(x=>x.classList.remove('active'));
+     $('noLowBtn').classList.toggle('active',!on);
+     $('submitBtn').disabled=state.selectedHigh.length===0||state.selectedLow.length===0;
+   };
    document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{});
  }else{
    document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
@@ -185,10 +195,11 @@ function submit(){
  state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
  if(split){
    document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i)||h.lowW.includes(i))el.classList.add('correct')});
-   document.querySelectorAll('.pick-btn').forEach(btn=>{
-     let i=+btn.dataset.i,type=btn.dataset.pick,correct=type==='high'?h.w.includes(i):(h.lowW.length?h.lowW.includes(i):i===-1);
+   document.querySelectorAll('.assign-box').forEach(btn=>{
+     let i=+btn.dataset.i,type=btn.dataset.pick,correct=type==='high'?h.w.includes(i):h.lowW.includes(i);
      if(correct)btn.classList.add('active');
    });
+   if(!h.lowW.length)$('noLowBtn').classList.add('active');
  }else document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('correct');else if(i===state.selected)el.classList.add('wrong')});
  $('score').textContent=state.correct+'/'+state.total;$('streak').textContent=state.streak;$('feedback').innerHTML=(ok?'<h3>Correct.</h3>':'<h3>Not quite.</h3>')+explain(h);$('feedback').classList.add('show');$('submitBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
 }
