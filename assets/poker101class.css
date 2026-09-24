@@ -1,0 +1,615 @@
+/* Poker101Class shared trainer design system
+   Used by: Table Games Payouts, Dealer Mental Math, Mixed Games */
+
+:root{
+  color-scheme:dark;
+  --bg:#101719;
+  --panel:#192123;
+  --panel-2:#1d2729;
+  --panel-3:#252f31;
+  --border:#354144;
+  --text:#f5f3ed;
+  --muted:#b9c2c3;
+  --gold:#d2b078;
+  --gold-2:#ead3ac;
+  --green:#90b39b;
+  --red:#ef8a84;
+  --radius:7px;
+  --shadow:0 18px 40px rgba(0,0,0,.16);
+  --serif:Georgia,'Times New Roman',serif;
+}
+
+html,body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body.trainer-page{
+  margin:0;
+  min-height:100%;
+}
+.trainer-page h1,
+.trainer-page h2,
+.trainer-page h3,
+.trainer-page .question,
+.trainer-page .p101-trainer-title strong{
+  font-family:var(--serif);
+  font-weight:400;
+}
+.trainer-page h2{
+  color:#f5f3ed;
+  font-size:clamp(30px,3vw,42px);
+  line-height:1.1;
+  letter-spacing:-.5px;
+}
+.trainer-page h3{
+  color:#f5f3ed;
+  letter-spacing:-.25px;
+}
+.trainer-page a{color:var(--gold-2)}
+.trainer-page .muted,
+.trainer-page .sub,
+.trainer-page .hint,
+.trainer-page small{color:var(--muted)}
+
+/* Shared Poker101Class header */
+.trainer-page .p101-header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:#101719;
+  border-bottom:1px solid #ffffff15;
+  box-shadow:none;
+  backdrop-filter:none;
+  padding:0;
+}
+.trainer-page .p101-topbar{
+  width:min(1280px,calc(100% - 96px));
+  max-width:none;
+  min-height:102px;
+  margin:auto;
+  padding:15px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+.trainer-page .p101-brand{
+  display:block;
+  width:286px;
+  height:72px;
+  flex:0 0 auto;
+  text-decoration:none;
+}
+.trainer-page .p101-brand img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  mix-blend-mode:lighten;
+  background:transparent;
+}
+.trainer-page .p101-divider{
+  width:1px;
+  height:40px;
+  flex:0 0 1px;
+  background:#c6a56c50;
+}
+.trainer-page .p101-trainer-title{
+  display:grid;
+  gap:2px;
+  min-width:185px;
+  line-height:1.15;
+}
+.trainer-page .p101-trainer-title>span{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+}
+.trainer-page .p101-trainer-title strong{
+  color:#f5f3ed;
+  font-size:19px;
+  white-space:nowrap;
+}
+.trainer-page .p101-trainer-title small{
+  color:#899596;
+  font:600 10px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;
+  margin-top:2px;
+}
+.trainer-page .p101-nav,
+.trainer-page .p101-site-nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:27px;
+}
+.trainer-page .p101-nav a,
+.trainer-page .p101-site-nav a{
+  color:#d2d7d5;
+  text-decoration:none;
+  min-height:auto;
+  padding:20px 0;
+  border:0;
+  border-bottom:1px solid transparent;
+  border-radius:0;
+  background:transparent;
+  font-size:12px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+.trainer-page .p101-nav a:hover,
+.trainer-page .p101-site-nav a:hover{
+  color:var(--gold);
+  background:transparent;
+  border-color:transparent;
+}
+.trainer-page .p101-nav a.active,
+.trainer-page .p101-nav a[aria-current="page"],
+.trainer-page .p101-site-nav a.active,
+.trainer-page .p101-site-nav a[aria-current="page"]{
+  color:var(--gold);
+  background:transparent;
+  border-bottom-color:var(--gold);
+}
+.trainer-page .p101-mobile-nav{
+  display:none;
+  position:relative;
+  margin-left:auto;
+}
+.trainer-page .p101-mobile-nav summary{
+  list-style:none;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid #d2b07855;
+  border-radius:6px;
+  color:var(--gold);
+  cursor:pointer;
+  font-size:12px;
+  font-weight:800;
+}
+.trainer-page .p101-mobile-nav summary::-webkit-details-marker{display:none}
+.trainer-page .p101-mobile-nav nav{
+  position:absolute;
+  right:0;
+  top:50px;
+  width:210px;
+  padding:8px;
+  border:1px solid #465255;
+  border-radius:7px;
+  background:#192123;
+  box-shadow:0 20px 45px rgba(0,0,0,.45);
+}
+.trainer-page .p101-mobile-nav nav a{
+  display:block;
+  color:#dce4e2;
+  text-decoration:none;
+  padding:11px 12px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:700;
+}
+.trainer-page .p101-mobile-nav nav a:hover,
+.trainer-page .p101-mobile-nav nav a[aria-current="page"]{
+  color:var(--gold);
+  background:#d2b07810;
+}
+
+/* Shared controls and surfaces */
+.trainer-page button{
+  border-radius:7px;
+  background:#1b2527;
+  border-color:#465255;
+  font-weight:700;
+}
+.trainer-page button:hover{
+  background:#202b2d;
+  border-color:#d2b07880;
+  filter:none;
+}
+.trainer-page .btn{
+  border-radius:7px;
+  background:#1b2527;
+  border:1px solid #465255;
+  font-weight:700;
+}
+.trainer-page .btn:hover{
+  border-color:#d2b07880;
+  filter:none;
+}
+.trainer-page .primary,
+.trainer-page .btn.primary,
+.trainer-page .btn.green{
+  background:var(--gold);
+  color:#162023;
+  border-color:var(--gold);
+}
+.trainer-page .primary:hover,
+.trainer-page .btn.primary:hover,
+.trainer-page .btn.green:hover{
+  background:var(--gold-2);
+  border-color:var(--gold-2);
+}
+.trainer-page .ghost,
+.trainer-page .btn.ghost{
+  background:transparent;
+  border-color:#465255;
+}
+.trainer-page .panel,
+.trainer-page .study-card,
+.trainer-page .study-game{
+  background:var(--panel);
+  border-color:var(--border);
+  border-radius:7px;
+  box-shadow:none;
+}
+.trainer-page .eyebrow{
+  color:var(--gold);
+  letter-spacing:1.8px;
+}
+.trainer-page .metric,
+.trainer-page .card,
+.trainer-page .fact,
+.trainer-page .mode-card,
+.trainer-page .mult-card,
+.trainer-page .result-card,
+.trainer-page .stat,
+.trainer-page .level-card,
+.trainer-page .empty{
+  background:#ffffff04;
+  border-color:#ffffff12;
+  border-radius:7px;
+}
+.trainer-page .metric b,
+.trainer-page .level-card b,
+.trainer-page .mult-card h4,
+.trainer-page .study-table th,
+.trainer-page .feedback .correct-answer,
+.trainer-page .report-score,
+.trainer-page .target{
+  color:var(--gold-2);
+}
+.trainer-page .field label,
+.trainer-page .problem-label,
+.trainer-page .stat .k,
+.trainer-page .result-card .rlabel{
+  color:#9ca7a8;
+}
+.trainer-page .field select,
+.trainer-page .field input,
+.trainer-page select,
+.trainer-page .small-input,
+.trainer-page .answer-input{
+  background:#0e1618;
+  border-color:#3d494c;
+  border-radius:7px;
+  color:#fff;
+}
+.trainer-page .field select:focus,
+.trainer-page .field input:focus,
+.trainer-page select:focus,
+.trainer-page .small-input:focus,
+.trainer-page .answer-input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px #d2b07818;
+  outline:none;
+}
+.trainer-page .badge,
+.trainer-page .pill{
+  background:#ffffff07;
+  color:#d8dedc;
+  border:1px solid #ffffff10;
+  border-radius:999px;
+}
+.trainer-page .badge.gold,
+.trainer-page .pill.gold,
+.trainer-page .pill.warn{
+  color:var(--gold-2);
+  background:#d2b07810;
+  border-color:#d2b07830;
+}
+.trainer-page .notice,
+.trainer-page .callout{
+  border-left-color:var(--gold);
+  background:#d2b0780d;
+  border-radius:0 7px 7px 0;
+}
+.trainer-page .bar,
+.trainer-page .training-progress{
+  background:#0d1416;
+}
+.trainer-page .bar>div,
+.trainer-page .bar span{
+  background:var(--gold);
+}
+.trainer-page .weak-item,
+.trainer-page .steps li,
+.trainer-page .problem-line,
+.trainer-page .review,
+.trainer-page .wager{
+  border-color:#ffffff12;
+}
+.trainer-page table{
+  background:#151d1f;
+}
+.trainer-page th,
+.trainer-page td{
+  border-bottom-color:#ffffff12;
+}
+.trainer-page th{color:#9ca7a8}
+.trainer-page td:nth-child(2){color:var(--gold-2)}
+.trainer-page .feedback{
+  border-color:#d2b07838;
+  border-left-color:var(--gold);
+  background:#d2b0780d;
+  border-radius:7px;
+}
+.trainer-page .feedback.wrong{
+  border-color:#ef8a8445;
+  border-left-color:var(--red);
+  background:#ef8a8410;
+}
+.trainer-page .choice{
+  background:#151d1f;
+  border-color:#465255;
+  border-radius:7px;
+}
+.trainer-page .choice:hover{border-color:#d2b07880}
+.trainer-page .choice.correct{
+  border-color:#90b39b;
+  background:#1d2c24;
+  color:#e3f1e7;
+}
+.trainer-page .choice.wrong,
+.trainer-page .choice.incorrect{
+  border-color:#ef8a84;
+  background:#302022;
+  color:#ffd4d1;
+}
+.trainer-page footer{
+  border-top:1px solid #ffffff13;
+  color:#a1adad;
+  background:#101719;
+}
+
+/* Internal trainer navigation */
+.trainer-page .nav{
+  background:#161e20;
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+.trainer-page .nav button{
+  color:#d8dddc;
+  border-radius:7px;
+}
+.trainer-page .nav button:hover{background:#ffffff05}
+.trainer-page .nav button.active{
+  background:#d2b07812;
+  border-color:#d2b07840;
+  color:#fff;
+  outline:none;
+}
+.trainer-page .nav small,
+.trainer-page .nav .num{
+  color:var(--gold);
+}
+.trainer-page .nav .num{
+  background:#101719;
+  border-radius:5px;
+}
+
+/* Mental Math layout */
+.mental-math-page main{
+  width:min(1280px,calc(100% - 96px));
+  max-width:none;
+  margin:0 auto;
+  padding:32px 0 46px;
+  grid-template-columns:245px minmax(0,1fr) 280px;
+  gap:22px;
+}
+.mental-math-page .nav{top:124px}
+.mental-math-page .stats-panel{top:124px}
+.mental-math-page .hero{
+  background:linear-gradient(135deg,#1b2527,#182123);
+  border-color:#485356;
+}
+.mental-math-page .mode-card h3,
+.mental-math-page .section-title h3,
+.mental-math-page .stats-panel h3{color:#f5f3ed}
+.mental-math-page .level-item{
+  background:#151d1f;
+  border-color:#ffffff12;
+  border-radius:7px;
+}
+.mental-math-page .level-item strong{color:var(--gold-2)}
+.mental-math-page .trainer{background:#151d1f}
+.mental-math-page .trainer-top,
+.mental-math-page .trainer-controls{border-color:#ffffff12}
+.mental-math-page .problem-area{
+  background:linear-gradient(180deg,#182123,#12191b);
+}
+.mental-math-page .pot-call{color:var(--gold)}
+.mental-math-page .modal{
+  background:#192123;
+  border-color:#465255;
+  border-radius:7px;
+}
+
+/* Mixed Games + Table Games two-column layout */
+.mixed-games-page .app,
+.table-games-page .app{
+  width:min(1280px,calc(100% - 96px));
+  max-width:none;
+  margin:auto;
+  grid-template-columns:245px minmax(0,1fr);
+  gap:22px;
+  padding:32px 0 46px;
+}
+.mixed-games-page .nav,
+.table-games-page .nav{
+  position:sticky;
+  top:124px;
+  align-self:start;
+  padding:12px;
+  gap:5px;
+}
+.mixed-games-page .nav button,
+.table-games-page .nav button{
+  min-height:44px;
+  padding:10px 12px;
+}
+.mixed-games-page main,
+.table-games-page .workspace{min-width:0}
+
+/* Mixed Games details */
+.mixed-games-page .game-card,
+.table-games-page .game-card{
+  background:#151d1f;
+  border-color:#ffffff12;
+}
+.mixed-games-page .game-card:hover,
+.table-games-page .game-card:hover{
+  border-color:#d2b07870;
+  background:#192325;
+}
+.mixed-games-page .game-card b,
+.table-games-page .game-card b{
+  color:#f5f3ed;
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:400;
+}
+.mixed-games-page .steps li:before{
+  background:#101719;
+  color:var(--gold);
+  border:1px solid #d2b07840;
+}
+.mixed-games-page .question,
+.table-games-page .question{
+  color:#f5f3ed;
+  font-weight:400;
+  letter-spacing:-.4px;
+}
+
+/* Table Games details */
+.table-games-page .study-game>summary{
+  color:#f5f3ed;
+  font-family:var(--serif);
+  font-weight:400;
+}
+.table-games-page .weak-item .odds{color:var(--gold-2)}
+.table-games-page .exam-recorded{
+  background:#151d1f;
+  border-color:#465255;
+  border-radius:7px;
+}
+.table-games-page .paused{
+  border-color:#465255;
+  border-radius:7px;
+}
+.table-games-page .training-buttons,
+.table-games-page .danger-zone{border-top-color:#ffffff12}
+
+/* Responsive shared shell */
+@media(max-width:1150px){
+  .trainer-page .p101-topbar{width:calc(100% - 56px)}
+  .trainer-page .p101-nav,
+  .trainer-page .p101-site-nav{gap:18px}
+  .mental-math-page main,
+  .mixed-games-page .app,
+  .table-games-page .app{width:calc(100% - 56px)}
+  .mental-math-page main{grid-template-columns:220px minmax(0,1fr)}
+  .mental-math-page .stats-panel{
+    position:static;
+    grid-column:1/-1;
+  }
+  .mixed-games-page .app,
+  .table-games-page .app{grid-template-columns:220px minmax(0,1fr)}
+}
+@media(max-width:920px){
+  .trainer-page .p101-nav,
+  .trainer-page .p101-site-nav{display:none}
+  .trainer-page .p101-mobile-nav{display:block}
+}
+@media(max-width:820px){
+  .trainer-page .p101-topbar{
+    width:calc(100% - 28px);
+    min-height:84px;
+    padding:8px 0;
+    gap:10px;
+  }
+  .trainer-page .p101-brand{
+    width:min(220px,calc(100vw - 250px));
+    min-width:150px;
+    height:60px;
+  }
+  .trainer-page .p101-divider{height:32px}
+  .trainer-page .p101-trainer-title{min-width:0}
+  .trainer-page .p101-trainer-title strong{font-size:15px}
+  .trainer-page .p101-trainer-title>span{font-size:9px}
+
+  .mental-math-page main,
+  .mixed-games-page .app,
+  .table-games-page .app{
+    width:calc(100% - 20px);
+    grid-template-columns:1fr;
+    padding:10px 0 24px;
+  }
+  .mental-math-page .nav,
+  .mixed-games-page .nav,
+  .table-games-page .nav{
+    position:sticky;
+    top:84px;
+    z-index:18;
+    display:flex;
+    grid-template-columns:none;
+    overflow-x:auto;
+    white-space:nowrap;
+    padding:7px;
+    gap:6px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .mental-math-page .nav::-webkit-scrollbar,
+  .mixed-games-page .nav::-webkit-scrollbar,
+  .table-games-page .nav::-webkit-scrollbar{display:none}
+  .mental-math-page .nav button,
+  .mixed-games-page .nav button,
+  .table-games-page .nav button{
+    width:auto;
+    min-width:max-content;
+    flex:0 0 auto;
+    text-align:center;
+  }
+  .mental-math-page .trainer-controls{background:#101719f2}
+}
+@media(max-width:560px){
+  .trainer-page .p101-topbar{
+    width:calc(100% - 18px);
+    gap:8px;
+  }
+  .trainer-page .p101-brand{
+    width:145px;
+    min-width:145px;
+    height:48px;
+  }
+  .trainer-page .p101-divider{display:none}
+  .trainer-page .p101-trainer-title>span{display:none}
+  .trainer-page .p101-trainer-title strong{
+    font-size:12px;
+    max-width:100px;
+    white-space:normal;
+    line-height:1.15;
+  }
+  .trainer-page .p101-trainer-title small{display:none}
+  .mental-math-page main,
+  .mixed-games-page .app,
+  .table-games-page .app{width:calc(100% - 14px)}
+  .trainer-page .panel{border-radius:7px}
+  .trainer-page h2{font-size:30px}
+}
