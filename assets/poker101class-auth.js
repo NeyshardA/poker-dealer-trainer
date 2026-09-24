@@ -498,6 +498,86 @@
     if (trainerForPage()) setSyncStatus('offline', currentUser ? 'Offline · will sync' : 'Browser only');
   });
 
+  const PROTECTED_TARGET_KEY = 'p101-protected-target';
+
+  function sanitizeProtectedTarget(value) {
+    if (!value) return null;
+    try {
+      const url = new URL(value, location.origin);
+      if (url.origin !== location.origin) return null;
+      if (!/\/trainers\/(table-games|mental-math|mixed-games)\.html$/.test(url.pathname)) return null;
+      return url.pathname + url.search + url.hash;
+    } catch {
+      return null;
+    }
+  }
+
+  function rememberProtectedTarget(value) {
+    const target = sanitizeProtectedTarget(value);
+    if (!target) return null;
+    nativeSetItem.call(localStorage, PROTECTED_TARGET_KEY, JSON.stringify({
+      target,
+      at: Date.now()
+    }));
+    return target;
+  }
+
+  function readProtectedTarget() {
+    const saved = safeParse(localStorage.getItem(PROTECTED_TARGET_KEY));
+    if (!saved?.target || !saved?.at) return null;
+    if (Date.now() - Number(saved.at) > 30 * 60 * 1000) {
+      localStorage.removeItem(PROTECTED_TARGET_KEY);
+      return null;
+    }
+    return sanitizeProtectedTarget(saved.target);
+  }
+
+  function clearProtectedTarget() {
+    localStorage.removeItem(PROTECTED_TARGET_KEY);
+  }
+
+  function continueToProtectedTarget() {
+    const target = readProtectedTarget();
+    if (!target) return false;
+    clearProtectedTarget();
+    location.assign(target);
+    return true;
+  }
+
+  function captureAuthRequestFromUrl() {
+    if (trainerForPage()) return;
+    const params = new URLSearchParams(location.search);
+    const next = sanitizeProtectedTarget(params.get('next'));
+    if (next) rememberProtectedTarget(next);
+  }
+
+  function protectTrainerLinks() {
+    if (trainerForPage()) return;
+    document.querySelectorAll('a[href]').forEach(link => {
+      const target = sanitizeProtectedTarget(link.getAttribute('href'));
+      if (!target || link.dataset.p101Protected === 'true') return;
+      link.dataset.p101Protected = 'true';
+      link.addEventListener('click', event => {
+        if (currentUser) return;
+        event.preventDefault();
+        rememberProtectedTarget(target);
+        const menu = link.closest('.mobile-nav');
+        if (menu) menu.removeAttribute('open');
+        showAuth('signin');
+      });
+    });
+  }
+
+  function guardTrainerPage() {
+    const current = trainerForPage();
+    if (!current || currentUser) return false;
+    const target = sanitizeProtectedTarget(location.pathname + location.search + location.hash);
+    if (target) rememberProtectedTarget(target);
+    const next = target ? '&next=' + encodeURIComponent(target) : '';
+    location.replace('../index.html?auth=signin' + next);
+    return true;
+  }
+
   function getPreferredName(user) {
     return (
       currentProfile?.display_name ||
@@ -509,6 +589,8 @@
   }
 
   function setAuthControls(user) {
+    document.body?.classList.toggle('auth-signed-in', !!user);
+    document.body?.classList.toggle('auth-signed-out', !user);
     document.querySelectorAll('[data-auth-guest]').forEach(el => el.hidden = !!user);
     document.querySelectorAll('[data-auth-user]').forEach(el => el.hidden = !user);
 
@@ -780,7 +862,10 @@
 
     if (data.session) {
       authMessage('Account created. You are signed in.', false, 'signup');
-      setTimeout(() => closeAuth(), 600);
+      setTimeout(() => {
+        closeAuth();
+        continueToProtectedTarget();
+      }, 600);
     } else {
       authMessage('Account created. Check your email to confirm it, then come back and sign in.', false, 'signup');
     }
@@ -800,7 +885,10 @@
     }
 
     authMessage('Signed in.', false, 'signin');
-    setTimeout(() => closeAuth(), 400);
+    setTimeout(() => {
+      closeAuth();
+      continueToProtectedTarget();
+    }, 400);
   }
 
   async function requestPasswordReset(form) {
@@ -990,6 +1078,11 @@
     currentUser = session?.user || null;
     if (!currentUser) currentProfile = null;
     setAuthControls(currentUser);
+
+    if (guardTrainerPage()) return;
+
+    protectTrainerLinks();
+
     await Promise.all([
       renderMemberDashboard(),
       restoreOrSyncCurrentTrainer(),
@@ -997,7 +1090,9 @@
     ]);
   }
 
+  captureAuthRequestFromUrl();
   wireHomepageAuth();
+  protectTrainerLinks();
 
   client.auth.onAuthStateChange((event, session) => {
     setTimeout(async () => {
@@ -1006,7 +1101,19 @@
     }, 0);
   });
 
-  client.auth.getSession().then(({ data }) => refreshAuthState(data.session));
+  client.auth.getSession().then(async ({ data }) => {
+    await refreshAuthState(data.session);
+    if (!trainerForPage()) {
+      const params = new URLSearchParams(location.search);
+      if (data.session?.user && readProtectedTarget()) {
+        continueToProtectedTarget();
+        return;
+      }
+      if (!data.session?.user && params.get('auth') === 'signin') {
+        showAuth('signin');
+      }
+    }
+  });
 
   window.Poker101Account = {
     client,
