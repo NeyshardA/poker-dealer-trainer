@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101719">
+<title>Hand Reading Trainer | Poker101Class</title>
+<link rel="stylesheet" href="../assets/poker101class.css">
+<style>
+*{box-sizing:border-box}body{margin:0}.hr-wrap{width:min(1180px,calc(100% - 32px));margin:32px auto 70px}.hr-hero{display:flex;justify-content:space-between;gap:28px;align-items:end;margin-bottom:24px}.hr-hero h1{font:400 clamp(34px,5vw,54px)/1 Georgia,serif;margin:5px 0 10px}.hr-hero p{color:#b9c2c3;max-width:680px;margin:0}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#d2b078}.stats{display:flex;gap:10px;flex-wrap:wrap}.statbox{min-width:94px;padding:10px 14px;border:1px solid #354144;background:#192123;border-radius:7px}.statbox small{display:block;color:#8f9b9d;font-size:10px;text-transform:uppercase;letter-spacing:1px}.statbox b{font:400 24px Georgia,serif;color:#ead3ac}.panel{background:#192123;border:1px solid #354144;border-radius:7px;padding:22px}.setup{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.field label{display:block;color:#9ca7a8;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.field select{width:100%;padding:12px;background:#0e1618;color:#fff;border:1px solid #3d494c;border-radius:7px}.btn{cursor:pointer;padding:12px 18px;border:1px solid #465255;background:#1b2527;color:#fff;border-radius:7px;font-weight:700}.btn.primary{background:#d2b078;color:#162023;border-color:#d2b078}.btn:disabled{opacity:.45;cursor:not-allowed}.game{display:none}.game.active{display:block}.board-label,.section-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#9ca7a8;text-align:center;margin-bottom:9px}.cards{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}.card{width:62px;height:86px;background:#f5f3ed;border-radius:7px;border:1px solid #aaa;color:#15191a;display:flex;flex-direction:column;justify-content:space-between;padding:7px;font:700 20px/1 Georgia,serif;box-shadow:0 5px 12px #0004}.card.red{color:#b83232}.card .suit{text-align:right;font-size:25px}.board{padding:22px 10px;border-bottom:1px solid #ffffff12}.players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.player{position:relative;padding:16px;border:1px solid #354144;border-radius:7px;background:#11191b;cursor:pointer;transition:.15s}.player:hover{border-color:#d2b078}.player.selected{border-color:#d2b078;box-shadow:0 0 0 2px #d2b07833}.player.correct{border-color:#90b39b;background:#15241b}.player.wrong{border-color:#ef8a84;background:#28191a}.player-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.player-name{font:400 21px Georgia,serif}.player-tag{font-size:10px;color:#9ca7a8;text-transform:uppercase}.player .card{width:50px;height:70px;font-size:16px;padding:5px}.player .card .suit{font-size:20px}.question{text-align:center;font:400 27px Georgia,serif;margin:22px 0 13px}.instruction{text-align:center;color:#aeb8b9;font-size:13px}.actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}.feedback{display:none;margin-top:18px;padding:18px;border-left:3px solid #d2b078;background:#d2b0780d}.feedback.show{display:block}.feedback h3{margin:0 0 8px;font:400 24px Georgia,serif}.feedback p{margin:7px 0;color:#cbd2d2}.feedback strong{color:#ead3ac}.best5{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}.best5 .card{width:43px;height:60px;font-size:14px}.best5 .card .suit{font-size:17px}.mode-note{margin-top:10px;color:#8f9b9d;font-size:12px}.start-card{text-align:center;padding:42px 20px}.start-card h2{font:400 34px Georgia,serif;margin:0 0 10px}.start-card p{color:#b9c2c3;max-width:640px;margin:0 auto 20px}.timer{font-variant-numeric:tabular-nums}.result-summary{text-align:center;padding:35px}.result-summary h2{font:400 38px Georgia,serif}.result-summary .big{font:400 62px Georgia,serif;color:#ead3ac}.hidden{display:none!important}
+@media(max-width:760px){.hr-wrap{width:min(100% - 20px,1180px);margin-top:18px}.hr-hero{display:block}.stats{margin-top:16px}.setup{grid-template-columns:1fr 1fr}.players{grid-template-columns:1fr}.panel{padding:14px}.card{width:53px;height:75px}.player .card{width:47px;height:66px}.question{font-size:24px}}
+</style>
+</head>
+<body class="trainer-page">
+<header class="p101-header"><div class="p101-topbar"><a class="p101-brand" href="../"><img src="../assets/poker101class-logo-18.webp" alt="Poker101Class"></a><span class="p101-divider"></span><div class="p101-trainer-title"><span>Trainer 04</span><strong>Hand Reading</strong><small>Showdown accuracy & speed</small></div><nav class="p101-nav"><a href="../">Home</a><a href="../#trainers">Trainers</a><a aria-current="page" href="#">Hand Reading</a></nav></div></header>
+<main class="hr-wrap">
+<section class="hr-hero"><div><div class="eyebrow">Poker101Class • Dealer Skills</div><h1>Hand Reading Trainer</h1><p>Read real showdown situations, identify the winner, and learn exactly why. Built for fast dealer-level recognition on desktop and mobile.</p></div><div class="stats"><div class="statbox"><small>Score</small><b id="score">0/0</b></div><div class="statbox"><small>Streak</small><b id="streak">0</b></div><div class="statbox"><small>Time</small><b class="timer" id="timer">0.0s</b></div></div></section>
+<section class="panel">
+<div class="setup">
+<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold'em</option><option value="omaha8">Omaha 8-or-Better</option><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
+<div class="field"><label>Players</label><select id="playersSel"><option>2</option><option selected>3</option><option>4</option></select></div>
+<div class="field"><label>Difficulty</label><select id="difficulty"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="dealer">Dealer Speed</option></select></div>
+<div class="field"><label>Session</label><select id="sessionLen"><option value="10">10 hands</option><option value="20" selected>20 hands</option><option value="50">50 hands</option></select></div>
+</div>
+<div id="start" class="start-card"><h2>Ready to read the table?</h2><p>Choose your game and difficulty. Select the player with the winning hand. After every answer, the trainer shows the correct five-card hand and explains the result.</p><button class="btn primary" id="startBtn">Start Training</button><div class="mode-note">Texas Hold'em is fully randomized. Additional mixed-game evaluators are included for dealer practice.</div></div>
+<div id="game" class="game">
+<div id="communityWrap" class="board"><div class="board-label" id="boardLabel">Board</div><div class="cards" id="board"></div></div>
+<div class="question" id="question">Who wins the pot?</div><div class="instruction" id="instruction">Tap the winning player, then submit your answer.</div>
+<div class="players" id="players"></div>
+<div class="actions"><button class="btn primary" id="submitBtn" disabled>Submit Answer</button><button class="btn hidden" id="nextBtn">Next Hand →</button></div>
+<div class="feedback" id="feedback"></div>
+</div>
+<div id="results" class="result-summary hidden"><h2>Session complete</h2><div class="big" id="finalScore"></div><p id="finalText"></p><button class="btn primary" id="againBtn">Train Again</button></div>
+</section>
+</main>
+<script>
+const SUITS=['♠','♥','♦','♣'], RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const rv=Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
+let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem'};
+const $=id=>document.getElementById(id);
+function deck(){let d=[];for(const r of RANKS)for(const s of SUITS)d.push({r,s});return d.sort(()=>Math.random()-.5)}
+function cardHTML(c,small=false){return '<div class="card '+((c.s==='♥'||c.s==='♦')?'red':'')+'"><span>'+c.r+'</span><span class="suit">'+c.s+'</span></div>'}
+function combos(a,k){let out=[];function f(start,p){if(p.length===k){out.push(p.slice());return}for(let i=start;i<a.length;i++)f(i+1,p.concat(a[i]))}f(0,[]);return out}
+function fiveHigh(cards){let vals=[...new Set(cards.map(c=>rv[c.r]))].sort((a,b)=>b-a);if(vals.includes(14))vals.push(1);for(let i=0;i<=vals.length-5;i++)if(vals[i]-vals[i+4]===4)return vals[i];return 0}
+function eval5(cs){
+ let vals=cs.map(c=>rv[c.r]).sort((a,b)=>b-a), counts={};vals.forEach(v=>counts[v]=(counts[v]||0)+1);
+ let groups=Object.entries(counts).map(([v,n])=>({v:+v,n})).sort((a,b)=>b.n-a.n||b.v-a.v);
+ let flush=cs.every(c=>c.s===cs[0].s), sh=fiveHigh(cs);
+ if(flush&&sh)return {v:[8,sh],name:sh===14?'Royal Flush':'Straight Flush'};
+ if(groups[0].n===4)return {v:[7,groups[0].v,groups[1].v],name:'Four of a Kind'};
+ if(groups[0].n===3&&groups[1].n===2)return {v:[6,groups[0].v,groups[1].v],name:'Full House'};
+ if(flush)return {v:[5,...vals],name:'Flush'};
+ if(sh)return {v:[4,sh],name:'Straight'};
+ if(groups[0].n===3)return {v:[3,groups[0].v,...groups.slice(1).map(g=>g.v).sort((a,b)=>b-a)],name:'Three of a Kind'};
+ if(groups[0].n===2&&groups[1].n===2){let ps=[groups[0].v,groups[1].v].sort((a,b)=>b-a);return {v:[2,...ps,groups[2].v],name:'Two Pair'}}
+ if(groups[0].n===2)return {v:[1,groups[0].v,...groups.slice(1).map(g=>g.v).sort((a,b)=>b-a)],name:'One Pair'};
+ return {v:[0,...vals],name:'High Card'}
+}
+function cmp(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){let x=a[i]||0,y=b[i]||0;if(x!==y)return x-y}return 0}
+function bestHigh(cards,restricted){
+ let hands=restricted||combos(cards,5),best=null,bestCards=null;
+ for(const h of hands){let e=eval5(h);if(!best||cmp(e.v,best.v)>0){best=e;bestCards=h}}
+ return {...best,cards:bestCards}
+}
+function lowVal5(cs){
+ let vals=cs.map(c=>rv[c.r]===14?1:rv[c.r]);if(new Set(vals).size<5||Math.max(...vals)>8)return null;
+ vals.sort((a,b)=>b-a);return vals
+}
+function cmpLow(a,b){for(let i=0;i<5;i++){if(a[i]!==b[i])return b[i]-a[i]}return 0}
+function bestOmaha(hole,board){
+ let hs=combos(hole,2),bs=combos(board,3),all=[];for(const h of hs)for(const b of bs)all.push(h.concat(b));
+ let high=bestHigh([],all), low=null,lowCards=null;for(const c of all){let l=lowVal5(c);if(l&&(!low||cmpLow(l,low)>0)){low=l;lowCards=c}}
+ return {high,low,lowCards}
+}
+function aceLow(cards){let vals=cards.map(c=>rv[c.r]===14?1:rv[c.r]);let counts={};vals.forEach(v=>counts[v]=(counts[v]||0)+1);let pairs=Object.values(counts).filter(n=>n>1).length;vals.sort((a,b)=>b-a);return [pairs,...vals]}
+function bestRazz(seven){let best=null,cards=null;for(const c of combos(seven,5)){let v=aceLow(c);if(!best||cmpLow(v.slice(1),best.slice(1))>0 && v[0]<=best[0] || v[0]<best[0]){best=v;cards=c}}return {v:best,cards,name:'Low '+best.slice(1).join('-')}}
+function deuceEval(cs){let e=eval5(cs);let vals=cs.map(c=>rv[c.r]).sort((a,b)=>b-a);let category=e.v[0];return {v:[-category,...vals.map(v=>-v)],cards:cs,name:category===0?(vals.join('-')+' Low'):'Paired/straight/flush low'}}
+function bestBadugi(cs){let best=null,bestCards=null;for(let k=1;k<=4;k++)for(const c of combos(cs,k)){if(new Set(c.map(x=>x.s)).size!==k||new Set(c.map(x=>x.r)).size!==k)continue;let vals=c.map(x=>rv[x.r]===14?1:rv[x.r]).sort((a,b)=>b-a);let v=[k,...vals.map(x=>-x)];if(!best||cmp(v,best)>0){best=v;bestCards=c}}return {v:best,cards:bestCards,name:(bestCards?.length||0)+'-card Badugi'}}
+function generate(){
+ let d=deck(),n=+$('playersSel').value,g=$('gameSel').value,board=[],players=[];state.game=g;
+ if(g==='holdem'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,2));let ev=players.map(h=>bestHigh(h.concat(board)));return packageHand(board,players,ev,'high')}
+ if(g==='omaha8'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,4));let ev=players.map(h=>bestOmaha(h,board));return packageO8(board,players,ev)}
+ if(g==='razz'||g==='stud8'){for(let i=0;i<n;i++)players.push(d.splice(0,7));let ev=players.map(h=>g==='razz'?bestRazz(h):bestHigh(h));return packageHand([],players,ev,g==='razz'?'low':'high')}
+ if(g==='draw'||g==='deuce'){for(let i=0;i<n;i++)players.push(d.splice(0,5));let ev=players.map(h=>g==='draw'?bestHigh(h):deuceEval(h));return packageHand([],players,ev,g==='deuce'?'low':'high')}
+ if(g==='badugi'){for(let i=0;i<n;i++)players.push(d.splice(0,4));let ev=players.map(bestBadugi);return packageHand([],players,ev,'badugi')}
+}
+function packageHand(board,players,ev,type){
+ let best=0,w=[0];for(let i=1;i<ev.length;i++){let c;
+ if(type==='low'&&state.game==='razz'){c=compareRazz(ev[i].v,ev[best].v)}
+ else c=cmp(ev[i].v,ev[best].v);
+ if(c>0){best=i;w=[i]}else if(c===0)w.push(i)}
+ return {board,players,ev,w,type}
+}
+function compareRazz(a,b){if(a[0]!==b[0])return b[0]-a[0];return cmpLow(a.slice(1),b.slice(1))}
+function packageO8(board,players,ev){
+ let hi=0,hw=[0];for(let i=1;i<ev.length;i++){let c=cmp(ev[i].high.v,ev[hi].high.v);if(c>0){hi=i;hw=[i]}else if(c===0)hw.push(i)}
+ let lows=ev.map((x,i)=>x.low?i:null).filter(x=>x!==null),lw=[];if(lows.length){let best=lows[0];lw=[best];for(const i of lows.slice(1)){let c=cmpLow(ev[i].low,ev[best].low);if(c>0){best=i;lw=[i]}else if(c===0)lw.push(i)}}
+ return {board,players,ev,w:hw,type:'omaha8',lowW:lw}
+}
+function renderHand(h){
+ state.details=h;state.selected=null;$('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
+ $('communityWrap').classList.toggle('hidden',!h.board.length);$('board').innerHTML=h.board.map(cardHTML).join('');
+ let q=state.game==='omaha8'?'Who wins the HIGH half?':state.game==='razz'||state.game==='deuce'||state.game==='badugi'?'Who has the winning LOW hand?':'Who wins the pot?';$('question').textContent=q;
+ $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">Select</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
+ document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
+ state.start=performance.now();
+}
+function explain(h){
+ let winners=h.w.map(i=>'Player '+(i+1)).join(' & '),e=h.ev[h.w[0]],name=e.name||e.high?.name||'winning hand',cards=e.cards||e.high?.cards||[];
+ let extra='';if(state.game==='omaha8'){name=e.high.name;cards=e.high.cards;extra=h.lowW.length?' The low half is won by '+h.lowW.map(i=>'Player '+(i+1)).join(' & ')+'.':' There is no qualifying 8-or-better low.'}
+ return '<h3>'+winners+' — '+name+'</h3><p><strong>Best hand:</strong></p><div class="best5">'+cards.map(cardHTML).join('')+'</div><p>'+ruleText(state.game,name)+extra+'</p>'
+}
+function ruleText(g,name){
+ if(g==='holdem')return 'Texas Hold’em uses the best five-card poker hand from any combination of the two hole cards and five community cards. Playing the board is allowed.';
+ if(g==='omaha8')return 'Omaha requires exactly two hole cards and exactly three board cards. High and qualifying 8-or-better low are evaluated separately.';
+ if(g==='razz')return 'Razz is ace-to-five lowball: aces are low, straights and flushes do not count against the hand, and the lowest five-card hand wins.';
+ if(g==='deuce')return '2-7 lowball ranks the lowest five-card hand, with aces high; straights, flushes and pairs count against the hand.';
+ if(g==='badugi')return 'Badugi rewards the largest four-card hand with different suits and ranks; among equal card counts, the lowest hand wins and aces are low.';
+ if(g==='stud8')return 'For this high-hand drill, the best five cards from the seven-card stud hand determine the high winner.';
+ return 'Standard high poker ranking applies: use the strongest five-card combination.'
+}
+function submit(){
+ let h=state.details,ok=h.w.includes(state.selected);state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
+ document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('correct');else if(i===state.selected)el.classList.add('wrong')});
+ $('score').textContent=state.correct+'/'+state.total;$('streak').textContent=state.streak;$('feedback').innerHTML=(ok?'<h3>Correct.</h3>':'<h3>Not quite.</h3>')+explain(h);$('feedback').classList.add('show');$('submitBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
+}
+function next(){state.hand++;if(state.hand>=state.max)return finish();renderHand(generate())}
+function start(){state={...state,correct:0,total:0,streak:0,hand:0,max:+$('sessionLen').value};$('score').textContent='0/0';$('streak').textContent='0';$('start').classList.add('hidden');$('results').classList.add('hidden');$('game').classList.add('active');clearInterval(state.timer);state.timer=setInterval(()=>{if(state.start)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s'},100);renderHand(generate())}
+function finish(){clearInterval(state.timer);$('game').classList.remove('active');$('results').classList.remove('hidden');let pct=Math.round(state.correct/state.total*100);$('finalScore').textContent=pct+'%';$('finalText').textContent=state.correct+' correct out of '+state.total+'. '+(pct>=90?'Excellent showdown recognition.':pct>=75?'Strong work — keep sharpening the close spots.':'Keep training. Accuracy first, then speed.')}
+$('startBtn').onclick=start;$('submitBtn').onclick=submit;$('nextBtn').onclick=next;$('againBtn').onclick=()=>{$('results').classList.add('hidden');$('start').classList.remove('hidden')};
+</script>
+</body></html>
