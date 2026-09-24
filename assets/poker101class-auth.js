@@ -534,15 +534,24 @@
     const section = document.getElementById('member-progress');
     if (!section || !currentUser) return;
 
-    const [{ data: profile }, { data: progress, error }, { data: entitlement }] = await Promise.all([
+    const [{ data: profile }, { data: progress, error }, { data: entitlement }, { data: recentSessions, error: sessionsError }, { count: sessionCount }] = await Promise.all([
       client.from('profiles').select('display_name').eq('id', currentUser.id).maybeSingle(),
       client.from('trainer_progress')
         .select('trainer_key,metrics,last_activity_at,updated_at')
         .eq('user_id', currentUser.id),
-      client.from('account_entitlements').select('plan,status,current_period_end').eq('user_id', currentUser.id).maybeSingle()
+      client.from('account_entitlements').select('plan,status,current_period_end').eq('user_id', currentUser.id).maybeSingle(),
+      client.from('training_sessions')
+        .select('trainer_key,mode,total_questions,correct_answers,duration_ms,avg_response_ms,metadata,created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(8),
+      client.from('training_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUser.id)
     ]);
 
     if (error) console.error('Poker101Class dashboard load failed:', error.message);
+    if (sessionsError) console.error('Poker101Class session history load failed:', sessionsError.message);
 
     currentProfile = profile || null;
     setAuthControls(currentUser);
@@ -617,6 +626,38 @@
       const key = latest?.trainer_key || 'table-games';
       continueBtn.href = trainers[key].href;
       continueBtn.innerHTML = latest ? `Continue ${trainers[key].label} <span aria-hidden="true">↗</span>` : 'Start your first session <span aria-hidden="true">↗</span>';
+    }
+
+    const sessionCountEl = document.getElementById('member-session-count');
+    if (sessionCountEl) {
+      const n = Number(sessionCount) || 0;
+      sessionCountEl.textContent = n + (n === 1 ? ' session' : ' sessions');
+    }
+
+    const recentList = document.getElementById('recent-session-list');
+    if (recentList) {
+      const rows = Array.isArray(recentSessions) ? recentSessions : [];
+      recentList.innerHTML = rows.length ? rows.map(row => {
+        const config = trainers[row.trainer_key] || { label: row.trainer_key || 'Trainer', href: '#' };
+        const total = Number(row.total_questions) || 0;
+        const correct = Number(row.correct_answers) || 0;
+        const accuracy = total ? Math.round(correct / total * 100) : 0;
+        const duration = Number(row.duration_ms) || 0;
+        const durationText = duration >= 60000
+          ? Math.max(1, Math.round(duration / 60000)) + ' min'
+          : duration > 0 ? Math.max(1, Math.round(duration / 1000)) + ' sec' : '—';
+        return `<a class="recent-session-row" href="${config.href}">
+          <div class="recent-session-main">
+            <span>${config.label}</span>
+            <strong>${row.mode || 'Training session'}</strong>
+            <small>${fmtDate(row.created_at)} · ${durationText}</small>
+          </div>
+          <div class="recent-session-score">
+            <b>${accuracy}%</b>
+            <small>${correct}/${total}</small>
+          </div>
+        </a>`;
+      }).join('') : '<div class="recent-session-empty">Complete a signed-in training session and it will appear here.</div>';
     }
   }
 
