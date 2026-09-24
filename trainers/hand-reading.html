@@ -207,6 +207,8 @@ function ruleText(g,name){
 }
 function submit(){
  if(state.locked)return;state.locked=true;
+ clearInterval(state.timer);state.timer=null;
+ if(state.start)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s';
  let h=state.details,split=state.game==='omaha8'||state.game==='bigo',ok;
  if(split){
    const sameSet=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
