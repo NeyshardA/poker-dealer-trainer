@@ -50,6 +50,11 @@
 .assign-box.active{background:#d2b078;border-color:#d2b078;color:#101719}.assign-box:after{content:"";}.assign-box.active:after{content:"✓"}
 .no-low-wrap{padding:9px;border-top:1px solid #2e393b;text-align:center}.no-low-btn{min-height:40px;padding:0 14px}
 @media(max-width:520px){.assignment-grid{max-width:100%}.assignment-head>div,.assignment-row>div{padding:7px 4px}.assign-box{width:40px;height:40px}}
+
+.player.answer-correct{border-color:#68b77b!important;box-shadow:0 0 0 2px #68b77b55!important}
+.assign-box.answer-correct{background:#68b77b!important;border-color:#68b77b!important;color:#07120a!important}
+.assign-box.answer-wrong{background:#7b2f34!important;border-color:#d16a72!important}
+.answer-lock-note{margin-top:10px;text-align:center;color:#9ca7a8;font-size:11px;text-transform:uppercase;letter-spacing:.8px}
 </style>
 </head>
 <body class="trainer-page">
@@ -77,7 +82,7 @@
 <script>
 const SUITS=['♠','♥','♦','♣'], RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const rv=Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
-let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem',selectedHigh:[],selectedLow:[]};
+let state={correct:0,total:0,streak:0,selected:null,start:0,timer:null,hand:0,max:20,answer:[],details:null,game:'holdem',selectedHigh:[],selectedLow:[],locked:false};
 const $=id=>document.getElementById(id);
 function deck(){let d=[];for(const r of RANKS)for(const s of SUITS)d.push({r,s});return d.sort(()=>Math.random()-.5)}
 function cardHTML(c,small=false){return '<div class="card '+((c.s==='♥'||c.s==='♦')?'red':'')+'"><span>'+c.r+'</span><span class="suit">'+c.s+'</span></div>'}
@@ -139,7 +144,7 @@ function packageO8(board,players,ev){
  return {board,players,ev,w:hw,type:state.game==='bigo'?'bigo':'omaha8',lowW:lw}
 }
 function renderHand(h){
- state.details=h;state.selected=null;state.selectedHigh=[];state.selectedLow=[];
+ state.details=h;state.selected=null;state.selectedHigh=[];state.selectedLow=[];state.locked=false;
  $('submitBtn').disabled=true;$('submitBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('feedback').className='feedback';$('feedback').innerHTML='';
  $('communityWrap').classList.toggle('hidden',!h.board.length);$('board').innerHTML=h.board.map(cardHTML).join('');
  const split=state.game==='omaha8'||state.game==='bigo';
@@ -149,14 +154,14 @@ function renderHand(h){
  $('players').innerHTML=h.players.map((p,i)=>'<div class="player" data-i="'+i+'"><div class="player-head"><span class="player-name">Player '+(i+1)+'</span><span class="player-tag">'+(split?'Hand '+(i+1):'Select')+'</span></div><div class="cards">'+p.map(cardHTML).join('')+'</div></div>').join('');
  if(split){
    $('assignmentRows').innerHTML=h.players.map((_,i)=>'<div class="assignment-row"><div class="assignment-name">Player '+(i+1)+'</div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' high" data-pick="high" data-i="'+i+'"></button></div><div><button type="button" class="assign-box" aria-label="Player '+(i+1)+' low" data-pick="low" data-i="'+i+'"></button></div></div>').join('');
-   document.querySelectorAll('.assign-box').forEach(btn=>btn.onclick=()=>{
+   document.querySelectorAll('.assign-box').forEach(btn=>btn.onclick=()=>{if(state.locked)return;
      let type=btn.dataset.pick,val=+btn.dataset.i,arr=type==='high'?state.selectedHigh:state.selectedLow;
      if(type==='low'&&state.selectedLow.includes(-1)){state.selectedLow=[];$('noLowBtn').classList.remove('active');arr=state.selectedLow}
      let idx=arr.indexOf(val);if(idx>=0)arr.splice(idx,1);else arr.push(val);
      btn.classList.toggle('active',arr.includes(val));
      $('submitBtn').disabled=state.selectedHigh.length===0||state.selectedLow.length===0;
    });
-   $('noLowBtn').onclick=()=>{
+   $('noLowBtn').onclick=()=>{if(state.locked)return;
      const on=state.selectedLow.length===1&&state.selectedLow[0]===-1;
      state.selectedLow=on?[]:[-1];
      document.querySelectorAll('.assign-box[data-pick="low"]').forEach(x=>x.classList.remove('active'));
@@ -165,7 +170,7 @@ function renderHand(h){
    };
    document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{});
  }else{
-   document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if($('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
+   document.querySelectorAll('.player').forEach(el=>el.onclick=()=>{if(state.locked||$('submitBtn').classList.contains('hidden'))return;document.querySelectorAll('.player').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');state.selected=+el.dataset.i;$('submitBtn').disabled=false});
  }
  state.start=performance.now();
 }
@@ -184,6 +189,7 @@ function ruleText(g,name){
  return 'Standard high poker ranking applies: use the strongest five-card combination.'
 }
 function submit(){
+ if(state.locked)return;state.locked=true;
  let h=state.details,split=state.game==='omaha8'||state.game==='bigo',ok;
  if(split){
    const sameSet=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
@@ -194,14 +200,20 @@ function submit(){
  }else ok=h.w.includes(state.selected);
  state.total++;if(ok){state.correct++;state.streak++}else state.streak=0;
  if(split){
-   document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i)||h.lowW.includes(i))el.classList.add('correct')});
+   document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i)||h.lowW.includes(i))el.classList.add('answer-correct')});
    document.querySelectorAll('.assign-box').forEach(btn=>{
      let i=+btn.dataset.i,type=btn.dataset.pick,correct=type==='high'?h.w.includes(i):h.lowW.includes(i);
-     if(correct)btn.classList.add('active');
+     const chosen=type==='high'?state.selectedHigh.includes(i):state.selectedLow.includes(i);
+     btn.classList.remove('active');
+     if(correct)btn.classList.add('answer-correct');else if(chosen)btn.classList.add('answer-wrong');
+     btn.disabled=true;
    });
-   if(!h.lowW.length)$('noLowBtn').classList.add('active');
- }else document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('correct');else if(i===state.selected)el.classList.add('wrong')});
- $('score').textContent=state.correct+'/'+state.total;$('streak').textContent=state.streak;$('feedback').innerHTML=(ok?'<h3>Correct.</h3>':'<h3>Not quite.</h3>')+explain(h);$('feedback').classList.add('show');$('submitBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
+   $('noLowBtn').classList.remove('active');
+   if(!h.lowW.length)$('noLowBtn').classList.add('answer-correct');
+   else if(state.selectedLow.includes(-1))$('noLowBtn').classList.add('answer-wrong');
+   $('noLowBtn').disabled=true;
+ }else document.querySelectorAll('.player').forEach((el,i)=>{if(h.w.includes(i))el.classList.add('answer-correct');else if(i===state.selected)el.classList.add('wrong');el.style.pointerEvents='none'});
+ $('score').textContent=state.correct+'/'+state.total;$('streak').textContent=state.streak;$('feedback').innerHTML=(ok?'<h3>Correct.</h3>':'<h3>Not quite.</h3>')+explain(h);$('feedback').insertAdjacentHTML('beforeend','<div class="answer-lock-note">Answer locked • continue to the next hand</div>');$('feedback').classList.add('show');$('submitBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
 }
 function next(){state.hand++;if(state.hand>=state.max)return finish();renderHand(generate())}
 function start(){state={...state,correct:0,total:0,streak:0,hand:0,max:+$('sessionLen').value};$('score').textContent='0/0';$('streak').textContent='0';$('start').classList.add('hidden');$('results').classList.add('hidden');$('game').classList.add('active');clearInterval(state.timer);state.timer=setInterval(()=>{if(state.start)$('timer').textContent=((performance.now()-state.start)/1000).toFixed(1)+'s'},100);renderHand(generate())}
