@@ -613,3 +613,33 @@ body.trainer-page{
   .trainer-page .panel{border-radius:7px}
   .trainer-page h2{font-size:30px}
 }
+
+
+/* Cloud progress status */
+.p101-cloud-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  margin-top:4px;
+  color:#8f9a9b;
+  font:650 10px/1.2 system-ui,-apple-system,'Segoe UI',sans-serif;
+  letter-spacing:.2px;
+}
+.p101-cloud-status:before{
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#7d898a;
+  flex:0 0 auto;
+}
+.p101-cloud-status[data-state="saved"]{color:#9fb7a8}
+.p101-cloud-status[data-state="saved"]:before{background:#90b39b}
+.p101-cloud-status[data-state="syncing"]{color:#d8c18f}
+.p101-cloud-status[data-state="syncing"]:before{background:#d2b078}
+.p101-cloud-status[data-state="offline"]{color:#d8b183}
+.p101-cloud-status[data-state="offline"]:before{background:#c99a62}
+.p101-cloud-status[data-state="error"]{color:#efaaa5}
+.p101-cloud-status[data-state="error"]:before{background:#ef8a84}
+.p101-cloud-status[data-state="browser"]{color:#899596}
