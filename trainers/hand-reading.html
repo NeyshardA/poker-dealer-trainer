@@ -63,7 +63,7 @@
 <section class="hr-hero"><div><div class="eyebrow">Poker101Class • Dealer Skills</div><h1>Hand Reading Trainer</h1><p>Read real showdown situations, identify the winner, and learn exactly why. Built for fast dealer-level recognition on desktop and mobile.</p></div><div class="stats"><div class="statbox"><small>Score</small><b id="score">0/0</b></div><div class="statbox"><small>Streak</small><b id="streak">0</b></div><div class="statbox"><small>Time</small><b class="timer" id="timer">0.0s</b></div></div></section>
 <section class="panel">
 <div class="setup">
-<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold’em</option><option value="bigo">Big O</option><option value="mixed">Mixed Games</option></select></div><div class="field hidden" id="mixedField"><label>Mixed Game</label><select id="mixedSel"><option value="razz">Razz</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
+<div class="field"><label>Game</label><select id="gameSel"><option value="holdem">Texas Hold’em</option><option value="bigo">Big O</option><option value="mixed">Mixed Games</option></select></div><div class="field hidden" id="mixedField"><label>Mixed Game</label><select id="mixedSel"><option value="razz">Razz</option><option value="stud">7-Card Stud</option><option value="stud8">Stud 8-or-Better</option><option value="draw">5-Card Draw</option><option value="deuce">2-7 Triple Draw</option><option value="badugi">Badugi</option></select></div>
 <div class="field"><label>Players</label><select id="playersSel"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div>
 <div class="field"><label>Difficulty</label><select id="difficulty"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="dealer">Dealer Speed</option></select></div>
 <div class="field"><label>Session</label><select id="sessionLen"><option value="10">10 hands</option><option value="20" selected>20 hands</option><option value="50">50 hands</option></select></div>
@@ -126,7 +126,7 @@ function generate(){
  let d=deck(),n=+$('playersSel').value,g=$('gameSel').value,board=[],players=[];if(g==='mixed')g=$('mixedSel').value;state.game=g;
  if(g==='holdem'){board=d.splice(0,5);for(let i=0;i<n;i++)players.push(d.splice(0,2));let ev=players.map(h=>bestHigh(h.concat(board)));return packageHand(board,players,ev,'high')}
  if(g==='omaha8'||g==='bigo'){board=d.splice(0,5);let holeCount=g==='bigo'?5:4;for(let i=0;i<n;i++)players.push(d.splice(0,holeCount));let ev=players.map(h=>bestOmaha(h,board));return packageO8(board,players,ev)}
- if(g==='razz'||g==='stud8'){for(let i=0;i<n;i++)players.push(d.splice(0,7));let ev=players.map(h=>g==='razz'?bestRazz(h):bestHigh(h));return packageHand([],players,ev,g==='razz'?'low':'high')}
+ if(g==='razz'||g==='stud'||g==='stud8'){for(let i=0;i<n;i++)players.push(d.splice(0,7));let ev=players.map(h=>g==='razz'?bestRazz(h):bestHigh(h));return packageHand([],players,ev,g==='razz'?'low':'high')}
  if(g==='draw'||g==='deuce'){for(let i=0;i<n;i++)players.push(d.splice(0,5));let ev=players.map(h=>g==='draw'?bestHigh(h):deuceEval(h));return packageHand([],players,ev,g==='deuce'?'low':'high')}
  if(g==='badugi'){for(let i=0;i<n;i++)players.push(d.splice(0,4));let ev=players.map(bestBadugi);return packageHand([],players,ev,'badugi')}
 }
@@ -185,7 +185,7 @@ function ruleText(g,name){
  if(g==='razz')return 'Razz is ace-to-five lowball: aces are low, straights and flushes do not count against the hand, and the lowest five-card hand wins.';
  if(g==='deuce')return '2-7 lowball ranks the lowest five-card hand, with aces high; straights, flushes and pairs count against the hand.';
  if(g==='badugi')return 'Badugi rewards the largest four-card hand with different suits and ranks; among equal card counts, the lowest hand wins and aces are low.';
- if(g==='stud8')return 'For this high-hand drill, the best five cards from the seven-card stud hand determine the high winner.';
+ if(g==='stud')return '7-Card Stud is high only: each player has seven cards and the best five-card poker hand wins.'; if(g==='stud8')return 'Stud 8-or-Better is a high-low split game: the best five-card high hand competes for high and a qualifying 8-or-better ace-to-five low competes for low.';
  return 'Standard high poker ranking applies: use the strongest five-card combination.'
 }
 function submit(){
