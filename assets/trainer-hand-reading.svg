@@ -1,13 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172522"/><stop offset="1" stop-color="#070b0c"/></linearGradient><radialGradient id="felt"><stop stop-color="#24483c"/><stop offset="1" stop-color="#101b19"/></radialGradient><filter id="s"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-opacity=".5"/></filter></defs>
-<rect width="1254" height="1254" fill="url(#bg)"/><ellipse cx="627" cy="520" rx="560" ry="350" fill="url(#felt)" stroke="#a98a55" stroke-width="5" opacity=".95"/>
-<g opacity=".18" fill="none" stroke="#d7bf8d" stroke-width="3"><ellipse cx="627" cy="520" rx="470" ry="280"/><ellipse cx="627" cy="520" rx="390" ry="215"/></g>
-<g filter="url(#s)" font-family="Georgia,serif" font-weight="700" text-anchor="middle">
-<g transform="translate(240 330) rotate(-8)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#171717">A</text><text x="35" y="98" font-size="42" fill="#171717">♠</text></g>
-<g transform="translate(395 300) rotate(-3)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#b32828">K</text><text x="35" y="98" font-size="42" fill="#b32828">♥</text></g>
-<g transform="translate(552 300) rotate(2)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#171717">Q</text><text x="35" y="98" font-size="42" fill="#171717">♣</text></g>
-<g transform="translate(709 320) rotate(6)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="34" y="55" font-size="45" fill="#b32828">J</text><text x="35" y="98" font-size="42" fill="#b32828">♦</text></g>
-<g transform="translate(862 355) rotate(10)"><rect width="150" height="210" rx="14" fill="#f7f4ed"/><text x="38" y="55" font-size="42" fill="#171717">10</text><text x="35" y="98" font-size="42" fill="#171717">♠</text></g></g>
-<g opacity=".92"><circle cx="250" cy="735" r="82" fill="#4b1f26" stroke="#d0b37d" stroke-width="10"/><circle cx="250" cy="735" r="55" fill="none" stroke="#d0b37d" stroke-width="5" stroke-dasharray="10 12"/><circle cx="1000" cy="700" r="78" fill="#172f27" stroke="#d0b37d" stroke-width="10"/><circle cx="1000" cy="700" r="52" fill="none" stroke="#d0b37d" stroke-width="5" stroke-dasharray="10 12"/></g>
-<rect y="820" width="1254" height="434" fill="url(#bg)" opacity=".72"/>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#21140f"/><stop offset=".48" stop-color="#101514"/><stop offset="1" stop-color="#060a0b"/></linearGradient>
+ <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".35" stop-color="#071011" stop-opacity=".05"/><stop offset=".72" stop-color="#071011" stop-opacity=".78"/><stop offset="1" stop-color="#071011"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-opacity=".5"/></filter>
+</defs>
+<rect width="1254" height="1254" fill="url(#bg)"/>
+<!-- warm casino chip stacks -->
+<g filter="url(#shadow)">
+ <g transform="translate(70 120)"><ellipse cx="120" cy="170" rx="112" ry="35" fill="#5e1719"/><rect x="8" y="42" width="224" height="128" fill="#68191b"/><ellipse cx="120" cy="42" rx="112" ry="35" fill="#8a2526"/><path d="M25 58h30v105H25m68-116h30v120H93m74-120h30v118h-30" fill="#d9c6a1" opacity=".9"/></g>
+ <g transform="translate(280 70)"><ellipse cx="120" cy="205" rx="112" ry="35" fill="#6a1719"/><rect x="8" y="42" width="224" height="163" fill="#761b1d"/><ellipse cx="120" cy="42" rx="112" ry="35" fill="#9b2929"/><path d="M25 58h30v140H25m68-151h30v155H93m74-155h30v153h-30" fill="#dbc7a0" opacity=".9"/></g>
+ <g transform="translate(515 125)"><ellipse cx="120" cy="175" rx="112" ry="35" fill="#651719"/><rect x="8" y="42" width="224" height="133" fill="#731a1c"/><ellipse cx="120" cy="42" rx="112" ry="35" fill="#962727"/><path d="M25 58h30v110H25m68-121h30v125H93m74-125h30v123h-30" fill="#dbc7a0" opacity=".9"/></g>
+ <g transform="translate(420 15)" opacity=".7"><rect x="0" y="30" width="65" height="210" rx="20" fill="#171819"/><rect x="75" y="0" width="65" height="240" rx="20" fill="#b5a68d"/><rect x="150" y="25" width="65" height="215" rx="20" fill="#2a2927"/></g>
+</g>
+<!-- dealer button -->
+<g transform="translate(935 150)" filter="url(#shadow)">
+ <ellipse cx="115" cy="95" rx="142" ry="100" fill="#111" stroke="#b89155" stroke-width="8"/>
+ <text x="115" y="72" text-anchor="middle" fill="#b89155" font-size="55">♠</text>
+ <text x="115" y="126" text-anchor="middle" fill="#d3b071" font-family="Georgia,serif" font-size="36" font-weight="700">DEALER</text>
+</g>
+<!-- notebook -->
+<g transform="translate(690 380) rotate(12)" filter="url(#shadow)">
+ <rect x="0" y="0" width="500" height="520" rx="18" fill="#d8c9aa"/>
+ <g stroke="#958a75" stroke-width="2" opacity=".6"><path d="M40 85h420M40 145h420M40 205h420M40 265h420M40 325h420M40 385h420"/></g>
+ <g fill="none" stroke="#4a4034" stroke-width="5"><rect x="70" y="95" width="38" height="38"/><rect x="70" y="155" width="38" height="38"/><rect x="70" y="215" width="38" height="38"/><rect x="70" y="275" width="38" height="38"/><rect x="70" y="335" width="38" height="38"/><path d="M78 111l11 12 26-31M78 171l11 12 26-31M78 231l11 12 26-31"/></g>
+ <g fill="#40372e" font-family="Georgia,serif" font-size="38" font-style="italic"><text x="135" y="126">Straight</text><text x="135" y="186">Flush</text><text x="135" y="246">Full House</text><text x="135" y="306">Two Pair</text><text x="135" y="366">Top Pair</text></g>
+ <g stroke="#2c241e" stroke-width="8"><path d="M15 0v520"/></g>
+ <g fill="none" stroke="#3b332b" stroke-width="6"><ellipse cx="12" cy="20" rx="18" ry="12"/><ellipse cx="12" cy="54" rx="18" ry="12"/><ellipse cx="12" cy="88" rx="18" ry="12"/><ellipse cx="12" cy="122" rx="18" ry="12"/><ellipse cx="12" cy="156" rx="18" ry="12"/><ellipse cx="12" cy="190" rx="18" ry="12"/><ellipse cx="12" cy="224" rx="18" ry="12"/><ellipse cx="12" cy="258" rx="18" ry="12"/><ellipse cx="12" cy="292" rx="18" ry="12"/><ellipse cx="12" cy="326" rx="18" ry="12"/><ellipse cx="12" cy="360" rx="18" ry="12"/><ellipse cx="12" cy="394" rx="18" ry="12"/><ellipse cx="12" cy="428" rx="18" ry="12"/><ellipse cx="12" cy="462" rx="18" ry="12"/><ellipse cx="12" cy="496" rx="18" ry="12"/></g>
+</g>
+<!-- pen -->
+<g transform="translate(1010 760) rotate(28)" filter="url(#shadow)"><rect width="300" height="24" rx="12" fill="#1a1714" stroke="#b18a50" stroke-width="5"/><path d="M300 0l48 12-48 12z" fill="#c3a064"/></g>
+<rect width="1254" height="1254" fill="url(#fade)"/>
 </svg>
